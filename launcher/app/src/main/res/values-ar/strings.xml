@@ -92,4 +92,8 @@
         <item quantity="other">%1$d تطبيق</item>
     </plurals>
     <string name="greeting_with_name">%1$s، %2$s</string>
+    <string name="home_toggle_allow">سيطلب التلفاز السماح بتصحيح أخطاء USB: حدّد \"السماح دائمًا\" ثم اضغط سماح</string>
+    <string name="home_toggle_stock_on">تم تشغيل المشغّل الأصلي</string>
+    <string name="home_toggle_stock_off">تم إيقاف المشغّل الأصلي</string>
+    <string name="home_toggle_failed">تعذّر الوصول إلى ADB في التلفاز: فعّل تصحيح أخطاء USB في خيارات المطوّر واقبل الطلب</string>
 </resources>

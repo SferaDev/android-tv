@@ -108,4 +108,8 @@
     <string name="race_live">%1$s · ao vivo</string>
     <string name="race_finished">Bandeira quadriculada</string>
     <string name="last_opened">Aberto %1$s</string>
+    <string name="home_toggle_allow">A TV vai pedir para permitir a depuração USB: marque \"Permitir sempre\" e pressione Permitir</string>
+    <string name="home_toggle_stock_on">Launcher original ativado</string>
+    <string name="home_toggle_stock_off">Launcher original desativado</string>
+    <string name="home_toggle_failed">Não foi possível acessar o ADB da TV: ative a depuração USB nas opções do desenvolvedor e aceite o aviso</string>
 </resources>

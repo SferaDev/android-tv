@@ -93,4 +93,8 @@
         <item quantity="other">%1$dটি অ্যাপ</item>
     </plurals>
     <string name="greeting_with_name">%1$s, %2$s</string>
+    <string name="home_toggle_allow">টিভি USB ডিবাগিংয়ের অনুমতি চাইবে: \"সবসময় অনুমতি দিন\" টিক দিয়ে অনুমতি দিন চাপুন</string>
+    <string name="home_toggle_stock_on">মূল লঞ্চার চালু</string>
+    <string name="home_toggle_stock_off">মূল লঞ্চার বন্ধ</string>
+    <string name="home_toggle_failed">টিভির ADB-তে পৌঁছানো যায়নি: ডেভেলপার অপশনে USB ডিবাগিং চালু করে অনুরোধটি গ্রহণ করুন</string>
 </resources>

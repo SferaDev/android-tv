@@ -145,4 +145,8 @@
     <!-- Cinematic top shelf (cinematic_home): the line under the focused dock app's name; %1$s is when it was
          last opened, e.g. "5 minutes ago" or "yesterday, 9:40 pm". -->
     <string name="last_opened">Last opened %1$s</string>
+    <string name="home_toggle_allow">The TV will ask to allow USB debugging: tick \"Always allow\" and press Allow</string>
+    <string name="home_toggle_stock_on">Stock launcher on</string>
+    <string name="home_toggle_stock_off">Stock launcher off</string>
+    <string name="home_toggle_failed">Could not reach the TV\'s ADB: turn on USB debugging in Developer options and accept the prompt</string>
 </resources>

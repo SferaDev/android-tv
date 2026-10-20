@@ -62,4 +62,8 @@
         <item quantity="other">%1$d แอป</item>
     </plurals>
     <string name="greeting_with_name">%1$s %2$s</string>
+    <string name="home_toggle_allow">ทีวีจะขออนุญาตการแก้ไขข้อบกพร่อง USB: เลือก \"อนุญาตเสมอ\" แล้วกดอนุญาต</string>
+    <string name="home_toggle_stock_on">เปิดลอนเชอร์เดิมแล้ว</string>
+    <string name="home_toggle_stock_off">ปิดลอนเชอร์เดิมแล้ว</string>
+    <string name="home_toggle_failed">เชื่อมต่อ ADB ของทีวีไม่ได้: เปิดการแก้ไขข้อบกพร่อง USB ในตัวเลือกสำหรับนักพัฒนาแล้วยอมรับคำขอ</string>
 </resources>

@@ -108,4 +108,8 @@
     <string name="race_live">%1$s · בשידור חי</string>
     <string name="race_finished">הדגל המשובץ</string>
     <string name="last_opened">נפתח לאחרונה %1$s</string>
+    <string name="home_toggle_allow">הטלוויזיה תבקש לאשר ניפוי באגים ב-USB: סמנו \"אפשר תמיד\" ולחצו אישור</string>
+    <string name="home_toggle_stock_on">מסך הבית המקורי פועל</string>
+    <string name="home_toggle_stock_off">מסך הבית המקורי כבוי</string>
+    <string name="home_toggle_failed">אין חיבור ל-ADB של הטלוויזיה: הפעילו ניפוי באגים ב-USB באפשרויות למפתחים ואשרו את הבקשה</string>
 </resources>

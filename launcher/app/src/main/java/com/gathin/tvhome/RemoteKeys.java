@@ -153,10 +153,27 @@ final class RemoteKeys {
         return id.isEmpty() ? null : id;
     }
 
+    private static final String TOGGLE_HOME = "togglehome:";
+
+    /**
+     * The package behind a "togglehome:" target, which switches that stock launcher on or off instead of opening an
+     * app. Null for a plain package.
+     */
+    static String toggleHomePackage(String target) {
+        if (!target.startsWith(TOGGLE_HOME)) return null;
+        String pkg = target.substring(TOGGLE_HOME.length()).trim();
+        return pkg.isEmpty() ? null : pkg;
+    }
+
     /** Opens an app from a remote button: its TV entry if it has one, else its phone entry. An "input:<id>" target
      *  switches to that TV input (an HDMI port) instead. */
     static void launch(Context ctx, String pkg) {
         if (pkg == null) return;
+        String toggled = toggleHomePackage(pkg);
+        if (toggled != null) {
+            HomeToggle.start(ctx, toggled);
+            return;
+        }
         String inputId = inputId(pkg);
         if (inputId != null) {
             // The same passthrough URI the Inputs menu opens, which the Live TV app handles.

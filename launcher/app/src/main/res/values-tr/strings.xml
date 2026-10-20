@@ -88,4 +88,8 @@
         <item quantity="other">%1$d uygulama</item>
     </plurals>
     <string name="greeting_with_name">%1$s, %2$s</string>
+    <string name="home_toggle_allow">TV, USB hata ayıklamaya izin vermenizi isteyecek: \"Her zaman izin ver\" seçeneğini işaretleyip İzin ver\'e basın</string>
+    <string name="home_toggle_stock_on">Orijinal başlatıcı açık</string>
+    <string name="home_toggle_stock_off">Orijinal başlatıcı kapalı</string>
+    <string name="home_toggle_failed">TV\'nin ADB\'sine ulaşılamadı: Geliştirici seçeneklerinde USB hata ayıklamayı açın ve isteği onaylayın</string>
 </resources>

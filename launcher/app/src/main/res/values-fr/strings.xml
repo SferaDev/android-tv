@@ -88,4 +88,8 @@
         <item quantity="other">%1$d applications</item>
     </plurals>
     <string name="greeting_with_name">%1$s, %2$s</string>
+    <string name="home_toggle_allow">La TV va demander d\'autoriser le débogage USB : cochez \"Toujours autoriser\" puis appuyez sur Autoriser</string>
+    <string name="home_toggle_stock_on">Lanceur d\'origine activé</string>
+    <string name="home_toggle_stock_off">Lanceur d\'origine désactivé</string>
+    <string name="home_toggle_failed">Impossible de joindre l\'ADB de la TV : activez le débogage USB dans les options pour les développeurs et acceptez la demande</string>
 </resources>

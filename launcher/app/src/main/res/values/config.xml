@@ -154,8 +154,9 @@
          HOME_KEY_SERVICE=1; both read this one list, and a theme's config.json can set it too). On Google TV the
          YouTube button sends 190 (KEYCODE_BUTTON_3) to the stock launcher, so it does nothing once launcherx
          is disabled (Chromecast with Google TV, Xiaomi MiTV-AXFR2): 190:com.google.android.youtube.tv brings
-         it back. The KTC LUMIO VISION remote (Realtek Google TV) sends Netflix 191, YouTube 190, Prime Video 195
-         and TL;DR 200. Some remotes send several app buttons as one keycode and tell them apart only by scancode
+         it back. "keycode:togglehome:package" switches that stock launcher on and off over the TV's own ADB
+         (needs USB debugging left on). The KTC LUMIO VISION remote (Realtek Google TV) sends Netflix 191, YouTube 190,
+         Prime Video 195 and TL;DR 200. Some remotes send several app buttons as one keycode and tell them apart only by scancode
          (Sony BRAVIA: YouTube, Prime Video and Disney+ are all keycode 196, scancodes 485, 490 and 491); list those
          as "scan:scancode:package", e.g. scan:490:com.wbd.hbomax, found with `tools/tv.py 'getevent -lt'` (the
          EV_KEY code, in hex). A scancode entry wins over a keycode. In place of a package, "input:<input id>"

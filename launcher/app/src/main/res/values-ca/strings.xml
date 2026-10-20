@@ -103,4 +103,8 @@
     <string name="race_live">%1$s · en directe</string>
     <string name="race_finished">Bandera de quadres</string>
     <string name="last_opened">Obert per últim cop: %1$s</string>
+    <string name="home_toggle_allow">El televisor demanarà permetre la depuració USB: marca \"Permet sempre\" i prem Permet</string>
+    <string name="home_toggle_stock_on">Llançador original activat</string>
+    <string name="home_toggle_stock_off">Llançador original desactivat</string>
+    <string name="home_toggle_failed">No s\'ha pogut accedir a l\'ADB del televisor: activa la depuració USB a les opcions per a desenvolupadors i accepta l\'avís</string>
 </resources>

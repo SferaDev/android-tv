@@ -93,4 +93,8 @@
     <string name="tile_add_to_dock">Lisää telakkaan</string>
     <string name="tile_replace_in_dock">Korvaa toisella sovelluksella</string>
     <string name="dock_edit_pick_place">Valitse telakan paikka tälle sovellukselle ja paina OK. Takaisin peruuttaa.</string>
+    <string name="home_toggle_allow">Televisio kysyy USB-virheenkorjauksen sallimista: valitse \"Salli aina\" ja paina Salli</string>
+    <string name="home_toggle_stock_on">Alkuperäinen käynnistin päällä</string>
+    <string name="home_toggle_stock_off">Alkuperäinen käynnistin pois</string>
+    <string name="home_toggle_failed">Television ADB:hen ei saatu yhteyttä: ota USB-virheenkorjaus käyttöön kehittäjäasetuksista ja hyväksy kehote</string>
 </resources>

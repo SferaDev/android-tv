@@ -145,4 +145,8 @@
     <!-- Cinematic top shelf (cinematic_home): the line under the focused dock app's name; %1$s is when it was
          last opened, e.g. "5 minutes ago" or "yesterday, 9:40 pm". -->
     <string name="last_opened">Последний запуск: %1$s</string>
+    <string name="home_toggle_allow">Телевизор попросит разрешить отладку по USB: отметьте \"Всегда разрешать\" и нажмите Разрешить</string>
+    <string name="home_toggle_stock_on">Стандартный лаунчер включён</string>
+    <string name="home_toggle_stock_off">Стандартный лаунчер выключен</string>
+    <string name="home_toggle_failed">Не удалось подключиться к ADB телевизора: включите отладку по USB в параметрах разработчика и подтвердите запрос</string>
 </resources>

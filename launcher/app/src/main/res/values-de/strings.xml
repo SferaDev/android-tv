@@ -65,4 +65,8 @@
         <item quantity="other">%1$d Apps</item>
     </plurals>
     <string name="greeting_with_name">%1$s, %2$s</string>
+    <string name="home_toggle_allow">Der Fernseher fragt nach USB-Debugging: \"Immer zulassen\" ankreuzen und Zulassen drücken</string>
+    <string name="home_toggle_stock_on">Standard-Launcher an</string>
+    <string name="home_toggle_stock_off">Standard-Launcher aus</string>
+    <string name="home_toggle_failed">ADB des Fernsehers nicht erreichbar: USB-Debugging in den Entwickleroptionen einschalten und die Abfrage bestätigen</string>
 </resources>

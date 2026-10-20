@@ -63,4 +63,8 @@
         <item quantity="other">%1$d 个应用</item>
     </plurals>
     <string name="greeting_with_name">%1$s，%2$s</string>
+    <string name="home_toggle_allow">电视会询问是否允许 USB 调试：勾选“始终允许”并按允许</string>
+    <string name="home_toggle_stock_on">原厂桌面已开启</string>
+    <string name="home_toggle_stock_off">原厂桌面已关闭</string>
+    <string name="home_toggle_failed">无法连接电视的 ADB：请在开发者选项中开启 USB 调试并接受提示</string>
 </resources>
