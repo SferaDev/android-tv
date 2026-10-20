@@ -99,4 +99,8 @@
     <string name="clock_format_system">Systemowy</string>
     <string name="clock_format_12">12-godzinny</string>
     <string name="clock_format_24">24-godzinny</string>
+    <string name="home_toggle_allow">Telewizor poprosi o zgodę na debugowanie USB: zaznacz \"Zawsze zezwalaj\" i naciśnij Zezwól</string>
+    <string name="home_toggle_stock_on">Oryginalny launcher włączony</string>
+    <string name="home_toggle_stock_off">Oryginalny launcher wyłączony</string>
+    <string name="home_toggle_failed">Brak połączenia z ADB telewizora: włącz debugowanie USB w opcjach programisty i zaakceptuj monit</string>
 </resources>

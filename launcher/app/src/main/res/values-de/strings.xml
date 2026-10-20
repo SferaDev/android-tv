@@ -74,4 +74,8 @@
     <string name="clock_format_system">System</string>
     <string name="clock_format_12">12 Stunden</string>
     <string name="clock_format_24">24 Stunden</string>
+    <string name="home_toggle_allow">Der Fernseher fragt nach USB-Debugging: \"Immer zulassen\" ankreuzen und Zulassen drücken</string>
+    <string name="home_toggle_stock_on">Standard-Launcher an</string>
+    <string name="home_toggle_stock_off">Standard-Launcher aus</string>
+    <string name="home_toggle_failed">ADB des Fernsehers nicht erreichbar: USB-Debugging in den Entwickleroptionen einschalten und die Abfrage bestätigen</string>
 </resources>

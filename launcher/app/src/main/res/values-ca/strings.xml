@@ -112,4 +112,8 @@
     <string name="clock_format_system">Sistema</string>
     <string name="clock_format_12">12 hores</string>
     <string name="clock_format_24">24 hores</string>
+    <string name="home_toggle_allow">El televisor demanarà permetre la depuració USB: marca \"Permet sempre\" i prem Permet</string>
+    <string name="home_toggle_stock_on">Llançador original activat</string>
+    <string name="home_toggle_stock_off">Llançador original desactivat</string>
+    <string name="home_toggle_failed">No s\'ha pogut accedir a l\'ADB del televisor: activa la depuració USB a les opcions per a desenvolupadors i accepta l\'avís</string>
 </resources>
