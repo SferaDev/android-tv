@@ -15,6 +15,8 @@ import re
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 FRONT = "README.md"
@@ -48,6 +50,7 @@ def missing(needed, text):
     return [name for name in needed if name not in found]
 
 
+@upstream_readme
 class ReadmeTranslationsTest(unittest.TestCase):
     def test_every_translation_is_found(self):
         # A regex that matches nothing would make the checks below pass for any set of pages.

@@ -7,6 +7,8 @@ import re
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
@@ -67,6 +69,7 @@ class ExampleListsTest(unittest.TestCase):
                          "examples/README.md rows and examples/ folders differ")
         self.assertEqual(len(listed), len(set(listed)), "a folder is listed twice")
 
+    @upstream_readme
     def test_readme_table_has_one_row_per_list(self):
         readme_rows = table_rows(ROOT / "README.md", "| TV | OS |")
         example_rows = table_rows(EXAMPLES / "README.md", "| Folder |")
@@ -76,6 +79,7 @@ class ExampleListsTest(unittest.TestCase):
         example_tvs = sorted(r.split("|")[2].strip() for r in example_rows)
         self.assertEqual(readme_tvs, example_tvs, "the TV column differs between the two tables")
 
+    @upstream_readme
     @unittest.skipUnless(os.environ.get("CLEANYOURTV_STRICT"), "counts are fixed up on merge; strict on main only")
     def test_readme_counts(self):
         text = (ROOT / "README.md").read_text(encoding="utf-8")

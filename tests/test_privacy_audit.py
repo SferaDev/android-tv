@@ -16,6 +16,8 @@ import sys
 import tempfile
 import unittest
 
+from fork_readme import upstream_readme
+
 from tools import privacy
 
 
@@ -331,6 +333,7 @@ class CatalogueTest(unittest.TestCase):
             self.assertTrue(self.privacy.NAME_HINT.search(name), name)
 
 
+@upstream_readme
 class DocumentationTest(unittest.TestCase):
     def test_readme_lists_the_tool_and_what_it_cannot_say(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")

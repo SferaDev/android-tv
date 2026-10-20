@@ -9,6 +9,8 @@ the four dock opacities) come from the same two files.
 """
 import re
 import unittest
+
+from fork_readme import upstream_readme
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -121,6 +123,7 @@ def detail_section(readme_text, summary):
     return readme_text[start:end if end > 0 else len(readme_text)]
 
 
+@upstream_readme
 class ScreenRows(unittest.TestCase):
     """The README against the settings screen it describes."""
 

@@ -14,6 +14,8 @@ Run from the repository root: python3 -m unittest discover -s tests -v
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_home
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -43,6 +45,7 @@ class TestIconOnlyInputsWiring(unittest.TestCase):
                       'Config must accept a theme config.json "icon_only_inputs" override')
         self.assertIn("this.iconOnlyInputs = iconOnlyInputs", CONFIG_JAVA, "Config must store iconOnlyInputs")
 
+    @upstream_home
     def test_main_activity_applies_it_with_the_shared_helper(self):
         self.assertIn("if (cfg.iconOnlyInputs) makeIconOnly((TextView) btnInputs);", MAIN,
                       "MainActivity must make the Inputs pill icon-only with makeIconOnly, as #556 does for "

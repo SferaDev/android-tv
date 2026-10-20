@@ -12,6 +12,8 @@ import re
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_agents
+
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENTS = ROOT / "AGENTS.md"
@@ -62,6 +64,7 @@ def named_paths():
     return found
 
 
+@upstream_agents
 class AgentsPathsTest(unittest.TestCase):
     def test_every_named_path_exists(self):
         ignored = ignored_prefixes()
@@ -83,6 +86,7 @@ class AgentsPathsTest(unittest.TestCase):
             self.assertIn(expected, paths)
 
 
+@upstream_agents
 class AgentsNumbersTest(unittest.TestCase):
     def test_apk_gate_matches_ci(self):
         gate = int(re.search(r'test "\$size" -lt (\d+)', CI.read_text(encoding="utf-8")).group(1))
@@ -116,11 +120,13 @@ class AgentsEntryPointsTest(unittest.TestCase):
                 lines = (ROOT / name).read_text(encoding="utf-8").split("\n")
                 self.assertIn("@AGENTS.md", [l.strip() for l in lines], f"{name} must import AGENTS.md")
 
+    @upstream_agents
     def test_people_docs_point_at_it(self):
         for name in ("README.md", "CONTRIBUTING.md"):
             with self.subTest(file=name):
                 self.assertIn("](AGENTS.md)", (ROOT / name).read_text(encoding="utf-8"))
 
+    @upstream_agents
     def test_cleaning_a_tv_comes_first(self):
         body = text()
         self.assertLess(body.index("PROMPT.md"), body.index("## Repo map"),

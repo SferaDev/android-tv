@@ -11,6 +11,8 @@ import re
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PRESS = ROOT / "docs" / "PRESS.md"
@@ -99,6 +101,7 @@ class PressCountsTest(unittest.TestCase):
         with self.subTest(part="sum"):
             self.assertEqual(country_rows + self.counts[LATAM] + self.counts[ONLINE], self.numbers["total"])
 
+    @upstream_readme
     def test_readme_alt_text_matches_the_list(self):
         alt = re.search(r'and (\d+) more: (\d+) articles from (\d+) countries', README.read_text(encoding="utf-8"))
         self.assertIsNotNone(alt, "the README card alt text no longer states 'and N more: N articles from N countries'")

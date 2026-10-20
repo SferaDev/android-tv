@@ -18,6 +18,8 @@ import sys
 import tempfile
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 STOCK_HOME = "com.google.android.tvlauncher/.MainActivity"
@@ -214,6 +216,7 @@ class Android7DocsTest(unittest.TestCase):
                       "the firmware-verifier case is the other reason an install fails")
         self.assertIn("build-and-install.sh", bullet)
 
+    @upstream_readme
     def test_readme_states_the_launcher_requirement_with_a_pointer(self):
         start = self.readme.index("## The launcher")
         section = self.readme[start:start + 1600]

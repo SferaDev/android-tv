@@ -20,6 +20,8 @@ Run from the repository root: python3 -m unittest discover -s tests -v
 """
 import re
 import unittest
+
+from fork_readme import upstream_readme
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -96,6 +98,7 @@ The scripts never leave the TV without a Home app.
 """
 
 
+@upstream_readme
 class ToolsTableTest(unittest.TestCase):
     def setUp(self):
         self.rows = table_rows(README.read_text(encoding="utf-8"))
