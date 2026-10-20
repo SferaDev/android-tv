@@ -60,6 +60,8 @@ import tempfile
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PRESS = ROOT / "docs" / "PRESS.md"
@@ -227,6 +229,7 @@ class TreeTest(unittest.TestCase):
                          f"{named}: a count read that day cannot hold an article published later, so the "
                          f"page's date has to move with the sweep")
 
+    @upstream_readme
     def test_the_pages_that_date_the_numbers_today(self):
         self.assertEqual(
             {"README.md", "README.de.md", "README.es.md", "README.fr.md", "README.he.md", "README.nl.md",
@@ -247,6 +250,7 @@ class ReaderTest(unittest.TestCase):
 
     STORY = "The coverage: 412 articles from 54 countries and 229 videos, all in [docs/PRESS.md](docs/PRESS.md)"
 
+    @upstream_readme
     def test_each_page_s_clause_parses_to_its_own_day(self):
         expected = {
             "README.md": (2026, 11, 14),

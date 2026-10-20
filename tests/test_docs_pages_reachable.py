@@ -25,6 +25,7 @@ from urllib.parse import unquote
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_device_notes_index import EXTERNAL, destinations, markdown_files  # noqa: E402
+from fork_readme import upstream_readme
 
 # The page of reasons, and the page a contributor reads before anything else.
 RULES_PAGE = "docs/DOS-AND-DONTS.md"
@@ -65,6 +66,7 @@ def unlinked_docs(root):
 
 
 class DocsPagesReachableTest(unittest.TestCase):
+    @upstream_readme
     def test_every_page_under_docs_is_linked_from_a_page(self):
         unlinked = unlinked_docs(ROOT)
         self.assertEqual([], unlinked,

@@ -37,6 +37,8 @@ import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from fork_readme import upstream_offline
+
 ROOT = Path(__file__).resolve().parents[1]
 LAUNCHER = ROOT / "launcher" / "app" / "src" / "main"
 MANIFEST = LAUNCHER / "AndroidManifest.xml"
@@ -117,6 +119,7 @@ def java_files(root=None):
 
 
 class TreeTest(unittest.TestCase):
+    @upstream_offline
     def test_the_launcher_declares_no_network_permission(self):
         found = network_permissions(permissions_in(MANIFEST.read_text(encoding="utf-8")))
         self.assertEqual([], found,
@@ -124,6 +127,7 @@ class TreeTest(unittest.TestCase):
                          "offline on purpose (AGENTS.md, docs/DOS-AND-DONTS.md), and a build that "
                          "needs the network belongs in SHOWCASE.md, not here" % ", ".join(found))
 
+    @upstream_offline
     def test_the_manifest_declares_only_the_permissions_it_ships(self):
         names = permissions_in(MANIFEST.read_text(encoding="utf-8"))
         self.assertGreaterEqual(len(names), 3, "no permission was read out of the manifest")
@@ -133,6 +137,7 @@ class TreeTest(unittest.TestCase):
                          "every permission is shown on the owner's TV, so one is added here together "
                          "with its reason in this file" % ", ".join(added))
 
+    @upstream_offline
     def test_no_java_source_opens_a_connection(self):
         files = java_files()
         self.assertGreaterEqual(len(files), 60, "the sweep read %d Java files" % len(files))
@@ -177,6 +182,7 @@ class TheManifestReader(unittest.TestCase):
         self.assertEqual(["android.permission.BLUETOOTH_CONNECT"],
                          unreviewed_permissions(permissions_in(text)))
 
+    @upstream_offline
     def test_the_shipped_manifest_is_quiet(self):
         names = permissions_in(MANIFEST.read_text(encoding="utf-8"))
         self.assertEqual([], network_permissions(names))

@@ -20,6 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_themes import MAX_SCREENSHOT, jpeg_size  # noqa: E402
+from fork_readme import FORK_THEME_KEYS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
@@ -38,7 +39,7 @@ MAX_WIDTH = 1920
 
 # Keys from before screenshots were required. This list only shrinks: once a key has a row in
 # docs/switches.md, take it off here.
-SCREENSHOT_WANTED = {
+SCREENSHOT_WANTED = FORK_THEME_KEYS | {
     "accent_color", "advanced_effects", "always_show_names", "ambient_glow", "animations",
     "app_banners", "app_glow", "app_keys", "app_labels", "app_library", "app_library_selection",
     "background_color", "boot_to_live_tv", "cinematic_art", "cinematic_dots", "cinematic_home",

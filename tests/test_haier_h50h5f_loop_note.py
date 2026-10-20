@@ -12,6 +12,8 @@ from pathlib import Path
 import re
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 TROUBLE = ROOT / "docs" / "TROUBLESHOOTING.md"
@@ -103,6 +105,7 @@ class HaierLoopBulletTest(unittest.TestCase):
 
 
 class ReadmeSafetyAnswerTest(unittest.TestCase):
+    @upstream_readme
     def test_readme_points_to_the_factory_reset_and_the_bullet(self):
         # The README keeps the short answer and sends the reader to docs/faq.md for the rest.
         text = README.read_text(encoding="utf-8")

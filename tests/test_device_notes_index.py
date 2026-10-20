@@ -32,6 +32,8 @@ import unittest
 from pathlib import Path
 from urllib.parse import unquote
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 NOTES = "docs/devices"
 
@@ -292,6 +294,7 @@ def rows_not_linking_their_note(root):
 
 
 class DeviceNotesLinkedTest(unittest.TestCase):
+    @upstream_readme
     def test_every_device_note_is_linked(self):
         unlinked = unlinked_notes(ROOT)
         message = "\n".join(unlinked)

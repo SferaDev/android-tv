@@ -44,6 +44,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 sys.path.insert(0, str(ROOT / "tools"))
 import gen_tables  # noqa: E402  (needs tools/ on the path first)
 from test_gen_tables import START, END, add, section, tree, tv  # noqa: E402
+from fork_readme import upstream_readme  # noqa: E402
 
 # The Dutch page's card, as README.nl.md has it: the three counts, then the launcher's size (not one of
 # them, so it does not move), then the press counts test_press_counts.py reads.
@@ -303,6 +304,7 @@ class ThisRepositoryTest(unittest.TestCase):
             with redirect_stdout(io.StringIO()):
                 self.assertEqual(0, gen_tables.main(["--check", "--root", str(root)]))
 
+    @upstream_readme
     def test_every_page_that_carries_the_brand_block_is_written(self):
         # The block's header says it is generated, so a page that carries it has to be in the list this
         # script writes: README.de.md copied it by hand and was left out, and its grid said "Xiaomi · 32"

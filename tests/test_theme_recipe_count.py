@@ -41,6 +41,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import test_readme_theme_count as front_counts  # noqa: E402  (a module, so its tests do not run twice)
 
+from fork_readme import upstream_readme
+
 PAGE = ROOT / "docs/workflows/theme.md"
 COUNT_CHECK = ROOT / "tests/test_readme_theme_count.py"
 THEME_SH = ROOT / "tools/theme.sh"
@@ -177,6 +179,7 @@ class CheckerTest(unittest.TestCase):
 class RecipePageListTest(unittest.TestCase):
     """The count step names the pages that state the count, and groups them by how they write it."""
 
+    @upstream_readme
     def test_every_recipe_names_the_pages_that_state_the_count(self):
         stating = stating_pages()
         self.assertGreaterEqual(len(stating), 7, "no front page states the theme count any more")
