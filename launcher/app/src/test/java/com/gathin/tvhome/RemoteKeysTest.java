@@ -74,6 +74,16 @@ public class RemoteKeysTest {
         assertTrue(keys.isEmpty());
     }
 
+    @Test public void toggleHomeTargetKeepsItsPrefixThroughParsing() {
+        Map<Integer, String> keys = parse("192:togglehome:com.google.android.apps.tv.launcherx");
+        assertEquals("com.google.android.apps.tv.launcherx", RemoteKeys.toggleHomePackage(keys.get(192)));
+    }
+
+    @Test public void plainPackageIsNotAToggleHomeTarget() {
+        assertNull(RemoteKeys.toggleHomePackage("com.netflix.ninja"));
+        assertNull(RemoteKeys.toggleHomePackage("togglehome:"));
+    }
+
     @Test public void theLastEntryForAKeycodeWins() {
         Map<Integer, String> keys = parse("190:a.b", "190:c.d");
         assertEquals("c.d", keys.get(190));

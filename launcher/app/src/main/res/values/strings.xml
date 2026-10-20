@@ -158,4 +158,8 @@
     <string name="clock_format_system">System</string>
     <string name="clock_format_12">12-hour</string>
     <string name="clock_format_24">24-hour</string>
+    <string name="home_toggle_allow">The TV will ask to allow USB debugging: tick \"Always allow\" and press Allow</string>
+    <string name="home_toggle_stock_on">Stock launcher on</string>
+    <string name="home_toggle_stock_off">Stock launcher off</string>
+    <string name="home_toggle_failed">Could not reach the TV\'s ADB: turn on USB debugging in Developer options and accept the prompt</string>
 </resources>

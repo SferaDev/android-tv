@@ -79,4 +79,8 @@
     <string name="clock_format_system">Sistem</string>
     <string name="clock_format_12">12-časovni</string>
     <string name="clock_format_24">24-časovni</string>
+    <string name="home_toggle_allow">TV će tražiti dozvolu za USB otklanjanje grešaka: označite \"Uvek dozvoli\" i pritisnite Dozvoli</string>
+    <string name="home_toggle_stock_on">Originalni pokretač je uključen</string>
+    <string name="home_toggle_stock_off">Originalni pokretač je isključen</string>
+    <string name="home_toggle_failed">ADB televizora nije dostupan: uključite USB otklanjanje grešaka u opcijama za programere i prihvatite upit</string>
 </resources>
