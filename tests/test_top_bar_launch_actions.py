@@ -2,6 +2,8 @@
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_home
+
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = ROOT / 'launcher/app/src/main/java/com/gathin/tvhome'
 
@@ -12,11 +14,13 @@ class TopBarLaunchActionsTest(unittest.TestCase):
         self.method = self.source.split('private void addTopBarApps(', 1)[1].split(
             '@Override public void onLibraryUp()', 1)[0]
 
+    @upstream_home
     def test_top_bar_passes_configured_actions_to_tested_selection_policy(self):
         self.assertIn('addTopBarApps(cfg.topBarApps, cfg.launchActions)', self.source)
         self.assertIn('LaunchActions.select(pkg, launchActions, launch,', self.method)
         self.assertIn('button.setOnClickListener(v -> open(new Intent(target)))', self.method)
 
+    @upstream_home
     def test_action_is_package_scoped_resolved_and_does_not_replace_missing_apps(self):
         self.assertIn('LaunchActions.intent(targetPackage, action)', self.method)
         helper = (JAVA / 'LaunchActions.java').read_text()

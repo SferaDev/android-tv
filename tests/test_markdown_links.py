@@ -31,6 +31,8 @@ from functools import lru_cache
 from pathlib import Path
 from urllib.parse import unquote
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 
 # Not part of the documentation: the checkout's git data, the tools venv CI builds before this job
@@ -149,6 +151,7 @@ class RepositoryLinksTest(unittest.TestCase):
         message = "\n".join(f"{page} -> {target}" for page, target in broken)
         self.assertEqual([], broken, "relative links that lead nowhere:\n" + message)
 
+    @upstream_readme
     def test_every_anchor_names_a_section_of_its_page(self):
         dangling = dangling_anchors(ROOT)
         message = "\n".join(f"{page} -> {target}" for page, target in dangling)

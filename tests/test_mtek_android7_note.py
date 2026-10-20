@@ -24,6 +24,7 @@ Run from the repository root: python3 -m unittest discover -s tests -v
 import re
 import unittest
 from pathlib import Path
+from fork_readme import upstream_agents, upstream_home
 
 ROOT = Path(__file__).resolve().parents[1]
 NOTE = ROOT / "docs" / "devices" / "mtek-mk32cs1nb.md"
@@ -114,6 +115,7 @@ class TheBuildStepsMatchTheLauncher(unittest.TestCase):
         self.body = joined(self.page)
         self.java = java_files()
 
+    @upstream_home
     def test_every_api_call_it_replaces_is_still_that_call_in_that_file(self):
         for name, (call, called, replacement) in API_CALLS.items():
             self.assertIn(name, self.java, f"the launcher no longer has {name}")
@@ -150,6 +152,7 @@ class TheNotesClaimsAboutThisBoard(unittest.TestCase):
         self.page = note()
         self.body = joined(self.page)
 
+    @upstream_agents
     def test_the_cvte_stock_launcher_stays_enabled(self):
         agents = joined(AGENTS.read_text(encoding="utf-8"))
         self.assertIn("com.cvte.tv.launcher", agents,
@@ -178,6 +181,7 @@ class TheNotesClaimsAboutThisBoard(unittest.TestCase):
         # The page sends nobody into a factory or test activity from a shell.
         self.assertNotRegex(self.page, r"am start[^\n]*(factory|hkcfac|factorymenu)")
 
+    @upstream_home
     def test_the_inputs_extra_is_the_one_the_launcher_sends(self):
         source = java_files()["MainActivity.java"]
         self.assertIn('putExtra("input"', source,

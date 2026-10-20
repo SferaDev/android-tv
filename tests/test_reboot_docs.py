@@ -28,6 +28,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_markdown_links import markdown_files  # noqa: E402
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 TV = ROOT / "tools" / "tv.py"
 TROUBLE = ROOT / "docs" / "TROUBLESHOOTING.md"
@@ -101,6 +103,7 @@ class EveryPageUsesTheModeTest(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, bullet)
 
+    @upstream_readme
     def test_the_readme_tool_row_names_reboot(self):
         rows = [line for line in page(README).split("\n") if line.startswith("| [`tools/tv.py`]")]
         self.assertEqual(1, len(rows), "the README Tools table needs one tools/tv.py row")
