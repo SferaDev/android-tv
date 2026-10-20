@@ -12,6 +12,8 @@ import re
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 NOTE = ROOT / "docs" / "devices" / "tvision-hub.md"
 TROUBLE = ROOT / "docs" / "TROUBLESHOOTING.md"
@@ -157,6 +159,7 @@ class FireOsLimitTest(unittest.TestCase):
 
 
 class PointersTest(unittest.TestCase):
+    @upstream_readme
     def test_readme_no_longer_promises_a_fire_tv_debloat(self):
         text = flat(README.read_text(encoding="utf-8"))
         self.assertIn("on the 2015 Fire TV Box (Fire OS 5) even that half fails", text)

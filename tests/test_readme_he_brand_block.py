@@ -26,6 +26,8 @@ import re
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 GENERATED = "README.md"
@@ -144,12 +146,14 @@ def page(name, root=ROOT):
 
 
 class HandCopyTest(unittest.TestCase):
+    @upstream_readme
     def test_the_hand_copy_states_what_the_generator_writes(self):
         difference = differences(page(GENERATED), page(HAND))
         self.assertEqual([], difference,
                          "README.he.md is a hand copy of the brand block, and the page it is copied "
                          "from has moved: " + "; ".join(difference))
 
+    @upstream_readme
     def test_both_pages_carry_a_block_to_read(self):
         # A reader that finds nothing would pass the check above for two empty pages.
         for name in (GENERATED, HAND):

@@ -43,6 +43,8 @@ import re
 import unittest
 from pathlib import Path
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 SHOWCASE = ROOT / "SHOWCASE.md"
 README = ROOT / "README.md"
@@ -244,6 +246,7 @@ class ShowcaseProjectCount(unittest.TestCase):
         self.assertEqual(len(counted_at), 1, "expected exactly one 'N projects so far.' line")
         self.assertLess(counted_at[0], headings[0], "the count line belongs above the first section")
 
+    @upstream_readme
     def test_every_page_that_states_the_count_agrees_with_the_rows(self):
         counted = len(project_rows(self.showcase))
         self.assertGreaterEqual(

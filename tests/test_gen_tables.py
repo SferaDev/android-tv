@@ -28,6 +28,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 import gen_tables  # noqa: E402  (needs tools/ on the path first)
 from test_card_font_argument import shadow_dir  # noqa: E402  (a PIL that cannot be imported)
 
+from fork_readme import upstream_readme
+
 START = "<!-- {}:start: generated -->"
 END = "<!-- {}:end -->"
 
@@ -142,10 +144,12 @@ def below_grid(block):
 
 
 class ThisRepositoryTest(unittest.TestCase):
+    @upstream_readme
     def test_running_it_twice_changes_nothing(self):
         once = gen_tables.render(ROOT)
         self.assertEqual(gen_tables.render(ROOT, texts=once), once)
 
+    @upstream_readme
     def test_the_brand_grid_counts_every_folder_once(self):
         readme = gen_tables.render(ROOT)["README.md"]
         block = section(readme, "tv-brands")
@@ -164,6 +168,7 @@ class ThisRepositoryTest(unittest.TestCase):
         self.assertEqual(summary, f"<summary>+{len(bold) + len(plain)} more brands and "
                                   f"{len(names)} projector brands</summary>")
 
+    @upstream_readme
     def test_the_grid_is_the_thirty_brands_with_the_most_lists(self):
         block = section(gen_tables.render(ROOT)["README.md"], "tv-brands")
         self.assertEqual(block[:2], GRID_HEAD)
@@ -179,12 +184,14 @@ class ThisRepositoryTest(unittest.TestCase):
         for brand, query, _ in top:
             self.assertEqual(query, gen_tables.quote(brand, safe=""))
 
+    @upstream_readme
     def test_the_readme_has_no_table_and_the_translation_keeps_its_block(self):
         texts = gen_tables.render(ROOT)
         self.assertFalse(gen_tables.has_markers(texts["README.md"], "tv-table"))
         self.assertIn("README.nl.md", texts)
         self.assertEqual(section(texts["README.nl.md"], "tv-brands"), section(texts["README.md"], "tv-brands"))
 
+    @upstream_readme
     def test_both_tables_are_in_the_same_alphabetical_order(self):
         texts = gen_tables.render(ROOT)
         readme = [r.split(" | ")[0][2:] for r in section(texts["README.nl.md"], "tv-table")[2:]]
@@ -207,6 +214,7 @@ class ThisRepositoryTest(unittest.TestCase):
                 self.assertGreaterEqual(len(rows), 200)
                 self.assertEqual(rows, sorted(rows, key=str.casefold), f"{path}: rows out of order")
 
+    @upstream_readme
     def test_every_folder_has_a_row_in_both_tables(self):
         texts = gen_tables.render(ROOT)
         names = sorted(p.name for p in (ROOT / "examples").iterdir() if p.is_dir())

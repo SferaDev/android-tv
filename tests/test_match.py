@@ -23,6 +23,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import match  # noqa: E402
 
+from fork_readme import upstream_readme
+
 MATCH = ROOT / "tools" / "match.py"
 
 
@@ -414,6 +416,7 @@ class CommandLineTest(MatchCase):
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn(str(ROOT / "examples"), result.stderr)
 
+    @upstream_readme
     def test_the_readme_lists_the_tool(self):
         self.assertIn("[`tools/match.py`](tools/match.py)", (ROOT / "README.md").read_text(encoding="utf-8"))
 

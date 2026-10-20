@@ -14,6 +14,8 @@ from pathlib import Path
 import re
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC = (ROOT / "docs" / "TROUBLESHOOTING.md").read_text(encoding="utf-8")
@@ -100,6 +102,7 @@ class KirkwoodNoteTest(unittest.TestCase):
         self.assertIn("pm enable --user 0 com.google.android.apps.tv.launcherx", self.crash)
         self.assertIn("FATAL EXCEPTION IN SYSTEM PROCESS", self.crash)
 
+    @upstream_readme
     def test_the_readme_clause_covers_both_boxes(self):
         clause = next(line for line in README.splitlines() if "costs phone casting" in line)
         self.assertIn("Google TV Streamer", clause)

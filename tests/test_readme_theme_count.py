@@ -67,6 +67,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 THEMES = ROOT / "themes"
@@ -180,6 +182,7 @@ def claims(text):
 
 
 class ReadmeThemeCountTest(unittest.TestCase):
+    @upstream_readme
     def test_the_count_names_every_theme(self):
         row = themes_row(FRONT.read_text(encoding="utf-8"))
         self.assertIsNotNone(row, "README.md has no `| **Themes** |` feature row any more")
@@ -191,6 +194,7 @@ class ReadmeThemeCountTest(unittest.TestCase):
             claimed, len(shipped),
             f"the Themes row says {claimed} and themes/ holds {len(shipped)}: {', '.join(shipped)}")
 
+    @upstream_readme
     def test_every_front_page_names_the_same_themes(self):
         shipped = theme_folders()
         stating = []

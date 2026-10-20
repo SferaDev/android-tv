@@ -25,6 +25,8 @@ import re
 import unittest
 import xml.etree.ElementTree as ET
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "launcher/app/src/main/res"
@@ -148,6 +150,7 @@ class LocaleConfigTest(unittest.TestCase):
         text = MANIFEST.read_text(encoding="utf-8")
         self.assertIn('android:localeConfig="@xml/locales_config"', text)
 
+    @upstream_readme
     def test_the_readme_names_every_language(self):
         block = languages_block(FRONT.read_text(encoding="utf-8"))
         self.assertTrue(block, "docs/launcher.md has no Languages section")

@@ -50,6 +50,8 @@ import tempfile
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PRESS = ROOT / "docs" / "PRESS.md"
@@ -379,6 +381,7 @@ class PressCountsTest(unittest.TestCase):
         with self.subTest(part="sum"):
             self.assertEqual(country_rows + self.counts.get(LATAM, 0) + self.counts[ONLINE], self.numbers["total"])
 
+    @upstream_readme
     def test_readme_alt_text_matches_the_list(self):
         alt = re.search(r'and (\d+) more: (\d+) articles from (\d+) countries', README.read_text(encoding="utf-8"))
         self.assertIsNotNone(alt, "the README card alt text no longer states 'and N more: N articles from N countries'")
@@ -387,6 +390,7 @@ class PressCountsTest(unittest.TestCase):
         self.assertEqual(countries, self.numbers["countries"], "README alt text and docs/PRESS.md disagree on the country count")
         self.assertEqual(more, self.numbers["total"] - len(logos()), "README alt text and the logos in tools/readme_featured.py disagree on the '+N more'")
 
+    @upstream_readme
     def test_every_readme_card_states_the_same_numbers(self):
         # The card is on every page in STORY_PAGES, and each alt text states the total, the country count
         # and the "+N more" in its own language. It began on README.md, README.nl.md and README.de.md, and
@@ -508,6 +512,7 @@ class FrontPageCoverageTest(unittest.TestCase):
         self.expected = (self.numbers["total"], self.numbers["countries"], len(videos(text)))
         self.pages = card_alt_texts()
 
+    @upstream_readme
     def test_every_page_that_shows_the_card_repeats_the_counts(self):
         # The clause is the page's own copy of the three numbers its card's alt text states, so one page can show
         # a count in the picture and a stale one in prose; the pages come from the card, like the alt-text test, so
@@ -547,6 +552,7 @@ class FrontPageCoverageTest(unittest.TestCase):
                     f"{name} states (articles, countries, videos) {read} in its coverage sentence "
                     f"and docs/PRESS.md holds {self.expected}")
 
+    @upstream_readme
     def test_the_walk_reads_the_sentence_this_file_was_written_for(self):
         # A reader answering () or None for every page would pass nothing above; each page carries three
         # numbers today, and the English one is the page this file's own example is quoted from.
@@ -570,6 +576,7 @@ class FrontPageTotalsTest(unittest.TestCase):
     def setUp(self):
         self.pages = card_alt_texts()
 
+    @upstream_readme
     def test_every_page_states_the_totals_its_card_states(self):
         # The card's alt text is generated from examples/*/tv.json, so it is the copy a regeneration moves;
         # the sentence above it is written by hand, which is how main came to show 387 models in the
@@ -592,6 +599,7 @@ class FrontPageTotalsTest(unittest.TestCase):
                     f"{name} states (TV models, brands) {read} in its story sentence and its card states "
                     f"{card}; tools/gen_tables.py does not rewrite that sentence, so it moves with the card")
 
+    @upstream_readme
     def test_the_pages_with_the_story_but_no_card_state_the_totals_README_states(self):
         # README.pt-BR.md and README.he.md have the story sentence but no card, so the loop above
         # never reads them: README.pt-BR.md was left at 420 models and 108 brands while README.md's
@@ -612,6 +620,7 @@ class FrontPageTotalsTest(unittest.TestCase):
                     f"{name} states (TV models, brands) {read} in its story sentence and "
                     f"README.md's card states {card}; tools/gen_tables.py does not rewrite that sentence")
 
+    @upstream_readme
     def test_the_walk_reads_the_totals_this_file_was_written_for(self):
         # A reader answering () or None for every page would pass the rule above; each page carries two
         # numbers today, and README.md is the page this file's own example is quoted from.

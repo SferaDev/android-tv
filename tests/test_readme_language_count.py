@@ -38,6 +38,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import gen_tables  # noqa: E402  (needs tools/ on the path)
 
+from fork_readme import upstream_readme
+
 RECIPE = ROOT / "docs" / "workflows" / "translation.md"
 
 # The pages that state how many languages the launcher ships, and the word each one states it in. The
@@ -87,6 +89,7 @@ def languages(root=ROOT):
 
 
 class LanguageCountTest(unittest.TestCase):
+    @upstream_readme
     def test_every_page_in_the_table_states_the_count_the_launcher_ships(self):
         shipped = languages()
         for name, word in sorted(LANG_ROW.items()):
