@@ -98,4 +98,8 @@
     <string name="clock_format_system">Système</string>
     <string name="clock_format_12">12 heures</string>
     <string name="clock_format_24">24 heures</string>
+    <string name="home_toggle_allow">La TV va demander d\'autoriser le débogage USB : cochez \"Toujours autoriser\" puis appuyez sur Autoriser</string>
+    <string name="home_toggle_stock_on">Lanceur d\'origine activé</string>
+    <string name="home_toggle_stock_off">Lanceur d\'origine désactivé</string>
+    <string name="home_toggle_failed">Impossible de joindre l\'ADB de la TV : activez le débogage USB dans les options pour les développeurs et acceptez la demande</string>
 </resources>

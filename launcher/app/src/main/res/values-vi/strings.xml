@@ -126,4 +126,8 @@
     <string name="clock_format_system">Hệ thống</string>
     <string name="clock_format_12">12 giờ</string>
     <string name="clock_format_24">24 giờ</string>
+    <string name="home_toggle_allow">TV sẽ hỏi cho phép gỡ lỗi USB: chọn \"Luôn cho phép\" rồi nhấn Cho phép</string>
+    <string name="home_toggle_stock_on">Đã bật trình khởi chạy gốc</string>
+    <string name="home_toggle_stock_off">Đã tắt trình khởi chạy gốc</string>
+    <string name="home_toggle_failed">Không kết nối được ADB của TV: bật gỡ lỗi USB trong Tùy chọn nhà phát triển và chấp nhận lời nhắc</string>
 </resources>
