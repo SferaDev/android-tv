@@ -25,6 +25,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 PRESS = ROOT / "docs" / "workflows" / "press.md"
@@ -110,6 +112,7 @@ class CardScriptOutputTest(unittest.TestCase):
                                     f"{name}'s usage line names {rel}, which the repo does not ship: "
                                     "a reader who follows it writes a new file that nothing links")
 
+    @upstream_readme
     def test_the_card_script_writes_the_picture_the_front_page_shows(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         shown = set(re.findall(r'<img src="(docs/[^"]*card[^"]*)"', readme))

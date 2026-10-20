@@ -38,6 +38,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 PRESS = ROOT / "docs" / "workflows" / "press.md"
@@ -254,6 +256,7 @@ class GenTablesFontTest(unittest.TestCase):
         self.assertIn("Fredoka.ttf", done.stderr, "gen_tables.py does not name the font it could not open")
         self.assertNotIn("Traceback", done.stderr, "gen_tables.py died with a traceback")
 
+    @upstream_readme
     def test_an_existing_font_leaves_the_check_verdict_alone(self):
         # The verdict itself is the branch's business, not this suite's: --check exits 0 where the tables
         # are current (main, whose CI job runs it after merging) and 1 on any branch that adds a list

@@ -11,6 +11,8 @@ import sys
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -118,6 +120,7 @@ class ExampleListsTest(unittest.TestCase):
         except gen_tables.Problem as e:
             self.fail(str(e))
 
+    @upstream_readme
     def test_readme_table_has_one_row_per_list(self):
         # README.md has no TV table of its own any more: it points at examples/README.md and the site's
         # search. A translation that still carries the short table has one row per list.

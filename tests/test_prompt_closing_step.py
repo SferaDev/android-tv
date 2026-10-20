@@ -24,6 +24,8 @@ import re
 import unittest
 from pathlib import Path
 
+from fork_readme import upstream_agents
+
 ROOT = Path(__file__).resolve().parents[1]
 PROMPT = (ROOT / "PROMPT.md").read_text(encoding="utf-8")
 AGENTS = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
@@ -67,6 +69,7 @@ class ClosingStepTest(unittest.TestCase):
         for name, text, needle in self.STEPS:
             yield name, item_with(text, needle)
 
+    @upstream_agents
     def test_every_debugging_toggle_goes_off(self):
         for name, step in self.steps():
             with self.subTest(doc=name):
@@ -74,6 +77,7 @@ class ClosingStepTest(unittest.TestCase):
                     self.assertIn(toggle, step)
                 self.assertIn("authorisations", step)
 
+    @upstream_agents
     def test_the_wireless_debugging_port_is_noted_and_checked_before_the_reboot(self):
         for name, step in self.steps():
             with self.subTest(doc=name):
@@ -83,6 +87,7 @@ class ClosingStepTest(unittest.TestCase):
                 reboot = step.index("reboot", port_check)
                 self.assertIn("before the reboot", step[port_check:reboot + len("reboot")])
 
+    @upstream_agents
     def test_5555_is_checked_after_the_reboot_and_wireless_debugging_stayed_off(self):
         for name, step in self.steps():
             with self.subTest(doc=name):
@@ -91,12 +96,14 @@ class ClosingStepTest(unittest.TestCase):
                 self.assertIn("5555", after)
                 self.assertRegex(after, r"Wireless debugging (?:is )?still off")
 
+    @upstream_agents
     def test_usb_debugging_stays_on_only_while_5555_checks_closed(self):
         for name, step in self.steps():
             with self.subTest(doc=name):
                 self.assertRegex(step, r"USB debugging (?:too )?unless (?:I|the person) asks? to keep it")
                 self.assertRegex(step, r"If 5555 still answers (?:while|with) USB debugging")
 
+    @upstream_agents
     def test_only_the_tool_proves_the_port_closed(self):
         for name, step in self.steps():
             with self.subTest(doc=name):

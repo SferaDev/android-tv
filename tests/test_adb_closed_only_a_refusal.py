@@ -31,6 +31,8 @@ import subprocess
 import sys
 import unittest
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools" / "adb-closed.py"
 README = ROOT / "README.md"
@@ -252,6 +254,7 @@ class TheDocsTest(unittest.TestCase):
         self.assertIn("nothing listened on 127.0.0.1", doc)
         self.assertNotIn("or does not answer", doc)
 
+    @upstream_readme
     def test_the_readme_row_gives_exit_0_for_a_refusal_only(self):
         rows = [line for line in README.read_text(encoding="utf-8").splitlines()
                 if line.startswith("| [`tools/adb-closed.py`]")]

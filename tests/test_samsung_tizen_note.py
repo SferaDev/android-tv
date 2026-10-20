@@ -13,6 +13,8 @@ import re
 from pathlib import Path
 import unittest
 
+from fork_readme import upstream_readme
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PAGE = ROOT / "docs" / "devices" / "samsung-tizen.md"
@@ -61,6 +63,7 @@ class SamsungTizenPageTest(unittest.TestCase):
         self.assertRegex(page(), r"(?i)one set, one firmware",
                          "one owner's report must not read like a platform-wide claim")
 
+    @upstream_readme
     def test_readme_sends_tizen_readers_to_the_page(self):
         text = README.read_text(encoding="utf-8")
         self.assertIn("docs/devices/samsung-tizen.md", text,

@@ -24,6 +24,8 @@ import types
 import unittest
 from unittest import mock
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 VENV_PYTHON = "tools/venv/bin/python"
 
@@ -69,6 +71,7 @@ class PrivacyNextStepTest(unittest.TestCase):
         end = lines.index("", start)
         return [line.strip() for line in lines[start:end]]
 
+    @upstream_readme
     def test_the_write_step_is_the_readme_form(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         found = re.search(r"`(TV_HOST=\S+ tools/venv/bin/python -I tools/privacy\.py)", readme)

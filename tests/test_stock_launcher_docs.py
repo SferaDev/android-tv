@@ -15,6 +15,8 @@ import re
 import unittest
 from pathlib import Path
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parent.parent
 README = ROOT / "README.md"
 SH = ROOT / "launcher" / "build-and-install.sh"
@@ -59,9 +61,11 @@ class Scripts(unittest.TestCase):
 
 
 class Readme(unittest.TestCase):
+    @upstream_readme
     def test_section_is_there(self):
         self.assertIsNotNone(home_section(), "README has no 'How the scripts protect Home' block")
 
+    @upstream_readme
     def test_every_recognised_launcher_is_named(self):
         section = home_section()
         self.assertIsNotNone(section)
@@ -71,6 +75,7 @@ class Readme(unittest.TestCase):
             self.assertIn(pkg, section,
                           f"README's Home block does not name {pkg}, which the install scripts disable")
 
+    @upstream_readme
     def test_the_none_override_is_still_offered(self):
         section = home_section()
         self.assertIsNotNone(section)

@@ -34,6 +34,8 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_drift_check import FAKE_TV  # noqa: E402  (the simulated TV check.py already runs against)
 
+from fork_readme import upstream_readme
+
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
 GUIDE = ROOT / "docs" / "firmware-updates.md"
@@ -211,6 +213,7 @@ class CheckExitCodeTest(unittest.TestCase):
         self.assertEqual(result.stdout, "")
         self.assertEqual([], self.commands_sent())
 
+    @upstream_readme
     def test_the_readme_names_every_code_the_checker_can_return(self):
         self.assertIn("(docs/firmware-updates.md)", "\n".join(readme_section(README.read_text(encoding="utf-8"))))
         section = readme_section(GUIDE.read_text(encoding="utf-8"), JOB)
@@ -223,6 +226,7 @@ class CheckExitCodeTest(unittest.TestCase):
                          "check.py returns %s and the section that hands out the weekly job names %s"
                          % (sorted(codes), sorted(named)))
 
+    @upstream_readme
     def test_the_readme_still_carries_the_weekly_job(self):
         section = readme_section(GUIDE.read_text(encoding="utf-8"), JOB)
         self.assertIsNotNone(section)
