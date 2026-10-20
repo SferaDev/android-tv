@@ -400,11 +400,29 @@ final class RemoteKeys {
         return target != null && inputId(target) == null && target.indexOf('/') > 0;
     }
 
+    private static final String TOGGLE_HOME = "togglehome:";
+
+    /**
+     * The package behind a "togglehome:" target, which switches that stock launcher on or off instead of opening an
+     * app. Null for a plain package.
+     */
+    static String toggleHomePackage(String target) {
+        if (!target.startsWith(TOGGLE_HOME)) return null;
+        String pkg = target.substring(TOGGLE_HOME.length()).trim();
+        return pkg.isEmpty() ? null : pkg;
+    }
+
     /** Opens an app from a remote button: its TV entry if it has one, else its phone entry. An "input:<id>" target
      *  switches to that TV input (an HDMI port) instead, an action word runs that action, and a
      *  "package/.Activity" target opens that activity. */
     static void launch(Context ctx, String pkg) {
-        if (pkg == null || runAction(ctx, pkg)) return;
+        if (pkg == null) return;
+        String toggled = toggleHomePackage(pkg);
+        if (toggled != null) {
+            HomeToggle.start(ctx, toggled);
+            return;
+        }
+        if (runAction(ctx, pkg)) return;
         if (INPUTS.equals(pkg)) {
             // This launcher's own Inputs menu, as InputsRequestActivity opens it: addressed to Home directly, so a
             // vendor input picker that also answers VIEW_INPUTS never turns it into a chooser.

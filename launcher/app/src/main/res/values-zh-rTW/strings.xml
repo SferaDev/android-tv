@@ -97,4 +97,8 @@
     <string name="clock_format_system">系統</string>
     <string name="clock_format_12">12 小時制</string>
     <string name="clock_format_24">24 小時制</string>
+    <string name="home_toggle_allow">電視會詢問是否允許 USB 偵錯：勾選「一律允許」並按允許</string>
+    <string name="home_toggle_stock_on">原廠桌面已開啟</string>
+    <string name="home_toggle_stock_off">原廠桌面已關閉</string>
+    <string name="home_toggle_failed">無法連線至電視的 ADB：請在開發人員選項中開啟 USB 偵錯並接受提示</string>
 </resources>

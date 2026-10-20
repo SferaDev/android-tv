@@ -152,4 +152,8 @@
     <string name="clock_format_system">Sistema</string>
     <string name="clock_format_12">12 horas</string>
     <string name="clock_format_24">24 horas</string>
+    <string name="home_toggle_allow">A TV vai pedir para permitir a depuração USB: marque \"Permitir sempre\" e pressione Permitir</string>
+    <string name="home_toggle_stock_on">Launcher original ativado</string>
+    <string name="home_toggle_stock_off">Launcher original desativado</string>
+    <string name="home_toggle_failed">Não foi possível acessar o ADB da TV: ative a depuração USB nas opções do desenvolvedor e aceite o aviso</string>
 </resources>

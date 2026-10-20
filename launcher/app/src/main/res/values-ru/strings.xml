@@ -155,4 +155,8 @@
     <string name="clock_format_system">Системные</string>
     <string name="clock_format_12">12-часовой</string>
     <string name="clock_format_24">24-часовой</string>
+    <string name="home_toggle_allow">Телевизор попросит разрешить отладку по USB: отметьте \"Всегда разрешать\" и нажмите Разрешить</string>
+    <string name="home_toggle_stock_on">Стандартный лаунчер включён</string>
+    <string name="home_toggle_stock_off">Стандартный лаунчер выключен</string>
+    <string name="home_toggle_failed">Не удалось подключиться к ADB телевизора: включите отладку по USB в параметрах разработчика и подтвердите запрос</string>
 </resources>

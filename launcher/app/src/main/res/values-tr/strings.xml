@@ -97,4 +97,8 @@
     <string name="clock_format_system">Sistem</string>
     <string name="clock_format_12">12 saat</string>
     <string name="clock_format_24">24 saat</string>
+    <string name="home_toggle_allow">TV, USB hata ayıklamaya izin vermenizi isteyecek: \"Her zaman izin ver\" seçeneğini işaretleyip İzin ver\'e basın</string>
+    <string name="home_toggle_stock_on">Orijinal başlatıcı açık</string>
+    <string name="home_toggle_stock_off">Orijinal başlatıcı kapalı</string>
+    <string name="home_toggle_failed">TV\'nin ADB\'sine ulaşılamadı: Geliştirici seçeneklerinde USB hata ayıklamayı açın ve isteği onaylayın</string>
 </resources>

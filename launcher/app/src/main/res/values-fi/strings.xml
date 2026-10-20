@@ -115,4 +115,8 @@
     <string name="clock_format_system">Järjestelmä</string>
     <string name="clock_format_12">12 tuntia</string>
     <string name="clock_format_24">24 tuntia</string>
+    <string name="home_toggle_allow">Televisio kysyy USB-virheenkorjauksen sallimista: valitse \"Salli aina\" ja paina Salli</string>
+    <string name="home_toggle_stock_on">Alkuperäinen käynnistin päällä</string>
+    <string name="home_toggle_stock_off">Alkuperäinen käynnistin pois</string>
+    <string name="home_toggle_failed">Television ADB:hen ei saatu yhteyttä: ota USB-virheenkorjaus käyttöön kehittäjäasetuksista ja hyväksy kehote</string>
 </resources>

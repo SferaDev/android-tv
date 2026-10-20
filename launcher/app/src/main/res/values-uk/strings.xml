@@ -154,4 +154,8 @@
     <string name="clock_format_system">Системний</string>
     <string name="clock_format_12">12-годинний</string>
     <string name="clock_format_24">24-годинний</string>
+    <string name="home_toggle_allow">Телевізор попросить дозволити налагодження через USB: позначте \"Завжди дозволяти\" й натисніть Дозволити</string>
+    <string name="home_toggle_stock_on">Стандартний лаунчер увімкнено</string>
+    <string name="home_toggle_stock_off">Стандартний лаунчер вимкнено</string>
+    <string name="home_toggle_failed">Не вдалося під\'єднатися до ADB телевізора: увімкніть налагодження через USB у параметрах розробника й підтвердьте запит</string>
 </resources>

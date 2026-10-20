@@ -151,4 +151,8 @@
     <string name="clock_format_system">系统</string>
     <string name="clock_format_12">12 小时制</string>
     <string name="clock_format_24">24 小时制</string>
+    <string name="home_toggle_allow">电视会询问是否允许 USB 调试：勾选“始终允许”并按允许</string>
+    <string name="home_toggle_stock_on">原厂桌面已开启</string>
+    <string name="home_toggle_stock_off">原厂桌面已关闭</string>
+    <string name="home_toggle_failed">无法连接电视的 ADB：请在开发者选项中开启 USB 调试并接受提示</string>
 </resources>
