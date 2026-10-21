@@ -28,15 +28,18 @@ final class HomeToggle {
 
     private static void toggle(SelfAdb adb, Context app, String pkg) throws java.io.IOException {
         // One command per shell(): chained pm commands can silently stop after the first.
+        CrashGuard.clearFallback(app);
         boolean disabled = false;
         for (String line : adb.shell("pm list packages -d " + pkg).split("\n")) {
             if (line.trim().equals("package:" + pkg)) disabled = true;
         }
         if (disabled) {
             adb.shell("pm enable --user 0 " + pkg);
+            Reliability.intend(app, pkg, false);
             SelfAdb.toast(app, R.string.home_toggle_stock_on);
         } else {
             adb.shell("pm disable-user --user 0 " + pkg);
+            Reliability.intend(app, pkg, true);
             adb.shell("cmd package set-home-activity --user 0 " + app.getPackageName() + "/"
                     + MainActivity.class.getName());
             SelfAdb.toast(app, R.string.home_toggle_stock_off);

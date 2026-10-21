@@ -429,7 +429,9 @@ public final class SettingsActivity extends Activity {
 
     /** The stock home this launcher replaced, also while it is switched off. */
     private String stockLauncher() {
-        // A launcher switched off with pm disable-user still has its package.
+        String stock = StockLauncher.pick(CrashGuard.homeCandidates(this), getPackageName());
+        if (stock != null) return stock;
+        // A launcher switched off with pm disable-user may be missing from the query.
         for (String known : StockLauncher.KNOWN) {
             try {
                 getPackageManager().getPackageInfo(known, PackageManager.MATCH_DISABLED_COMPONENTS);
