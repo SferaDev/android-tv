@@ -32,6 +32,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.SpannableString;
@@ -39,6 +40,7 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.SoundEffectConstants;
@@ -204,6 +206,12 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private List<AppAdapter.Entry> allRecent = Collections.emptyList();
     private List<HomeCards.Watch> allWatching = Collections.emptyList();
     private List<HomeCards.Game> allGames = Collections.emptyList();
+    /** The last snapshot written or shown, so an unchanged load costs no write; the loader thread's. */
+    private volatile String savedSnapshot;
+    /** A live load has been shown, so a late snapshot must not replace it. */
+    private boolean liveShown;
+    /** The screen came on since Home was last in front: start again from the top. */
+    private boolean wakeToTop;
     /** Items hidden from the Home strips (HiddenItems keys). */
     private Set<String> hidden = new HashSet<>();
     private boolean resumed;
@@ -301,13 +309,18 @@ public class MainActivity extends Activity implements CardRow.Listener {
             handler.post(MainActivity.this::updateWifiLabel);
         }
     };
-    private final IntentFilter packageFilter = new IntentFilter();
-    private final BroadcastReceiver packageReceiver = new BroadcastReceiver() {
+    private final HomeEvents.Listener events = new HomeEvents.Listener() {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            // Updates send REMOVED followed by ADDED; keep the tile until the new APK is ready.
-            if (Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())
-                    && intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) return;
+        public void onWake() {
+            wake();
+        }
+
+        @Override
+        public void onPackagesChanged() {
+            if (!resumed) {
+                rebuildOnResume = true;
+                return;
+            }
             reload(true);
             if (appLibrary != null) appLibrary.refresh();
         }
@@ -399,11 +412,9 @@ public class MainActivity extends Activity implements CardRow.Listener {
         setUpHeader();
         gamesSetup = new GamesSetup(this, tabGames, gamesSetupHost());
 
-        packageFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        packageFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        packageFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        packageFilter.addDataScheme("package");
         timeFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        HomeEvents.setListener(events);
+        showSnapshot();
 
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
@@ -662,6 +673,11 @@ public class MainActivity extends Activity implements CardRow.Listener {
         if (openLauncherSettingsIfAsked(intent)) return;
         if (openInputsIfAsked(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
+        goHomeTop();
+    }
+
+    /** First tab, first card of the first strip, strips scrolled to their start. */
+    private void goHomeTop() {
         rememberedRow = ROW_WATCHING;
         Arrays.fill(rememberedColumns, 0);
         for (RecyclerView row : rows) if (row != null) row.scrollToPosition(0);
@@ -670,14 +686,22 @@ public class MainActivity extends Activity implements CardRow.Listener {
         rebuildOnResume = true;
     }
 
+    /** The TV woke from standby: Home starts over, with fresh rows. */
+    private void wake() {
+        wakeToTop = true;
+        if (!resumed || openPopup != null || cardPrompt != null) return;
+        wakeToTop = false;
+        goHomeTop();
+        keyedSinceResume = false;
+        rebuildHome();
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(packageReceiver, packageFilter, Context.RECEIVER_NOT_EXPORTED);
             registerReceiver(timeReceiver, timeFilter, Context.RECEIVER_NOT_EXPORTED);
         } else {
-            registerReceiver(packageReceiver, packageFilter);
             registerReceiver(timeReceiver, timeFilter);
         }
         updateClockVisibility();
@@ -711,16 +735,11 @@ public class MainActivity extends Activity implements CardRow.Listener {
         if (tab == TAB_GAMES) gamesSetup.startPairing();
         askForListings();
         nowPlaying.start();
-        if (rebuildOnResume) {
-            hidden = HiddenItems.keys(this);
-            tilesReady = false;
-            restoreFocusPending = true;
-            reload(true);
-            HomeData.refresh(this, () -> {
-                if (!isDestroyed()) reload(false);
-            });
+        if (wakeToTop) {
+            wakeToTop = false;
+            goHomeTop();
         }
-        rebuildOnResume = false;
+        if (rebuildOnResume) rebuildHome();
         if (openLiveTvAfterBoot()) return;
         startOnLastInputAfterBoot();
         updateDate();
@@ -749,7 +768,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
 
     /** Android 14 refuses activity starts from a boot receiver, so the switch happens from Home in the foreground. */
     private void startOnLastInputAfterBoot() {
-        if (!StartOnLastInput.enabled(this) || !StartOnLastInput.claimBoot(this)) return;
+        if (!StartOnLastInput.enabled(this) || CrashGuard.inFallback(this) || !StartOnLastInput.claimBoot(this)) return;
         tryLastInput(LAST_INPUT_TRIES);
     }
 
@@ -760,6 +779,17 @@ public class MainActivity extends Activity implements CardRow.Listener {
         loader.execute(() -> {
             if (StartOnLastInput.open(app) != StartOnLastInput.Result.NOT_LISTED_YET || triesLeft <= 1) return;
             handler.postDelayed(() -> tryLastInput(triesLeft - 1), LAST_INPUT_RETRY_MS);
+        });
+    }
+
+    private void rebuildHome() {
+        rebuildOnResume = false;
+        hidden = HiddenItems.keys(this);
+        tilesReady = false;
+        restoreFocusPending = true;
+        reload(true);
+        HomeData.refresh(this, () -> {
+            if (!isDestroyed()) reload(false);
         });
     }
 
@@ -813,9 +843,11 @@ public class MainActivity extends Activity implements CardRow.Listener {
             }
             List<HomeCards.Game> games = gameCards(app, data.games);
             TvData tv = loadTv(app);
+            saveSnapshot(app, recent, watching, games, tv);
             AppAdapter.Entry moonlight = entryFor(app, SteamGames.MOONLIGHT_PACKAGE, byPkg);
             handler.post(() -> {
                 if (isDestroyed()) return;
+                liveShown = true;
                 moonlightIcon = moonlight != null ? moonlight.icon : null;
                 moonlightLabel = moonlight != null ? moonlight.label : null;
                 if (apps) loadedAppsShown(entries);
@@ -830,6 +862,59 @@ public class MainActivity extends Activity implements CardRow.Listener {
                     tilesReady = true;
                     showCardPrompt();
                 }
+            });
+        });
+    }
+
+    /** Writes the strips as just loaded, unless the file already holds them. Runs on the loader thread. */
+    private void saveSnapshot(Context app, List<AppAdapter.Entry> recent, List<HomeCards.Watch> watching,
+                              List<HomeCards.Game> games, TvData tv) {
+        List<String> packages = new ArrayList<>();
+        for (AppAdapter.Entry e : recent) packages.add(e.pkg);
+        List<WatchItem> items = new ArrayList<>();
+        for (HomeCards.Watch w : watching) items.add(w.item);
+        List<SteamGame> steam = new ArrayList<>();
+        for (HomeCards.Game g : games) steam.add(g.game);
+        try {
+            String text = new HomeSnapshot(packages, items, steam, tv.recent).encode();
+            if (text.equals(savedSnapshot)) return;
+            savedSnapshot = text;
+            HomeSnapshot.save(app, text);
+        } catch (org.json.JSONException e) {
+            Log.w("TvHome", "snapshot not saved: " + e);
+        }
+    }
+
+    /** Cold start: the strips as the last load left them, until the live load replaces them. */
+    private void showSnapshot() {
+        Context app = getApplicationContext();
+        loader.execute(() -> {
+            HomeSnapshot snap = HomeSnapshot.load(app);
+            if (snap == null || snap.isEmpty()) return;
+            try {
+                savedSnapshot = snap.encode();
+            } catch (org.json.JSONException e) {
+                return;
+            }
+            Map<String, AppAdapter.Entry> byPkg = new HashMap<>();
+            List<AppAdapter.Entry> recent = new ArrayList<>();
+            for (String pkg : snap.recent) {
+                AppAdapter.Entry e = entryFor(app, pkg, byPkg);
+                if (e != null) recent.add(e);
+            }
+            List<HomeCards.Watch> watching = new ArrayList<>();
+            for (WatchItem item : snap.watching) {
+                AppAdapter.Entry e = entryFor(app, item.pkg, byPkg);
+                if (e != null) watching.add(new HomeCards.Watch(item, e.label, e.banner, e.icon));
+            }
+            List<HomeCards.Game> games = gameCards(app, snap.games);
+            handler.post(() -> {
+                if (isDestroyed() || liveShown) return;
+                allRecent = recent;
+                allWatching = watching;
+                allGames = games;
+                allTv = snap.tv;
+                showLists();
             });
         });
     }
@@ -1526,6 +1611,8 @@ public class MainActivity extends Activity implements CardRow.Listener {
         root.removeCallbacks(showIdleClock);
         resumed = false;
         notificationBell.stop();
+        PowerManager power = getSystemService(PowerManager.class);
+        if (power != null && !power.isInteractive()) wakeToTop = true;
         wallpaperPlayer.stop();
         handler.removeCallbacks(minuteTick);
         hero.pause();
@@ -1543,13 +1630,30 @@ public class MainActivity extends Activity implements CardRow.Listener {
     protected void onStop() {
         super.onStop();
         gamesSetup.stopPairing();
-        unregisterReceiver(packageReceiver);
         unregisterReceiver(timeReceiver);
         handler.removeCallbacks(clockCheck);
         if (stopWatchNext != null) stopWatchNext.run();
         stopWatchNext = null;
         handler.removeCallbacks(watchNextChanged);
         rebuildOnResume = true;
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level >= TRIM_MEMORY_UI_HIDDEN) dropBitmapCaches();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        dropBitmapCaches();
+    }
+
+    /** The decoded pictures come back from the disk cache on demand. */
+    private void dropBitmapCaches() {
+        images.trim();
+        hero.trim();
     }
 
     @Override
@@ -1561,6 +1665,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        HomeEvents.clearListener(events);
         SteamGames.setCoverListener(null);
         handler.removeCallbacks(coversLanded);
         gamesSetup.destroy();

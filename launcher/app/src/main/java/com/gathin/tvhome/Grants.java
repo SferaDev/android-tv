@@ -49,6 +49,14 @@ final class Grants {
         return !granted && !settingsScreen;
     }
 
+    /** Grants over an already open adb session whatever the TV offers no Settings screen for; true if anything was sent. */
+    static boolean apply(Context app, SelfAdb adb) throws IOException {
+        boolean usage = !needsAdb(usageGranted(app), resolves(app, usageIntent()));
+        boolean notifications = !needsAdb(listenerGranted(app), resolves(app, listenerIntent()));
+        grant(adb, app, usage, notifications);
+        return !usage || !notifications;
+    }
+
     private static void grant(SelfAdb adb, Context app, boolean usage, boolean notifications) throws IOException {
         // One command per shell(): chained commands can silently stop after the first.
         if (!usage) adb.shell("appops set " + app.getPackageName() + " GET_USAGE_STATS allow");

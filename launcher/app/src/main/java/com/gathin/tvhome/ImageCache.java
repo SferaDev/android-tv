@@ -46,6 +46,11 @@ final class ImageCache {
         this.ctx = ctx.getApplicationContext();
     }
 
+    /** Drops the decoded pictures; the disk cache refills them. */
+    void trim() {
+        cache.evictAll();
+    }
+
     void close() {
         bg.shutdownNow();
         cache.evictAll();
