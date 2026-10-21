@@ -25,6 +25,12 @@ final class HomeNav {
         return HEADER;
     }
 
+    /** The first row from {@code from} down that has cards; HEADER when none has. */
+    static int firstFrom(int[] lengths, int from) {
+        for (int r = Math.max(0, from); r < lengths.length; r++) if (lengths[r] > 0) return r;
+        return HEADER;
+    }
+
     /** A remembered column clamped to a row of {@code length} cards. */
     static int column(int remembered, int length) {
         return Math.max(0, Math.min(remembered, length - 1));

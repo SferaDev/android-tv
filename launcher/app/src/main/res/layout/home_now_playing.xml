@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Now playing, in the hero beside its text: the cover opens the app, the round buttons control playback. The
+     background is tinted from the cover in code, and MainActivity mirrors the children for Hebrew. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nowPlaying"
+    android:layout_width="@dimen/now_playing_width"
+    android:layout_height="152dp"
+    android:background="@drawable/tile_bg"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:id="@+id/nowPlayingInner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/nowPlayingCover"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:scaleType="centerCrop"
+            android:background="#33FFFFFF"
+            android:foreground="@drawable/card_focus"
+            android:focusable="true"
+            android:clickable="true"
+            android:contentDescription="@string/now_playing" />
+
+        <LinearLayout
+            android:id="@+id/nowPlayingText"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginLeft="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/nowPlayingApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:textColor="#B3FFFFFF"
+                android:textSize="12sp"
+                android:fontFamily="@string/font_medium" />
+
+            <TextView
+                android:id="@+id/nowPlayingTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18sp"
+                android:fontFamily="@string/font_medium" />
+
+            <TextView
+                android:id="@+id/nowPlayingSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:textColor="#CCFFFFFF"
+                android:textSize="14sp"
+                android:fontFamily="@string/font_regular" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:id="@+id/nowPlayingControls"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/nowPlayingPrevious"
+                    style="@style/NowPlayingButton"
+                    android:layout_marginLeft="0dp"
+                    android:src="@drawable/ic_skip_previous"
+                    android:contentDescription="@string/now_playing_previous" />
+
+                <ImageView
+                    android:id="@+id/nowPlayingPlay"
+                    style="@style/NowPlayingButton"
+                    android:src="@drawable/ic_pause"
+                    android:contentDescription="@string/now_playing_play_pause" />
+
+                <ImageView
+                    android:id="@+id/nowPlayingNext"
+                    style="@style/NowPlayingButton"
+                    android:src="@drawable/ic_skip_next"
+                    android:contentDescription="@string/now_playing_next" />
+
+                <ImageView
+                    android:id="@+id/nowPlayingStop"
+                    style="@style/NowPlayingButton"
+                    android:src="@drawable/ic_stop"
+                    android:contentDescription="@string/now_playing_stop" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- How far into the track; hidden for live streams. -->
+    <FrameLayout
+        android:id="@+id/nowPlayingProgress"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_gravity="bottom"
+        android:background="#40FFFFFF"
+        android:visibility="gone">
+
+        <View
+            android:id="@+id/nowPlayingProgressFill"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="#FFFFFFFF" />
+    </FrameLayout>
+</FrameLayout>

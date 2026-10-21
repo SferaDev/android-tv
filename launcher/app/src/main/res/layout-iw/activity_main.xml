@@ -179,10 +179,15 @@
 
             <!-- The focused card, large: its backdrop fills the screen behind this text. The lines around the
                  title have fixed sizes, so only a title of another line count changes the layout. -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/hero_height"
+                android:clipChildren="false">
+
             <LinearLayout
                 android:id="@+id/hero"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/hero_height"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="bottom"
                 android:paddingStart="48dp"
@@ -248,6 +253,15 @@
                     android:textSize="15sp"
                     android:fontFamily="@string/font_regular" />
             </LinearLayout>
+
+            <include
+                layout="@layout/home_now_playing"
+                android:layout_width="@dimen/now_playing_width"
+                android:layout_height="152dp"
+                android:layout_gravity="bottom|left"
+                android:layout_marginLeft="48dp"
+                android:layout_marginBottom="8dp" />
+            </FrameLayout>
 
             <LinearLayout
                 android:id="@+id/sectionWatching"
