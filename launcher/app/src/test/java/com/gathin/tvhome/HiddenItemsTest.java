@@ -43,4 +43,11 @@ public class HiddenItemsTest {
         Set<String> hidden = new HashSet<>(Arrays.asList("game:2", "app:a.b", "watch:c.d/T"));
         assertEquals(new HashSet<>(Arrays.asList("a.b")), HiddenItems.apps(hidden));
     }
+
+    @Test public void visibleKeepsOrderSkipsHiddenAndFillsUpToTheLimit() {
+        List<String> items = Arrays.asList("a", "b", "c", "d", "e");
+        assertEquals(Arrays.asList("a", "c", "d"), HiddenItems.visible(items, s -> s.equals("b"), 3));
+        assertEquals(Arrays.asList("a", "c", "d", "e"), HiddenItems.visible(items, s -> s.equals("b"), 10));
+        assertTrue(HiddenItems.visible(items, s -> true, 10).isEmpty());
+    }
 }
