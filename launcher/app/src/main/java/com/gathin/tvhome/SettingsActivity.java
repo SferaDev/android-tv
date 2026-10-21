@@ -413,7 +413,15 @@ public final class SettingsActivity extends Activity {
     // ---- home ----------------------------------------------------------------------------------------------
 
     private void homePage() {
-        header(R.string.settings_home, 0);
+        header(R.string.settings_home, R.string.settings_home_hint);
+        Config cfg = Config.load(this);
+        int[] names = {R.string.settings_row_recent};
+        for (int i = 0; i < HomeRows.ALL.size(); i++) {
+            String id = HomeRows.ALL.get(i);
+            boolean shown = cfg.rowShown(id);
+            row(getString(names[i]), null, onOff(shown),
+                    () -> changed(UserSettings.put(this, "home_rows", HomeRows.toggle(Config.load(this).homeRows, id, !shown))));
+        }
         label(R.string.settings_hidden);
         List<HiddenItems.Item> hidden = HiddenItems.list(this);
         if (hidden.isEmpty()) row(getString(R.string.settings_hidden_none), null, null, null);
@@ -450,6 +458,9 @@ public final class SettingsActivity extends Activity {
         row(getString(R.string.settings_wallpaper), hasWallpaper ? null : getString(R.string.settings_wallpaper_none),
                 onOff(cfg.wallpaperEnabled && hasWallpaper),
                 () -> changed(UserSettings.put(this, "wallpaper", !cfg.wallpaperEnabled)));
+        // Backdrops come from TVmaze and Steam; the credit TVmaze's licence asks for sits on the switch.
+        row(getString(R.string.settings_online_artwork), getString(R.string.settings_online_artwork_hint),
+                onOff(cfg.onlineArtwork), () -> changed(UserSettings.put(this, "online_artwork", !cfg.onlineArtwork)));
         row(getString(R.string.settings_appearance_theme), getString(R.string.settings_appearance_theme_hint), null,
                 () -> changed(UserSettings.remove(this, "background_color", "wallpaper")));
     }
@@ -458,6 +469,14 @@ public final class SettingsActivity extends Activity {
 
     private void advancedPage() {
         header(R.string.settings_advanced, R.string.settings_advanced_hint);
+        boolean listener = Grants.listenerGranted(this);
+        boolean listenerScreen = Grants.resolves(this, Grants.listenerIntent());
+        access(R.string.settings_listener_access, R.string.settings_listener_access_hint, listener, "listener",
+                listenerScreen ? Grants.listenerIntent() : null);
+        if (!listener && (!listenerScreen || tried.contains("listener"))) {
+            row(getString(R.string.settings_grant_auto), getString(R.string.settings_grant_auto_hint), null,
+                    () -> Grants.grantNow(this, this::render));
+        }
         boolean keys = Grants.serviceEnabled(this, InputKeyService.class) && Grants.serviceEnabled(this, HomeKeyService.class);
         boolean keysScreen = Grants.resolves(this, Grants.accessibilityIntent());
         access(R.string.settings_key_service, R.string.settings_key_service_hint, keys, "keys",
@@ -501,7 +520,8 @@ public final class SettingsActivity extends Activity {
         } else if (granted) {
             click = null;
         } else {
-            click = () -> Grants.enableKeyServicesNow(this, this::render);
+            click = "keys".equals(id) ? () -> Grants.enableKeyServicesNow(this, this::render)
+                    : () -> Grants.grantNow(this, this::render);
         }
         row(getString(titleRes), getString(hintRes),
                 getString(granted ? R.string.settings_granted : R.string.settings_not_granted), click);

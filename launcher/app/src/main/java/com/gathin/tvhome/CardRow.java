@@ -1,0 +1,190 @@
+package com.gathin.tvhome;
+
+import android.graphics.Outline;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewOutlineProvider;
+
+import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
+import androidx.recyclerview.widget.RecyclerView;
+
+/** Focus, D-pad and menu wiring shared by every card on the home screen: the strips and the tab grids. */
+final class CardRow {
+    interface Listener {
+        void onCardFocused(int row, int position);
+
+        /** A D-pad direction on a card. Return true when handled; the activity handles them all. */
+        boolean onCardKey(int row, int position, int keyCode);
+
+        /** Hold OK or the Menu key on a card. */
+        void onCardMenu(int row, int position, View card);
+    }
+
+    static final float FOCUS_SCALE = 1.08f;
+    static final float RADIUS_DP = 12f;
+    private static final float FOCUS_LIFT_DP = 6f;
+
+    /** Hold OK on a card for this long opens its menu, however the remote sends the repeats (tile_menu). */
+    static final long HOLD_OK_MS = 550;
+
+    private CardRow() { }
+
+    static boolean isOkKey(int code) {
+        return code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
+                || code == KeyEvent.KEYCODE_NUMPAD_ENTER || code == KeyEvent.KEYCODE_BUTTON_A;
+    }
+
+    /**
+     * View's own long click misses on some remotes: an IR remote sends its repeats as separate presses, a Bluetooth
+     * one lands them after a rebind. So the card times the hold itself; the UP that follows is eaten so it does not
+     * also open the app.
+     */
+    private static final class HoldOk implements Runnable {
+        final RecyclerView.ViewHolder holder;
+        final int row;
+        final Listener listener;
+        final View card;
+        long down = -1;
+        boolean fired;
+
+        HoldOk(RecyclerView.ViewHolder holder, View card, int row, Listener listener) {
+            this.holder = holder;
+            this.card = card;
+            this.row = row;
+            this.listener = listener;
+        }
+
+        /** True when the event belongs to a hold that opened the menu and must not reach the card. */
+        boolean onKey(KeyEvent event) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (event.getRepeatCount() == 0) {
+                    fired = false;
+                    card.removeCallbacks(this);
+                    down = event.getDownTime();
+                    card.postDelayed(this, HOLD_OK_MS);
+                    return false;
+                }
+                if (fired) return true;
+                if (down >= 0 && event.getEventTime() - down >= HOLD_OK_MS) {
+                    run();
+                    return true;
+                }
+                return false;
+            }
+            card.removeCallbacks(this);
+            down = -1;
+            if (!fired) return false;
+            fired = false;
+            card.setPressed(false);
+            return true;
+        }
+
+        void cancel() {
+            card.removeCallbacks(this);
+            if (down >= 0) fired = true;   // the UP, if it comes back, is eaten rather than opening the card
+            down = -1;
+        }
+
+        @Override
+        public void run() {
+            card.removeCallbacks(this);
+            if (down < 0 || fired) return;
+            fired = true;
+            int pos = holder.getBindingAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION || !card.isFocused() || !card.hasWindowFocus()) return;
+            card.setPressed(false);
+            listener.onCardMenu(row, pos, card);
+        }
+    }
+
+    /** Rounds the card, springs it up a little and shows {@code focusOnly} views while focused, and routes its keys. */
+    static void wire(RecyclerView.ViewHolder holder, View card, int row, Listener listener, boolean animations,
+                     boolean reducedMotion, boolean holdOk, View... focusOnly) {
+        float density = card.getResources().getDisplayMetrics().density;
+        card.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), RADIUS_DP * density);
+            }
+        });
+        card.setClipToOutline(true);
+        SpringForce force = new SpringForce(1f)
+                .setStiffness(reducedMotion ? 1500f : 700f)
+                .setDampingRatio(reducedMotion ? 1f : 0.72f);
+        SpringAnimation sx = new SpringAnimation(card, DynamicAnimation.SCALE_X).setSpring(force);
+        SpringAnimation sy = new SpringAnimation(card, DynamicAnimation.SCALE_Y).setSpring(force);
+        sx.setMinimumVisibleChange(DynamicAnimation.MIN_VISIBLE_CHANGE_SCALE);
+        sy.setMinimumVisibleChange(DynamicAnimation.MIN_VISIBLE_CHANGE_SCALE);
+        HoldOk hold = holdOk ? new HoldOk(holder, card, row, listener) : null;
+        card.setOnKeyListener((v, keyCode, event) -> {
+            if (hold != null && isOkKey(keyCode) && hold.onKey(event)) return true;
+            if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
+            int pos = holder.getBindingAdapterPosition();
+            if (keyCode == KeyEvent.KEYCODE_MENU) {
+                if (pos != RecyclerView.NO_POSITION && event.getRepeatCount() == 0) listener.onCardMenu(row, pos, v);
+                return true;
+            }
+            if (keyCode != KeyEvent.KEYCODE_DPAD_UP && keyCode != KeyEvent.KEYCODE_DPAD_DOWN
+                    && keyCode != KeyEvent.KEYCODE_DPAD_LEFT && keyCode != KeyEvent.KEYCODE_DPAD_RIGHT) return false;
+            return pos == RecyclerView.NO_POSITION || listener.onCardKey(row, pos, keyCode);
+        });
+        card.setOnLongClickListener(v -> {
+            int pos = holder.getBindingAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION) listener.onCardMenu(row, pos, v);
+            return true;
+        });
+        card.setOnFocusChangeListener((v, focused) -> {
+            // Above its neighbours while it grows over them; the lift deepens the shadow.
+            holder.itemView.setTranslationZ(focused ? 1f : 0f);
+            float s = focused && animations ? FOCUS_SCALE : 1f;
+            if (!animations) {
+                v.setScaleX(1f);
+                v.setScaleY(1f);
+            } else {
+                sx.animateToFinalPosition(s);
+                sy.animateToFinalPosition(s);
+            }
+            v.setTranslationZ(focused ? FOCUS_LIFT_DP * density : 0f);
+            for (View label : focusOnly) label.setAlpha(focused ? 1f : 0f);
+            if (!focused && hold != null) hold.cancel();   // a dialog or another window took the remote while OK was held
+            int pos = holder.getBindingAdapterPosition();
+            if (focused && pos != RecyclerView.NO_POSITION) listener.onCardFocused(row, pos);
+        });
+    }
+
+    /** For a rebind: a recycled or rebound view takes the focus state of the card it now shows. */
+    static void syncFocus(View card, boolean animations, View... focusOnly) {
+        A11y.strengthenFocus(card);
+        boolean focused = card.isFocused();
+        float s = focused && animations ? FOCUS_SCALE : 1f;
+        card.setScaleX(s);
+        card.setScaleY(s);
+        for (View label : focusOnly) label.setAlpha(focused ? 1f : 0f);
+    }
+
+    /** What every card adapter shares: its row and listener, the motion settings and stable ids. */
+    abstract static class Adapter<H extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<H> {
+        final int row;
+        final Listener listener;
+        final boolean animations, reducedMotion, tileMenu;
+
+        Adapter(int row, Listener listener, Config cfg) {
+            this.row = row;
+            this.listener = listener;
+            this.animations = cfg.animations;
+            this.reducedMotion = cfg.reducedMotion;
+            this.tileMenu = cfg.tileMenu;
+            setHasStableIds(true);
+        }
+
+        void wire(RecyclerView.ViewHolder holder, View card, View... focusOnly) {
+            CardRow.wire(holder, card, row, listener, animations, reducedMotion, tileMenu, focusOnly);
+        }
+
+        void sync(View card, View... focusOnly) {
+            syncFocus(card, animations, focusOnly);
+        }
+    }
+}

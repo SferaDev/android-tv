@@ -11,10 +11,6 @@
     <string name="live_tv">Televize</string>
     <string name="no_inputs">Nenašly se žádné vstupy</string>
     <string name="more_inputs">Další vstupy</string>
-    <string name="good_morning">Dobré ráno</string>
-    <string name="good_afternoon">Dobré odpoledne</string>
-    <string name="good_evening">Dobrý večer</string>
-    <string name="good_night">Dobrou noc</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Bez připojení</string>
     <string name="not_available">Na této televizi není k dispozici</string>

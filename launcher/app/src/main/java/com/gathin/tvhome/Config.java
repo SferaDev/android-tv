@@ -126,6 +126,8 @@ final class Config {
     /** Reorder button in the top bar (config.xml reorder_button); the Settings long-press menu offers it either way. */
     final boolean reorderButton;
     /** Show the Wi-Fi/Ethernet pill in the top bar (config.xml, show_network_pill). */
+    /** Fetch a large picture for a show or game that has none, from TVmaze or Steam (config.xml, online_artwork). */
+    final boolean onlineArtwork;
     final boolean showNetworkPill;
     /** Show the Inputs pill when the TV has inputs to list (config.xml, show_inputs_pill). */
     final boolean showInputsPill;
@@ -258,6 +260,9 @@ final class Config {
     /** The focus highlight's look (config.xml, glass_style): {@link #GLASS_DEFAULT}, {@link #GLASS_RIM} or {@link #GLASS_HALO}. */
     final String glassStyle;
 
+    /** Data rows shown on Home, top to bottom (config.xml home_rows; ids in {@link HomeRows}). */
+    final List<String> homeRows;
+
     static final String GLOW_RADIAL = "radial", GLOW_HORIZON = "horizon";
     static final String GLASS_DEFAULT = "glass", GLASS_RIM = "rim", GLASS_HALO = "halo";
     /** Show each rotating wallpaper's name from wallpapers/captions.txt (config.xml / theme wallpaper_captions). */
@@ -300,7 +305,9 @@ final class Config {
                    boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean dockBand, boolean cinematicDots, boolean cinematicWhiteFocus, boolean wifiStatusColor, int cinematicScrim, int cinematicArt,
                    Map<String, Set<String>> wallpaperMoods, boolean gamepadPassthrough, boolean consumeVolumeKeys, boolean volumePausesFilter, boolean homeIgnoreChannelKeys, boolean powerOnHome, boolean homeLongPressHome, boolean wifiStatusWarnings, List<String> topBarApps, boolean showGreeting, boolean headerWhite, boolean clockWallpaper, int clockWallpaperDim, boolean clockGlow, String glassStyle, boolean singleRow, boolean dockBandAll, boolean lunarDate, int lunarUtcOffset, boolean dateBelowClock, boolean vpnPill, String locale, boolean powerOnHomeAlways, boolean inputsConnectedOnly, boolean inputsCecStateOnly,
                    int openOnStartNetworkWait, boolean openOnStartOnWake, boolean iconOnlyVpn, String clockFormat, boolean backOpensClock, boolean glowSnap,
-                   boolean settingsKeyClearTask) {
+                   boolean settingsKeyClearTask, boolean onlineArtwork, List<String> homeRows) {
+        this.onlineArtwork = onlineArtwork;
+        this.homeRows = Collections.unmodifiableList(homeRows);
         this.handleViewInputs = handleViewInputs;
         this.tileMenu = tileMenu;
         this.inputKeycodes = inputKeycodes;
@@ -479,6 +486,8 @@ final class Config {
         boolean topMenu = res.getBoolean(R.bool.top_menu);
         boolean launcherSettingsButton = res.getBoolean(R.bool.launcher_settings_button);
         boolean reorderButton = res.getBoolean(R.bool.reorder_button);
+        boolean onlineArtwork = res.getBoolean(R.bool.online_artwork);
+        List<String> homeRows = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.home_rows)));
         boolean showNetworkPill = res.getBoolean(R.bool.show_network_pill);
         boolean showInputsPill = res.getBoolean(R.bool.show_inputs_pill);
         boolean iconOnlyButtons = res.getBoolean(R.bool.icon_only_buttons);
@@ -597,6 +606,8 @@ final class Config {
             topMenu = bool(json, "top_menu", topMenu);
             launcherSettingsButton = bool(json, "launcher_settings_button", launcherSettingsButton);
             reorderButton = bool(json, "reorder_button", reorderButton);
+            onlineArtwork = bool(json, "online_artwork", onlineArtwork);
+            homeRows = stringList(json, "home_rows", homeRows);
             showNetworkPill = bool(json, "show_network_pill", showNetworkPill);
             showInputsPill = bool(json, "show_inputs_pill", showInputsPill);
             iconOnlyButtons = bool(json, "icon_only_buttons", iconOnlyButtons);
@@ -736,7 +747,7 @@ final class Config {
                 Math.max(0, Math.min(90, clockWallpaperDim)), clockGlow, glassStyle, singleRow && dockRow, dockBandAll, lunar, lunarOffset,
                 dateBelowClock, vpnPill, locale, powerOnHomeAlways, inputsConnectedOnly, inputsCecStateOnly,
                 Math.max(0, Math.min(600, openOnStartNetworkWait)), openOnStartOnWake, iconOnlyVpn, clockFormat, backOpensClock, glowSnap,
-                settingsKeyClearTask);
+                settingsKeyClearTask, onlineArtwork, HomeRows.sanitize(homeRows));
     }
 
     /**
@@ -767,6 +778,10 @@ final class Config {
                     r.optString("name", "Grand Prix").trim(), r.optString("place", "").trim(), parsed));
         }
         return races;
+    }
+
+    boolean rowShown(String id) {
+        return homeRows.contains(id);
     }
 
     /** The theme's keys with the TV's on top; null when there is neither. Copies, never changes, its arguments. */

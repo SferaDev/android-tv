@@ -8,6 +8,12 @@ public class GrantsTest {
     private static final String PKG = "com.gathin.tvhome";
     private static final String INPUT = PKG + "/" + PKG + ".InputKeyService";
 
+    @Test public void adbOnlyWithoutASettingsScreen() {
+        assertTrue(Grants.needsAdb(false, false));
+        assertFalse(Grants.needsAdb(false, true));
+        assertFalse(Grants.needsAdb(true, false));
+    }
+
     @Test public void componentListedInLongOrShortForm() {
         assertTrue(Grants.componentListed("x.y/x.y.S:" + INPUT, PKG, PKG + ".InputKeyService"));
         assertTrue(Grants.componentListed(PKG + "/.InputKeyService", PKG, PKG + ".InputKeyService"));
