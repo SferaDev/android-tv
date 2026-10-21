@@ -100,6 +100,8 @@
     <string name="tab_home">Accueil</string>
     <string name="tab_apps">Applications</string>
     <string name="row_watching">Reprendre la lecture</string>
+    <string name="row_games">Jeux récents</string>
+    <string name="tab_games">Jeux</string>
     <string name="row_recent">Applications récentes</string>
     <string name="hide_from_home">Masquer de l\'accueil</string>
     <string name="show_on_home">Afficher sur l\'accueil</string>

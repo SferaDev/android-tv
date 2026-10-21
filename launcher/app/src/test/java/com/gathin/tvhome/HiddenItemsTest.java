@@ -23,6 +23,8 @@ public class HiddenItemsTest {
         assertEquals("watch:com.example.a/Show", HiddenItems.watch("com.example.a", "Show"));
         assertEquals("watch:com.example.a/", HiddenItems.watch("com.example.a", null));
         assertEquals("watchapp:com.example.a", HiddenItems.watchApp("com.example.a"));
+        assertEquals("game:12", HiddenItems.game(new SteamGame(12, "Hades")));
+        assertEquals("game:Steam Big Picture", HiddenItems.game(new SteamGame(0, "Steam Big Picture")));
     }
 
     @Test public void addingAgainMovesToTheEndOnce() {
@@ -123,8 +125,12 @@ public class HiddenItemsTest {
         assertTrue(HiddenItems.same(items, back));
     }
 
-    @Test public void listsApps() {
+    @Test public void filtersGamesAndListsApps() {
         Set<String> hidden = new HashSet<>(Arrays.asList("game:2", "app:a.b", "watch:c.d/T"));
+        List<SteamGame> games = HiddenItems.visible(Arrays.asList(new SteamGame(1, "One"), new SteamGame(2, "Two")),
+                g -> hidden.contains(HiddenItems.game(g)), 10);
+        assertEquals(1, games.size());
+        assertEquals("One", games.get(0).name);
         assertEquals(new HashSet<>(Arrays.asList("a.b")), HiddenItems.apps(hidden));
     }
 

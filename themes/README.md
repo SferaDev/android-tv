@@ -135,6 +135,9 @@ A new key needs one there in the same pull request.
 | `game_day` | string | Each team's next game in the F1 panel's place under the clock ("Minnesota Wild at Dallas Stars", "Puck drop in 2h 18m", "Live now"), rotating every few seconds with the F1 weekend when `race_calendar` is on: the package of an add-on that publishes them, such as the Game Day add-on (`io.github.justinnewman.gameday`). The launcher only reads it and stays offline. Off (empty) unless set |
 | `home_rows` | list of row ids | Fork Home: the data rows shown, top to bottom (`recent_apps` by default); also set on the TV in Settings, Home |
 | `online_artwork` | bool | Fork Home: fetch a large picture for a show (TVmaze) or game (Steam) that has none, cached on disk (`true` by default); `false` makes no request |
+| `gamestream_host` | string | Fork Home: the Sunshine host whose apps fill the Recent games row; empty hides the row. Usually paired on the TV in Settings, Games |
+| `moonlight_host_uuid` | string | Fork Home: override the Moonlight host UUID the games stream from; empty uses what the host reports |
+| `moonlight_host_name` | string | Fork Home: override the Moonlight host name the games stream from; empty uses what the host reports |
 | `handle_view_inputs` | bool | Answer the system input switcher (`VIEW_INPUTS`, what the remote's Input button becomes) with the Inputs menu, for sets whose stock launcher was its only handler (Hisense huangshan); `false` by default so a TV with its own input picker never gets a chooser |
 | `background_color` | `#RRGGBB` | Colour behind everything; black by default |
 | `sky_intensity` | 0 to 100 | Time-of-day backdrop: a dark gradient that follows the clock, 0 hides it (default) |

@@ -74,6 +74,8 @@
     <string name="tab_home">หน้าแรก</string>
     <string name="tab_apps">แอป</string>
     <string name="row_watching">ดูต่อ</string>
+    <string name="row_games">เกมล่าสุด</string>
+    <string name="tab_games">เกม</string>
     <string name="row_recent">แอปล่าสุด</string>
     <string name="hide_from_home">ซ่อนจากหน้าแรก</string>
     <string name="show_on_home">แสดงในหน้าแรก</string>

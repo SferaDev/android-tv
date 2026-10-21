@@ -168,4 +168,6 @@
     <string name="hidden_watch_app">%1$s: усе в «Продовжити перегляд»</string>
     <string name="last_watched">Переглянуто %1$s</string>
     <string name="see_all">Показати всі</string>
+    <string name="row_games">Нещодавні ігри</string>
+    <string name="tab_games">Ігри</string>
 </resources>

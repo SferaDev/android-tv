@@ -75,6 +75,8 @@
     <string name="tab_home">Startseite</string>
     <string name="tab_apps">Apps</string>
     <string name="row_watching">Weiterschauen</string>
+    <string name="row_games">Zuletzt gespielt</string>
+    <string name="tab_games">Spiele</string>
     <string name="row_recent">Zuletzt verwendet</string>
     <string name="hide_from_home">Auf Startseite ausblenden</string>
     <string name="show_on_home">Auf Startseite zeigen</string>

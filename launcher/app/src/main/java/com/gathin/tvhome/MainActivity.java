@@ -60,7 +60,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.Collator;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,9 +77,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Google TV style home: a header with the Home and Apps tabs; on Home a hero for the focused card over its
- * full-bleed backdrop, then strips of cards (continue watching, recent apps); every app on the Apps tab. All D-pad
- * moves between cards are decided here, with HomeNav.
+ * Google TV style home: a header with the Home, Apps and Games tabs; on Home a hero for the focused card over its
+ * full-bleed backdrop, then strips of cards (continue watching, recent apps, games); every app and every game on
+ * the other tabs. All D-pad moves between cards are decided here, with HomeNav.
  */
 public class MainActivity extends Activity implements CardRow.Listener {
 
@@ -99,11 +101,11 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private static final long TIME_VALID_AFTER_MS = 1_735_689_600_000L;
     private static final long STATS_MS = 10_000L;
     /** Home strips, top to bottom; a fixed order so the screen stays predictable. */
-    static final int ROW_WATCHING = 0, ROW_RECENT = 1, ROWS = 2;
-    /** The Apps tab's grid, as a row id for CardRow. */
-    static final int APPS_GRID = 100;
-    private static final int TAB_HOME = 0, TAB_APPS = 1;
-    private static final float RECENT_WIDTH_DP = 130f, WATCH_WIDTH_DP = 240f;
+    static final int ROW_WATCHING = 0, ROW_RECENT = 1, ROW_GAMES = 2, ROWS = 3;
+    /** The tab grids, as row ids for CardRow. */
+    static final int APPS_GRID = 100, GAMES_GRID = 101;
+    private static final int TAB_HOME = 0, TAB_APPS = 1, TAB_GAMES = 2;
+    private static final float RECENT_WIDTH_DP = 130f, WATCH_WIDTH_DP = 240f, GAME_WIDTH_DP = 96f;
     private static final int STRIP_LIMIT = HomeData.ROW_LIMIT;
     private static final int STRIP_POOL = 12;
     /** Left and Right across the tabs show each at once; the content follows when the focus rests. */
@@ -160,8 +162,10 @@ public class MainActivity extends Activity implements CardRow.Listener {
     /** rtl_app_grid (Hebrew): the strips and the grids start at the right. */
     private boolean rtl;
     private int columns;
+    private int gameColumns;
     private TextView tabHome;
     private TextView tabApps;
+    private TextView tabGames;
     private View btnInputs;
     /** config show_inputs_pill: false keeps the Inputs pill hidden even when the TV has inputs. */
     private boolean showInputsPill = true;
@@ -191,13 +195,17 @@ public class MainActivity extends Activity implements CardRow.Listener {
 
     private RowsScrollView homeRows;
     private RecyclerView appsGrid;
+    private RecyclerView gamesGrid;
     private final View[] sections = new View[ROWS];
     private final RecyclerView[] rows = new RecyclerView[ROWS];
     private final int[] rowLengths = new int[ROWS];
+    private GamesSetup gamesSetup;
     private AppAdapter recentAdapter;
     private HomeCards.WatchAdapter watchAdapter;
-    private HomeCards.SeeAllAdapter seeAllApps;
+    private HomeCards.GameAdapter gameAdapter;
+    private HomeCards.SeeAllAdapter seeAllApps, seeAllGames;
     private AppAdapter appsAdapter;
+    private HomeCards.GameAdapter gamesAdapter;
     private ImageCache images;
     private RecyclerView.RecycledViewPool pool;
     /** Apps, strips and banners load here, one job at a time, and post their results to the main thread. */
@@ -207,6 +215,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     /** The strips' cards before hiding, newest first, so a hide or show applies without a reload. */
     private List<AppAdapter.Entry> allRecent = Collections.emptyList();
     private List<HomeCards.Watch> allWatching = Collections.emptyList();
+    private List<HomeCards.Game> allGames = Collections.emptyList();
     /** Items hidden from the Home strips (HiddenItems keys). */
     private Set<String> hidden = new HashSet<>();
     private Runnable stopWatchNext;
@@ -214,7 +223,13 @@ public class MainActivity extends Activity implements CardRow.Listener {
     /** The adb fallback for the listings permission runs once per process, not on every Home. */
     private static boolean listingsFallbackTried;
     private int pendingTab = -1;
+    /** Covers land one by one; the tiles update once a burst of them has settled. */
+    private static final long COVERS_SETTLE_MS = 500;
+    private final Runnable coversLanded = this::refreshCovers;
+    private boolean gameStarting;
     private final Runnable tabSettled = () -> showTab(pendingTab);
+    private Drawable moonlightIcon;
+    private String moonlightLabel;
 
     private Hero hero;
     private int heroRow = -1, heroPosition;
@@ -225,6 +240,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private static int rememberedRow = ROW_WATCHING;
     private static final int[] rememberedColumns = new int[ROWS];
     private static int rememberedTile;
+    private static int rememberedGame;
     /** Put focus back on the remembered card once the data arrives, unless the remote was used meanwhile. */
     private boolean restoreFocusPending;
     private boolean keyedSinceResume;
@@ -402,6 +418,10 @@ public class MainActivity extends Activity implements CardRow.Listener {
         hiddenApps = new HashSet<>(cfg.hiddenApps);
         hidden = HiddenItems.keys(this);
         images = new ImageCache(this);
+        SteamGames.setCoverListener(() -> handler.post(() -> {
+            handler.removeCallbacks(coversLanded);
+            handler.postDelayed(coversLanded, COVERS_SETTLE_MS);
+        }));
 
         hero = new Hero(this, root, images, cfg, rtl, () -> {
             if (heroRow >= 0) prefetchAround(heroRow, heroPosition);
@@ -409,6 +429,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         setUpRows();
         setUpGrids();
         setUpHeader();
+        gamesSetup = new GamesSetup(this, tabGames, gamesSetupHost());
 
         packageFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         packageFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -433,7 +454,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 hero.schedule(defaultHero());
             }
         });
-        showTab(tab);
+        showTab(tab == TAB_GAMES ? TAB_HOME : tab);
         // Not after recreate(): the launch intent survives it and would open the settings again.
         if (savedInstanceState == null && !openLauncherSettingsIfAsked(getIntent())) openInputsIfAsked(getIntent());
     }
@@ -489,23 +510,28 @@ public class MainActivity extends Activity implements CardRow.Listener {
 
     private void setUpRows() {
         homeRows = findViewById(R.id.homeRows);
-        int[] sectionIds = {R.id.sectionWatching, R.id.sectionRecent};
-        int[] rowIds = {R.id.rowWatching, R.id.rowRecent};
-        int[] titleIds = {R.id.titleWatching, R.id.titleRecent};
+        int[] sectionIds = {R.id.sectionWatching, R.id.sectionRecent, R.id.sectionGames};
+        int[] rowIds = {R.id.rowWatching, R.id.rowRecent, R.id.rowGames};
+        int[] titleIds = {R.id.titleWatching, R.id.titleRecent, R.id.titleGames};
         recentAdapter = new AppAdapter(this, ROW_RECENT, this, Math.round(RECENT_WIDTH_DP * density), false, cfg);
         recentAdapter.setInputOpener(this::openInput);
         watchAdapter = new HomeCards.WatchAdapter(ROW_WATCHING, this, images, this::openWatch, cfg);
-        int recentWidth = Math.round(RECENT_WIDTH_DP * density);
-        seeAllApps = new HomeCards.SeeAllAdapter(ROW_RECENT, this, this::seeAll, recentWidth,
+        gameAdapter = new HomeCards.GameAdapter(ROW_GAMES, this, images, g -> startGame(g.game), false, cfg);
+        int recentWidth = Math.round(RECENT_WIDTH_DP * density), gameWidth = Math.round(GAME_WIDTH_DP * density);
+        seeAllApps = new HomeCards.SeeAllAdapter(ROW_RECENT, this, () -> seeAll(TAB_APPS), recentWidth,
                 Math.round(recentWidth * 9f / 16f), R.layout.item_see_all, cfg);
+        seeAllGames = new HomeCards.SeeAllAdapter(ROW_GAMES, this, () -> seeAll(TAB_GAMES), gameWidth,
+                Math.round(gameWidth * 1.5f), -R.layout.item_see_all, cfg);
         // Card view types as they are, so the shared pool keeps telling the kinds apart.
         ConcatAdapter.Config concat = new ConcatAdapter.Config.Builder().setIsolateViewTypes(false)
                 .setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS).build();
-        RecyclerView.Adapter<?>[] adapters = {watchAdapter, new ConcatAdapter(concat, recentAdapter, seeAllApps)};
+        RecyclerView.Adapter<?>[] adapters = {watchAdapter, new ConcatAdapter(concat, recentAdapter, seeAllApps),
+                new ConcatAdapter(concat, gameAdapter, seeAllGames)};
         // One pool for the strips and the grids; each kind of card has its own view type.
         pool = new RecyclerView.RecycledViewPool();
         // The uncapped strips scroll through many cards: keep enough of each strip card to rebind instead of inflate.
         pool.setMaxRecycledViews(-R.layout.item_app, STRIP_POOL);
+        pool.setMaxRecycledViews(-R.layout.item_game, STRIP_POOL);
         for (int r = 0; r < ROWS; r++) {
             sections[r] = findViewById(sectionIds[r]);
             if (rtl) ((TextView) findViewById(titleIds[r])).setGravity(Gravity.RIGHT);
@@ -529,9 +555,16 @@ public class MainActivity extends Activity implements CardRow.Listener {
         appsAdapter = new AppAdapter(this, APPS_GRID, this, inner / columns - Math.round(16 * density), true, cfg);
         appsAdapter.setInputOpener(this::openInput);
         appsGrid.setAdapter(appsAdapter);
-        appsGrid.setItemAnimator(null);
-        appsGrid.setHasFixedSize(true);
-        appsGrid.setRecycledViewPool(pool);
+        gamesGrid = findViewById(R.id.gamesGrid);
+        gameColumns = Math.max(1, inner / Math.round((GAME_WIDTH_DP + 16) * density));
+        gamesGrid.setLayoutManager(gridLayout(gameColumns));
+        gamesAdapter = new HomeCards.GameAdapter(GAMES_GRID, this, images, g -> startGame(g.game), true, cfg);
+        gamesGrid.setAdapter(gamesAdapter);
+        for (RecyclerView grid : new RecyclerView[]{appsGrid, gamesGrid}) {
+            grid.setItemAnimator(null);
+            grid.setHasFixedSize(true);
+            grid.setRecycledViewPool(pool);
+        }
     }
 
     private LinearLayoutManager stripLayout() {
@@ -555,13 +588,15 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private void setUpHeader() {
         tabHome = findViewById(R.id.tabHome);
         tabApps = findViewById(R.id.tabApps);
+        tabGames = findViewById(R.id.tabGames);
         btnInputs = findViewById(R.id.btnInputs);
         btnSettings = findViewById(R.id.btnSettings);
         notificationBell = new NotificationBell(this, findViewById(R.id.btnBell));
         HeaderSearch.bind(this, findViewById(R.id.btnSearch));
         tabHome.setOnClickListener(v -> showTab(TAB_HOME));
         tabApps.setOnClickListener(v -> showTab(TAB_APPS));
-        TextView[] tabs = {tabHome, tabApps};
+        tabGames.setOnClickListener(v -> showTab(TAB_GAMES));
+        TextView[] tabs = {tabHome, tabApps, tabGames};
         for (int i = 0; i < tabs.length; i++) {
             int which = i;
             tabs[i].setOnFocusChangeListener((v, focused) -> {
@@ -603,7 +638,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     }
 
     private View[] headerViews() {
-        return new View[]{tabHome, tabApps, btnInputs, btnWifi, findViewById(R.id.btnSearch), findViewById(R.id.btnBell), btnSettings};
+        return new View[]{tabHome, tabApps, tabGames, btnInputs, btnWifi, findViewById(R.id.btnSearch), findViewById(R.id.btnBell), btnSettings};
     }
 
     /** Left and Right along the header by where the buttons are on screen, so the Hebrew mirror needs nothing else. */
@@ -690,12 +725,17 @@ public class MainActivity extends Activity implements CardRow.Listener {
         promptsPaused = false;
         keyedSinceResume = false;
         notificationBell.start();
+        refreshGamesSetup();
+        if (tab == TAB_GAMES) gamesSetup.startPairing();
         askForListings();
         if (rebuildOnResume) {
             hidden = HiddenItems.keys(this);
             tilesReady = false;
             restoreFocusPending = true;
             reload(true);
+            HomeData.refresh(this, () -> {
+                if (!isDestroyed()) reload(false);
+            });
         }
         rebuildOnResume = false;
         if (openLiveTvAfterBoot()) return;
@@ -752,7 +792,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         loader.execute(() -> {
             List<AppAdapter.Entry> entries = apps ? AppAdapter.load(app, config, shown) : loadedApps;
             loadedApps = entries;
-            HomeData.Rows data = HomeData.load(app);
+            HomeData.Rows data = HomeData.load(app, config);
             Map<String, AppAdapter.Entry> byPkg = new HashMap<>();
             for (AppAdapter.Entry e : entries) if (!byPkg.containsKey(e.pkg)) byPkg.put(e.pkg, e);
             List<AppAdapter.Entry> recent = new ArrayList<>();
@@ -771,11 +811,16 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 AppAdapter.Entry e = entryFor(app, item.pkg, byPkg);
                 if (e != null) watching.add(new HomeCards.Watch(item, e.label, e.banner, e.icon));
             }
+            List<HomeCards.Game> games = gameCards(app, data.games);
+            AppAdapter.Entry moonlight = entryFor(app, SteamGames.MOONLIGHT_PACKAGE, byPkg);
             handler.post(() -> {
                 if (isDestroyed()) return;
+                moonlightIcon = moonlight != null ? moonlight.icon : null;
+                moonlightLabel = moonlight != null ? moonlight.label : null;
                 if (apps) loadedAppsShown(entries);
                 allRecent = recent;
                 allWatching = watching;
+                allGames = games;
                 showLists();
                 if (apps) {
                     tilesReady = true;
@@ -820,6 +865,16 @@ public class MainActivity extends Activity implements CardRow.Listener {
         appsAdapter.setItems(entries, e -> hidden.contains(HiddenItems.app(e.pkg)));
     }
 
+    /** Blocking: checks the cover cache. */
+    private static List<HomeCards.Game> gameCards(Context app, List<SteamGame> games) {
+        List<HomeCards.Game> out = new ArrayList<>();
+        for (SteamGame game : games) {
+            File cover = SteamGames.cover(app, game.appId);
+            out.add(new HomeCards.Game(game, cover != null ? cover.getPath() : null));
+        }
+        return out;
+    }
+
     /** The grid's entry for a package, or a freshly loaded one for an app outside it; null for a hidden app. */
     private AppAdapter.Entry entryFor(Context app, String pkg, Map<String, AppAdapter.Entry> byPkg) {
         AppAdapter.Entry e = byPkg.get(pkg);
@@ -829,7 +884,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         return e;
     }
 
-    /** Fills the strips from the last load, leaving out what the owner hid from Home. */
+    /** Fills the strips and the Games tab from the last load, leaving out what the owner hid from Home. */
     private void showLists() {
         View focused = getCurrentFocus();
         boolean hadContentFocus = focused != null && isInContent(focused);
@@ -837,14 +892,24 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 Integer.MAX_VALUE);
         List<HomeCards.Watch> watching = HiddenItems.visible(allWatching,
                 w -> HiddenItems.watchHidden(hidden, w.item), STRIP_LIMIT);
+        List<HomeCards.Game> games = HiddenItems.visible(allGames, g -> hidden.contains(HiddenItems.game(g.game)),
+                Integer.MAX_VALUE);
         recentAdapter.setItems(recent, e -> false);
         seeAllApps.setShown(!recent.isEmpty());
+        seeAllGames.setShown(!games.isEmpty());
         watchAdapter.setItems(watching);
+        gameAdapter.setItems(games, g -> false);
+        Collator collator = Collator.getInstance();
+        collator.setStrength(Collator.SECONDARY);
+        gamesAdapter.setItems(GameShelf.alphabetical(allGames, g -> g.game.name, collator),
+                g -> hidden.contains(HiddenItems.game(g.game)));
         appsAdapter.notifyDataSetChanged();
         // A strip switched off in Settings, Home counts as empty, so it hides and focus skips it.
         rowLengths[ROW_WATCHING] = cfg.rowShown(HomeRows.CONTINUE_WATCHING) ? watching.size() : 0;
         rowLengths[ROW_RECENT] = cfg.rowShown(HomeRows.RECENT_APPS) && !recent.isEmpty() ? recent.size() + 1 : 0;
+        rowLengths[ROW_GAMES] = cfg.rowShown(HomeRows.GAMES) && !games.isEmpty() ? games.size() + 1 : 0;
         for (int r = 0; r < ROWS; r++) sections[r].setVisibility(rowLengths[r] > 0 ? View.VISIBLE : View.GONE);
+        if (tab == TAB_GAMES) showTab(TAB_GAMES);
 
         boolean restore = restoreFocusPending && !keyedSinceResume && openPopup == null && cardPrompt == null;
         // A card that vanished in the update (the list changed under it) takes focus with it: put it back.
@@ -859,20 +924,80 @@ public class MainActivity extends Activity implements CardRow.Listener {
         }
     }
 
+    /** The game tiles again with the covers that have landed since the last load. */
+    private void refreshCovers() {
+        List<HomeCards.Game> games = allGames;
+        Context app = getApplicationContext();
+        loader.execute(() -> {
+            List<SteamGame> steam = new ArrayList<>();
+            for (HomeCards.Game g : games) steam.add(g.game);
+            List<HomeCards.Game> updated = gameCards(app, steam);
+            handler.post(() -> {
+                if (isDestroyed() || allGames != games) return;
+                allGames = updated;
+                showLists();
+            });
+        });
+    }
+
+    // ---- game streaming setup -------------------------------------------------------------------
+
+    private GamesSetup.Host gamesSetupHost() {
+        return new GamesSetup.Host() {
+            @Override public boolean shown() {
+                return tab == TAB_GAMES;
+            }
+
+            @Override public boolean hasGames() {
+                return !allGames.isEmpty();
+            }
+
+            @Override public boolean resumed() {
+                return resumed;
+            }
+
+            @Override public Config config() {
+                return cfg;
+            }
+
+            @Override public void hostChanged() {
+                cfg = Config.load(MainActivity.this);
+                if (!cfg.gamestreamHost.isEmpty()) return;
+                allGames = Collections.emptyList();
+                showLists();
+            }
+
+            @Override public void reload() {
+                if (!isDestroyed()) MainActivity.this.reload(false);
+            }
+
+            @Override public void focusContent() {
+                MainActivity.this.focusContent();
+            }
+        };
+    }
+
+    /** The games grid, or the setup panel while there are no games. */
+    private void refreshGamesSetup() {
+        gamesGrid.setVisibility(tab == TAB_GAMES && !allGames.isEmpty() ? View.VISIBLE : View.GONE);
+        gamesSetup.refresh();
+    }
+
     private boolean isInContent(View v) {
         for (View p = v; p != null; p = p.getParent() instanceof View ? (View) p.getParent() : null) {
-            if (p == homeRows || p == appsGrid) return true;
+            if (p == homeRows || p == appsGrid || p == gamesGrid || p == gamesSetup.view()) return true;
         }
         return false;
     }
 
-    /** The Recent apps strip's See all card: the Apps tab, with the focus on its first card. */
-    private void seeAll() {
-        rememberedTile = 0;
+    /** A strip's See all card: that tab, with the focus on its first card. */
+    private void seeAll(int which) {
+        if (which == TAB_APPS) rememberedTile = 0;
+        else rememberedGame = 0;
         // Hiding Home with the focus in it drops the focus on the Home tab, whose settle timer then reopens Home.
-        tabApps.requestFocus();
-        showTab(TAB_APPS);
-        appsGrid.scrollToPosition(0);
+        (which == TAB_APPS ? tabApps : tabGames).requestFocus();
+        showTab(which);
+        (which == TAB_APPS ? appsGrid : gamesGrid).scrollToPosition(0);
         focusContent();
     }
 
@@ -887,6 +1012,58 @@ public class MainActivity extends Activity implements CardRow.Listener {
             if (app != null) open(app);
             else Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /** Every game starts here, from the strip and from the Games tab; picks while one is starting are ignored. */
+    private void startGame(SteamGame game) {
+        if (gameStarting) return;
+        gameStarting = true;
+        Config config = cfg;
+        Toast.makeText(this, getString(R.string.game_starting, game.name, SteamGames.hostLabel(config)),
+                Toast.LENGTH_SHORT).show();
+        Context app = getApplicationContext();
+        new Thread(() -> {
+            GameStart.Result result;
+            try {
+                result = SteamGames.prepareStart(app, config, game);
+            } catch (InterruptedException e) {
+                result = new GameStart.Result(GameStart.Outcome.UNREACHABLE, null, null, null, null);
+            }
+            GameStart.Result done = result;
+            handler.post(() -> gameStartChecked(config, game, done));
+        }, "game-start").start();
+    }
+
+    private void gameStartChecked(Config config, SteamGame picked, GameStart.Result result) {
+        gameStarting = false;
+        String host = SteamGames.hostLabel(config);
+        String message;
+        switch (result.outcome) {
+            case START:
+                SteamGame game = new SteamGame(result.target.id, result.target.title);
+                try {
+                    startActivity(SteamGames.launchIntent(config, game));
+                    SteamGames.recordLaunch(this, game);
+                    return;
+                } catch (Exception e) {
+                    message = getString(R.string.not_available);
+                }
+                break;
+            case GONE:
+                message = getString(R.string.game_gone, picked.name, host);
+                break;
+            case NOT_CLOSED:
+                message = getString(R.string.game_not_closed,
+                        result.running != null ? result.running : getString(R.string.game_running_app), host);
+                break;
+            case UNPAIRED:
+                message = getString(R.string.game_unpaired, host);
+                break;
+            default:
+                message = getString(R.string.game_host_unreachable, host);
+                break;
+        }
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     // ---- hero and backdrop -----------------------------------------------------------------------
@@ -904,6 +1081,12 @@ public class MainActivity extends Activity implements CardRow.Listener {
         if (row == ROW_RECENT && position < recentAdapter.getItemCount()) {
             AppAdapter.Entry e = recentAdapter.entryAt(position);
             return new Hero.Item("a" + e.pkg, e.label, null, null, e.icon, null, copy(e.banner != null ? e.banner : e.icon));
+        }
+        if (row == ROW_GAMES && position < gameAdapter.getItemCount()) {
+            HomeCards.Game g = gameAdapter.gameAt(position);
+            Hero.Item h = new Hero.Item("g" + g.game.name, g.game.name, null, moonlightLabel, moonlightIcon, g.cover, null);
+            h.gameName = g.game.name;
+            return h;
         }
         return null;
     }
@@ -958,6 +1141,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private void selectTab(int which) {
         tabHome.setSelected(which == TAB_HOME);
         tabApps.setSelected(which == TAB_APPS);
+        tabGames.setSelected(which == TAB_GAMES);
     }
 
     private void showTab(int which) {
@@ -967,23 +1151,30 @@ public class MainActivity extends Activity implements CardRow.Listener {
         tab = which;
         // TalkBack does not otherwise say that the page changed.
         if (entering) selectedTab().announceForAccessibility(selectedTab().getText());
+        if (which != TAB_GAMES) gamesSetup.stopPairing();
+        else if (entering) gamesSetup.enter();
         homeRows.setVisibility(which == TAB_HOME ? View.VISIBLE : View.GONE);
         appsGrid.setVisibility(which == TAB_APPS ? View.VISIBLE : View.GONE);
+        refreshGamesSetup();
         selectTab(which);
         if (which != TAB_HOME) hero.fade(0f);
         else hero.dim(homeRows.getScrollY() > 0);
     }
 
     private TextView selectedTab() {
-        return tab == TAB_APPS ? tabApps : tabHome;
+        return tab == TAB_APPS ? tabApps : tab == TAB_GAMES ? tabGames : tabHome;
     }
 
     /** Down from the header, or back from an app: the remembered card of the open tab, or the tab when there is none. */
     private void focusContent() {
-        if (tab == TAB_APPS) {
-            int count = appsAdapter.getItemCount();
-            if (count == 0) selectedTab().requestFocus();
-            else focusIn(appsGrid, Math.max(0, Math.min(rememberedTile, count - 1)));
+        if (tab == TAB_APPS || tab == TAB_GAMES) {
+            boolean apps = tab == TAB_APPS;
+            int count = apps ? appsAdapter.getItemCount() : gamesAdapter.getItemCount();
+            int remembered = apps ? rememberedTile : rememberedGame;
+            if (!apps && gamesSetup.view().getVisibility() == View.VISIBLE) {
+                if (!gamesSetup.focusFirst()) selectedTab().requestFocus();
+            } else if (count == 0) selectedTab().requestFocus();
+            else focusIn(apps ? appsGrid : gamesGrid, Math.max(0, Math.min(remembered, count - 1)));
             return;
         }
         int row = HomeNav.restoreRow(rowLengths, rememberedRow);
@@ -1014,6 +1205,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
 
     private int rowOf(RecyclerView list) {
         if (list == appsGrid) return APPS_GRID;
+        if (list == gamesGrid) return GAMES_GRID;
         for (int r = 0; r < ROWS; r++) if (rows[r] == list) return r;
         return ROW_WATCHING;
     }
@@ -1022,6 +1214,10 @@ public class MainActivity extends Activity implements CardRow.Listener {
     public void onCardFocused(int row, int position) {
         if (row == APPS_GRID) {
             rememberedTile = position;
+            return;
+        }
+        if (row == GAMES_GRID) {
+            rememberedGame = position;
             return;
         }
         rememberedRow = row;
@@ -1051,17 +1247,19 @@ public class MainActivity extends Activity implements CardRow.Listener {
         boolean left = keyCode == KeyEvent.KEYCODE_DPAD_LEFT;
         boolean horizontal = left || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT;
         boolean down = keyCode == KeyEvent.KEYCODE_DPAD_DOWN;
-        if (row == APPS_GRID) {
-            int count = appsAdapter.getItemCount();
+        if (row == APPS_GRID || row == GAMES_GRID) {
+            boolean apps = row == APPS_GRID;
+            int count = apps ? appsAdapter.getItemCount() : gamesAdapter.getItemCount();
+            int cols = apps ? columns : gameColumns;
             int target;
             if (horizontal) {
-                if (GridNavigation.atHorizontalEdge(position, count, columns, rtl, left)) return true;
+                if (GridNavigation.atHorizontalEdge(position, count, cols, rtl, left)) return true;
                 target = left != rtl ? position - 1 : position + 1;
             } else {
-                target = HomeNav.gridVertical(position, count, columns, down);
+                target = HomeNav.gridVertical(position, count, cols, down);
             }
             if (target == HomeNav.HEADER) selectedTab().requestFocus();
-            else if (target != position) focusIn(appsGrid, target);
+            else if (target != position) focusIn(apps ? appsGrid : gamesGrid, target);
             else return true;
             click(keyCode);
             return true;
@@ -1096,12 +1294,13 @@ public class MainActivity extends Activity implements CardRow.Listener {
 
     // ---- hide from Home ---------------------------------------------------------------------------
 
-    /** Hold OK or Menu on a card: hide it from Home (or show it again from the Apps tab). */
+    /** Hold OK or Menu on a card: hide it from Home (or show it again from the Apps and Games tabs). */
     @Override
     public void onCardMenu(int row, int position, View card) {
         if (openPopup != null) return;   // View's own long click got there first
         // See all has no menu.
         if (row == ROW_RECENT && position >= recentAdapter.getItemCount()) return;
+        if (row == ROW_GAMES && position >= gameAdapter.getItemCount()) return;
         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout items = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (220 * density));
@@ -1111,11 +1310,14 @@ public class MainActivity extends Activity implements CardRow.Listener {
             // Some firmware has no App info page at all; a row that only toasts "can't open" helps nobody.
             Intent info = SystemSettings.appInfo(this, e.pkg);
             if (info != null) addSettingsMenuRow(items, popup, getString(R.string.library_app_info), () -> open(info));
-        } else {
+        } else if (row == ROW_WATCHING) {
             HomeCards.Watch w = watchAdapter.watchAt(position);
             addHideToggle(items, popup, HiddenItems.watchEntry(w.item), HiddenItems.watchLabel(w.item));
             addSettingsMenuRow(items, popup, getString(R.string.hide_all_from, w.appLabel),
                     () -> setHidden(HiddenItems.watchApp(w.item.pkg), w.appLabel, true));
+        } else {
+            HomeCards.Game g = (row == ROW_GAMES ? gameAdapter : gamesAdapter).gameAt(position);
+            addHideToggle(items, popup, HiddenItems.game(g.game), g.game.name);
         }
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popup.setWidth(Math.max((int) (220 * density), panel.getMeasuredWidth()));
@@ -1148,7 +1350,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     @Override
     @SuppressWarnings("deprecation")
     public void onBackPressed() {
-        // Apps goes back to Home; Home itself goes nowhere, unless back_opens_clock is on.
+        // Apps and Games go back to Home; Home itself goes nowhere, unless back_opens_clock is on.
         if (tab == TAB_HOME) {
             if (backOpensClock) startActivity(new Intent(this, ClockActivity.class));
             return;
@@ -1198,6 +1400,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         wallpaperPlayer.stop();
         handler.removeCallbacks(minuteTick);
         hero.pause();
+        gamesSetup.pause();
         stopStats();
         if (lamp != null) lamp.stop();
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
@@ -1209,6 +1412,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     @Override
     protected void onStop() {
         super.onStop();
+        gamesSetup.stopPairing();
         unregisterReceiver(packageReceiver);
         unregisterReceiver(timeReceiver);
         handler.removeCallbacks(clockCheck);
@@ -1228,6 +1432,9 @@ public class MainActivity extends Activity implements CardRow.Listener {
     protected void onDestroy() {
         super.onDestroy();
         RemoteKeys.release(this);
+        SteamGames.setCoverListener(null);
+        handler.removeCallbacks(coversLanded);
+        gamesSetup.destroy();
         wallpaperPlayer.close();
         loader.shutdownNow();
         hero.close();

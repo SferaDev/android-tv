@@ -171,6 +171,11 @@ final class Config {
     final int[] inputKeycodes;
     /** Remote buttons that open an app, "keycode:package" or "KEYCODE_NAME:package" (config.xml app_keys). */
     final List<String> appKeys;
+    /** Address of the Sunshine/GameStream host whose apps fill the Recent games row; empty turns the row off. */
+    final String gamestreamHost;
+    /** Overrides for the Moonlight host the games stream from; empty uses what the host reports (config.xml moonlight_host_*). */
+    final String moonlightHostUuid;
+    final String moonlightHostName;
     /** Whether the key services request key filtering (config.xml or theme key_filter); false keeps key
      *  auto-repeat working on firmware whose AccessibilityInputFilter drops repeats (TCL Android 12). */
     final boolean keyFilter;
@@ -292,7 +297,11 @@ final class Config {
                    boolean keyFilter, boolean dockGlass, String glowStyle, boolean wallpaperCaptions,
                    boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean dockBand, boolean cinematicDots, boolean cinematicWhiteFocus, boolean wifiStatusColor, int cinematicScrim, int cinematicArt,
                    Map<String, Set<String>> wallpaperMoods, boolean gamepadPassthrough, boolean consumeVolumeKeys, boolean powerOnHome, boolean homeLongPressHome, boolean wifiStatusWarnings, List<String> topBarApps, boolean showGreeting, boolean headerWhite, boolean clockWallpaper, int clockWallpaperDim, boolean clockGlow, String glassStyle, boolean singleRow, boolean dockBandAll, boolean lunarDate, int lunarUtcOffset, boolean dateBelowClock, boolean vpnPill, String locale, boolean powerOnHomeAlways, boolean inputsConnectedOnly,
-                   int openOnStartNetworkWait, boolean iconOnlyVpn, String clockFormat, boolean backOpensClock, boolean onlineArtwork, List<String> homeRows) {
+                   int openOnStartNetworkWait, boolean iconOnlyVpn, String clockFormat, boolean backOpensClock, boolean onlineArtwork,
+                   String gamestreamHost, String moonlightHostUuid, String moonlightHostName, List<String> homeRows) {
+        this.gamestreamHost = gamestreamHost;
+        this.moonlightHostUuid = moonlightHostUuid;
+        this.moonlightHostName = moonlightHostName;
         this.onlineArtwork = onlineArtwork;
         this.homeRows = Collections.unmodifiableList(homeRows);
         this.handleViewInputs = handleViewInputs;
@@ -468,6 +477,9 @@ final class Config {
         boolean reorderButton = res.getBoolean(R.bool.reorder_button);
         boolean onlineArtwork = res.getBoolean(R.bool.online_artwork);
         List<String> homeRows = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.home_rows)));
+        String gamestreamHost = res.getString(R.string.gamestream_host).trim();
+        String hostUuid = res.getString(R.string.moonlight_host_uuid).trim();
+        String hostName = res.getString(R.string.moonlight_host_name).trim();
         boolean showNetworkPill = res.getBoolean(R.bool.show_network_pill);
         boolean showInputsPill = res.getBoolean(R.bool.show_inputs_pill);
         boolean iconOnlyButtons = res.getBoolean(R.bool.icon_only_buttons);
@@ -582,6 +594,9 @@ final class Config {
             reorderButton = bool(json, "reorder_button", reorderButton);
             onlineArtwork = bool(json, "online_artwork", onlineArtwork);
             homeRows = stringList(json, "home_rows", homeRows);
+            gamestreamHost = string(json, "gamestream_host", gamestreamHost).trim();
+            hostUuid = string(json, "moonlight_host_uuid", hostUuid);
+            hostName = string(json, "moonlight_host_name", hostName);
             showNetworkPill = bool(json, "show_network_pill", showNetworkPill);
             showInputsPill = bool(json, "show_inputs_pill", showInputsPill);
             iconOnlyButtons = bool(json, "icon_only_buttons", iconOnlyButtons);
@@ -715,7 +730,7 @@ final class Config {
                 consumeVolumeKeys, powerOnHome, homeLongPressHome, wifiStatusWarnings, topBarApps, showGreeting, headerWhite, clockWallpaper,
                 Math.max(0, Math.min(90, clockWallpaperDim)), clockGlow, glassStyle, singleRow && dockRow, dockBandAll, lunar, lunarOffset,
                 dateBelowClock, vpnPill, locale, powerOnHomeAlways, inputsConnectedOnly,
-                Math.max(0, Math.min(600, openOnStartNetworkWait)), iconOnlyVpn, clockFormat, backOpensClock, onlineArtwork, HomeRows.sanitize(homeRows));
+                Math.max(0, Math.min(600, openOnStartNetworkWait)), iconOnlyVpn, clockFormat, backOpensClock, onlineArtwork, gamestreamHost, hostUuid, hostName, HomeRows.sanitize(homeRows));
     }
 
     /**

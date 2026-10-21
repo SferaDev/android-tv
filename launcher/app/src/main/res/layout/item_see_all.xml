@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The last card of the Recent apps strip: opens the Apps tab (sized in HomeCards). -->
+<!-- The last card of the Recent apps and Recent games strips: opens the Apps or Games tab (sized in HomeCards). -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"

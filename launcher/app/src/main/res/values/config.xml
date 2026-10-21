@@ -223,6 +223,12 @@
          Whenever that launcher's home screen comes up anyway, HomeKeyService (HOME_KEY_SERVICE=1) sends the TV
          straight back here. A theme's config.json can set it too. Leave empty to omit. -->
     <string name="stock_home_redirect" translatable="false"></string>
+    <!-- Recent games row: the Sunshine host's address (the launcher pairs with it as a GameStream client and lists its
+         apps). Empty: no games row. The Moonlight host UUID and name are read from the host; set them only to override.
+         Usually picked on the TV instead: Settings, Games finds the PCs on the network and pairs. -->
+    <string name="gamestream_host" translatable="false"></string>
+    <string name="moonlight_host_uuid" translatable="false"></string>
+    <string name="moonlight_host_name" translatable="false"></string>
 
     <!-- For TVs whose firmware opens the Live TV app (live_tv_package) by itself at every power-on, with no setting
          to change it (Changhong / Homwee boards start com.mediatek.wwtv.tvcenter from its own boot receiver, which
@@ -426,11 +432,12 @@
     <string-array name="library_excluded_apps" translatable="false">
     </string-array>
 
-    <!-- Data rows on Home, top to bottom: continue_watching and recent_apps. Leave one out to hide it; also set on the
-         TV in Settings, Home. -->
+    <!-- Data rows on Home, top to bottom: continue_watching, recent_apps and games. Leave one out to hide it; also
+         set on the TV in Settings, Home. -->
     <string-array name="home_rows" translatable="false">
         <item>continue_watching</item>
         <item>recent_apps</item>
+        <item>games</item>
     </string-array>
 
     <!-- Module cards: an app that declares a card (docs/specs/card.md) can stand in for its tile with its own
