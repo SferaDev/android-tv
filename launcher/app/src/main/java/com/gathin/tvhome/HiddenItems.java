@@ -18,12 +18,14 @@ import java.util.function.Predicate;
 
 /**
  * Things hidden from Home on the TV, kept in {@link UserSettings}: an app ({@link #app}), one Continue watching
- * entry ({@link #watchEntry}), all of an app's Continue watching ({@link #watchApp}) or a game ({@link #game}). The
- * label is what Settings shows in its list to unhide. The Apps and Games tabs still list everything.
+ * entry ({@link #watchEntry}), all of an app's Continue watching ({@link #watchApp}), a game ({@link #game}) or an
+ * input or channel ({@link RecentTv#key}). The label is what Settings shows in its list to unhide. The Apps, Games
+ * and TV tabs still list everything.
  */
 final class HiddenItems {
     /** WATCH is the old per-show key, migrated to entries by {@link #reconcile}. */
-    static final String APP = "app:", WATCH = "watch:", ENTRY = "watchnext:", WATCH_APP = "watchapp:", GAME = "game:";
+    static final String APP = "app:", WATCH = "watch:", ENTRY = "watchnext:", WATCH_APP = "watchapp:", GAME = "game:",
+            TV = "tv:";
     static final int MAX = 500;
     /** A hidden entry that has left Watch Next this long ago is forgotten. */
     static final long PRUNE_MS = 30L * Usage.DAY_MS;
