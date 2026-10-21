@@ -241,4 +241,7 @@
     <string name="hide_all_from">Ocultar todo de %1$s</string>
     <string name="hidden_watch_app">%1$s: todo Seguir viendo</string>
     <string name="last_watched">Visto %1$s</string>
+    <string name="settings_usage_access">Acceso a datos de uso</string>
+    <string name="settings_usage_access_hint">Para Aplicaciones recientes</string>
+    <string name="see_all">Ver todo</string>
 </resources>

@@ -105,5 +105,6 @@
     <string name="show_on_home">Afficher sur l\'accueil</string>
     <string name="hide_all_from">Tout masquer de %1$s</string>
     <string name="hidden_watch_app">%1$s : tout Reprendre la lecture</string>
+    <string name="see_all">Tout afficher</string>
     <string name="last_watched">Regardé %1$s</string>
 </resources>

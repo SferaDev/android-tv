@@ -109,5 +109,6 @@
     <string name="show_on_home">إظهار في الرئيسية</string>
     <string name="hide_all_from">إخفاء الكل من %1$s</string>
     <string name="hidden_watch_app">%1$s: كل متابعة المشاهدة</string>
+    <string name="see_all">عرض الكل</string>
     <string name="last_watched">آخر مشاهدة %1$s</string>
 </resources>

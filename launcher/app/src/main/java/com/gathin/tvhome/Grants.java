@@ -1,8 +1,11 @@
 package com.gathin.tvhome;
 
+import android.app.AppOpsManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Process;
 import android.provider.Settings;
 
 import java.io.IOException;
@@ -12,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 /**
- * The watch listener and the key services. The TV's own Settings screen is the normal path; SelfAdb
+ * Usage access, the watch listener and the key services. The TV's own Settings screen is the normal path; SelfAdb
  * grants them only where that screen does not exist, or when the user asks for it from Settings.
  */
 final class Grants {
@@ -28,16 +31,17 @@ final class Grants {
     static void start(Context ctx) {
         if (!STARTED.compareAndSet(false, true)) return;
         Context app = ctx.getApplicationContext();
+        boolean usage = !needsAdb(usageGranted(app), resolves(app, usageIntent()));
         boolean notifications = !needsAdb(listenerGranted(app), resolves(app, listenerIntent()));
-        if (notifications) return;
-        SelfAdb.inBackground(app, "grants", true, adb -> grant(adb, app, notifications), null);
+        if (usage && notifications) return;
+        SelfAdb.inBackground(app, "grants", true, adb -> grant(adb, app, usage, notifications), null);
     }
 
     /** "Grant automatically" in Settings: whatever is still missing, over SelfAdb. */
     static void grantNow(Context ctx, Runnable done) {
         Context app = ctx.getApplicationContext();
-        boolean notifications = listenerGranted(app);
-        SelfAdb.inBackground(app, "grants", false, adb -> grant(adb, app, notifications), done);
+        boolean usage = usageGranted(app), notifications = listenerGranted(app);
+        SelfAdb.inBackground(app, "grants", false, adb -> grant(adb, app, usage, notifications), done);
     }
 
     /** No normal path: not granted, and the TV has no Settings screen to grant it in. */
@@ -45,7 +49,9 @@ final class Grants {
         return !granted && !settingsScreen;
     }
 
-    private static void grant(SelfAdb adb, Context app, boolean notifications) throws IOException {
+    private static void grant(SelfAdb adb, Context app, boolean usage, boolean notifications) throws IOException {
+        // One command per shell(): chained commands can silently stop after the first.
+        if (!usage) adb.shell("appops set " + app.getPackageName() + " GET_USAGE_STATS allow");
         if (!notifications) adb.shell("cmd notification allow_listener " + listenerComponent(app));
     }
 
@@ -78,6 +84,10 @@ final class Grants {
         }, done);
     }
 
+    static Intent usageIntent() {
+        return new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+    }
+
     static Intent listenerIntent() {
         return new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
     }
@@ -88,6 +98,16 @@ final class Grants {
 
     static boolean resolves(Context ctx, Intent intent) {
         return intent.resolveActivity(ctx.getPackageManager()) != null;
+    }
+
+    @SuppressWarnings("deprecation")
+    static boolean usageGranted(Context app) {
+        AppOpsManager ops = (AppOpsManager) app.getSystemService(Context.APP_OPS_SERVICE);
+        int uid = Process.myUid();
+        int mode = Build.VERSION.SDK_INT >= 29
+                ? ops.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, uid, app.getPackageName())
+                : ops.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, uid, app.getPackageName());
+        return mode == AppOpsManager.MODE_ALLOWED;
     }
 
     static boolean listenerGranted(Context app) {

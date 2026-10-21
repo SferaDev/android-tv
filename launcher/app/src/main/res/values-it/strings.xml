@@ -245,4 +245,7 @@
     <string name="settings_age_2_months">2 meses</string>
     <string name="settings_age_3_months">3 meses</string>
     <string name="settings_age_none">Sin límite</string>
+    <string name="see_all">Ver todo</string>
+    <string name="settings_usage_access">Acceso a datos de uso</string>
+    <string name="settings_usage_access_hint">Para Aplicaciones recientes</string>
 </resources>

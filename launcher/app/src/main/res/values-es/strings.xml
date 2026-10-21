@@ -161,6 +161,7 @@
     <string name="show_on_home">Mostrar en Inicio</string>
     <string name="hide_all_from">Ocultar todo de %1$s</string>
     <string name="hidden_watch_app">%1$s: todo Seguir viendo</string>
+    <string name="see_all">Ver todo</string>
     <string name="last_watched">Visto %1$s</string>
     <string name="settings_online_artwork">Imágenes de internet</string>
     <string name="settings_online_artwork_hint">Muestra imágenes de TVmaze (CC BY-SA)</string>
@@ -214,6 +215,8 @@
     <string name="settings_appearance_theme_hint">Volver al color y al fondo de pantalla del tema</string>
     <string name="settings_advanced">Permisos</string>
     <string name="settings_advanced_hint">Lo que el launcher puede leer. Cada uno abre los ajustes de la TV para ello, si los tiene.</string>
+    <string name="settings_usage_access">Acceso a datos de uso</string>
+    <string name="settings_usage_access_hint">Para Aplicaciones recientes</string>
     <string name="settings_listener_access">Acceso a notificaciones</string>
     <string name="settings_listener_access_hint">Permite a Reproduciendo ahora ver qué suena</string>
     <string name="settings_granted">Permitido</string>

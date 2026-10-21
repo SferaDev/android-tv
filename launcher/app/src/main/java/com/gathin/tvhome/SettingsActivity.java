@@ -494,11 +494,14 @@ public final class SettingsActivity extends Activity {
 
     private void advancedPage() {
         header(R.string.settings_advanced, R.string.settings_advanced_hint);
-        boolean listener = Grants.listenerGranted(this);
+        boolean usage = Grants.usageGranted(this), listener = Grants.listenerGranted(this);
+        boolean usageScreen = Grants.resolves(this, Grants.usageIntent());
         boolean listenerScreen = Grants.resolves(this, Grants.listenerIntent());
+        access(R.string.settings_usage_access, R.string.settings_usage_access_hint, usage, "usage",
+                usageScreen ? Grants.usageIntent() : null);
         access(R.string.settings_listener_access, R.string.settings_listener_access_hint, listener, "listener",
                 listenerScreen ? Grants.listenerIntent() : null);
-        if (!listener && (!listenerScreen || tried.contains("listener"))) {
+        if (!usage && (!usageScreen || tried.contains("usage")) || !listener && (!listenerScreen || tried.contains("listener"))) {
             row(getString(R.string.settings_grant_auto), getString(R.string.settings_grant_auto_hint), null,
                     () -> Grants.grantNow(this, this::render));
         }

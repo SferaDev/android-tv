@@ -134,5 +134,6 @@
     <string name="show_on_home">Hiện trên Trang chủ</string>
     <string name="hide_all_from">Ẩn tất cả từ %1$s</string>
     <string name="hidden_watch_app">%1$s: tất cả Xem tiếp</string>
+    <string name="see_all">Xem tất cả</string>
     <string name="last_watched">Đã xem %1$s</string>
 </resources>

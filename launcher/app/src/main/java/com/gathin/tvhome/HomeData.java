@@ -11,16 +11,18 @@ final class HomeData {
     private HomeData() { }
 
     static final class Rows {
+        final List<String> recent;
         final List<WatchItem> watching;
 
-        Rows(List<WatchItem> watching) {
+        Rows(List<String> recent, List<WatchItem> watching) {
+            this.recent = recent;
             this.watching = watching;
         }
     }
 
-    /** Blocking: the Watch Next rows. Call off the main thread. */
+    /** Blocking: usage stats and the Watch Next rows. Call off the main thread. */
     static Rows load(Context ctx) {
         // Twice the strip length, so hiding a few items still leaves a full Continue watching strip.
-        return new Rows(WatchHistory.items(ctx, 2 * ROW_LIMIT));
+        return new Rows(PopularApps.recent(ctx), WatchHistory.items(ctx, 2 * ROW_LIMIT));
     }
 }
