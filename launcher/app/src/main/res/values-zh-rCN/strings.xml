@@ -65,6 +65,8 @@
     <string name="tab_home">主页</string>
     <string name="tab_apps">应用</string>
     <string name="row_watching">继续观看</string>
+    <string name="row_games">最近玩过</string>
+    <string name="tab_games">游戏</string>
     <string name="row_recent">最近使用的应用</string>
     <string name="hide_from_home">从主页隐藏</string>
     <string name="show_on_home">在主页显示</string>

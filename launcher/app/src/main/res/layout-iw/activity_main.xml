@@ -136,6 +136,11 @@
             android:background="@drawable/tabs_bg">
 
             <TextView
+                android:id="@+id/tabGames"
+                style="@style/HeaderTab"
+                android:text="@string/tab_games" />
+
+            <TextView
                 android:id="@+id/tabApps"
                 style="@style/HeaderTab"
                 android:text="@string/tab_apps" />
@@ -282,12 +287,87 @@
                     style="@style/Row" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/sectionGames"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <TextView
+                    android:id="@+id/titleGames"
+                    style="@style/RowTitle"
+                    android:text="@string/row_games" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rowGames"
+                    style="@style/Row" />
+            </LinearLayout>
+
                 </LinearLayout>
             </com.gathin.tvhome.RowsScrollView>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/appsGrid"
                 style="@style/TabGrid" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/gamesGrid"
+                style="@style/TabGrid" />
+
+            <!-- The Games tab before there are games: find the PC, pair with it, wait for its list. -->
+            <LinearLayout
+                android:id="@+id/gamesSetup"
+                android:layout_width="560dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|top"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:background="@drawable/glass_panel"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/gamesSetupTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="22sp"
+                    android:fontFamily="@string/font_medium" />
+
+                <TextView
+                    android:id="@+id/gamesSetupPin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:letterSpacing="0.2"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="56sp"
+                    android:fontFamily="@string/font_medium"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/gamesSetupBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="right"
+                    android:lineSpacingExtra="4dp"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="15sp"
+                    android:fontFamily="@string/font_regular" />
+
+                <LinearLayout
+                    android:id="@+id/gamesSetupRows"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical" />
+            </LinearLayout>
         </FrameLayout>
     </LinearLayout>
 

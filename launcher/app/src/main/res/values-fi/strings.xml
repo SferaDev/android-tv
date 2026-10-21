@@ -95,6 +95,8 @@
     <string name="tab_home">Koti</string>
     <string name="tab_apps">Sovellukset</string>
     <string name="row_watching">Jatka katsomista</string>
+    <string name="row_games">Viimeisimmät pelit</string>
+    <string name="tab_games">Pelit</string>
     <string name="row_recent">Viimeisimmät sovellukset</string>
     <string name="hide_from_home">Piilota kotinäkymästä</string>
     <string name="show_on_home">Näytä kotinäkymässä</string>

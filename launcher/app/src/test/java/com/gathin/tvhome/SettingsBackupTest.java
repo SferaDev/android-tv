@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 public class SettingsBackupTest {
     private static JSONObject root() throws Exception {
         JSONObject root = UserSettings.decode("");
-        root.getJSONObject("config").put("vpn_app", "com.example.vpn").put("columns", 6)
+        root.getJSONObject("config").put("gamestream_host", "192.0.2.10").put("columns", 6)
                 .put(WatchHistory.MAX_AGE_KEY, 14)
                 .put("app_keys", UserSettings.json(Arrays.asList("190:com.example.tube")))
                 .put("settings_key_keycodes", UserSettings.json(new int[]{176}))
@@ -35,7 +35,7 @@ public class SettingsBackupTest {
     @Test public void exportThenParseRoundTrips() throws Exception {
         SettingsBackup.Parsed parsed = SettingsBackup.parse(SettingsBackup.export(root()));
         assertTrue(parsed.skipped.isEmpty());
-        assertEquals("com.example.vpn", parsed.config.getString("vpn_app"));
+        assertEquals("192.0.2.10", parsed.config.getString("gamestream_host"));
         assertEquals(176, parsed.config.getJSONArray("settings_key_keycodes").getInt(0));
         assertEquals(1, parsed.hidden.size());
     }
@@ -86,7 +86,7 @@ public class SettingsBackupTest {
         SettingsBackup.apply(target, parsed);
         JSONObject config = target.getJSONObject("config");
         assertEquals(4, config.getInt("columns"));
-        assertEquals("com.example.vpn", config.getString("vpn_app"));
+        assertEquals("192.0.2.10", config.getString("gamestream_host"));
         JSONArray hidden = target.getJSONArray("hidden");
         assertEquals(2, hidden.length());
         assertEquals("game:4", hidden.getJSONObject(1).getString("key"));

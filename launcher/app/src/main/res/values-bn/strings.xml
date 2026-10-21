@@ -95,6 +95,8 @@
     <string name="tab_home">হোম</string>
     <string name="tab_apps">অ্যাপ</string>
     <string name="row_watching">দেখা চালিয়ে যান</string>
+    <string name="row_games">সাম্প্রতিক গেম</string>
+    <string name="tab_games">গেম</string>
     <string name="row_recent">সাম্প্রতিক অ্যাপ</string>
     <string name="hide_from_home">হোম থেকে লুকান</string>
     <string name="show_on_home">হোমে দেখান</string>

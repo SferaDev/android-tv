@@ -119,6 +119,8 @@
     <string name="tab_home">Trang chủ</string>
     <string name="tab_apps">Ứng dụng</string>
     <string name="row_watching">Xem tiếp</string>
+    <string name="row_games">Trò chơi gần đây</string>
+    <string name="tab_games">Trò chơi</string>
     <string name="row_recent">Ứng dụng gần đây</string>
     <string name="hide_from_home">Ẩn khỏi Trang chủ</string>
     <string name="show_on_home">Hiện trên Trang chủ</string>
