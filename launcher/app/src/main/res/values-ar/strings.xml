@@ -93,7 +93,11 @@
     <string name="home_toggle_failed">تعذّر الوصول إلى ADB في التلفاز: فعّل تصحيح أخطاء USB في خيارات المطوّر واقبل الطلب</string>
     <string name="tab_home">الرئيسية</string>
     <string name="tab_apps">التطبيقات</string>
+    <string name="row_watching">متابعة المشاهدة</string>
     <string name="row_recent">التطبيقات الأخيرة</string>
     <string name="hide_from_home">إخفاء من الرئيسية</string>
     <string name="show_on_home">إظهار في الرئيسية</string>
+    <string name="hide_all_from">إخفاء الكل من %1$s</string>
+    <string name="hidden_watch_app">%1$s: كل متابعة المشاهدة</string>
+    <string name="last_watched">آخر مشاهدة %1$s</string>
 </resources>

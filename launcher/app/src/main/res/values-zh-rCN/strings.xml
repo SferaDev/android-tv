@@ -64,7 +64,11 @@
     <string name="home_toggle_failed">无法连接电视的 ADB：请在开发者选项中开启 USB 调试并接受提示</string>
     <string name="tab_home">主页</string>
     <string name="tab_apps">应用</string>
+    <string name="row_watching">继续观看</string>
     <string name="row_recent">最近使用的应用</string>
     <string name="hide_from_home">从主页隐藏</string>
     <string name="show_on_home">在主页显示</string>
+    <string name="hide_all_from">隐藏 %1$s 的全部内容</string>
+    <string name="hidden_watch_app">%1$s：全部继续观看</string>
+    <string name="last_watched">上次观看：%1$s</string>
 </resources>

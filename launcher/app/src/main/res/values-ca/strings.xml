@@ -105,7 +105,11 @@
     <string name="home_toggle_failed">No s\'ha pogut accedir a l\'ADB del televisor: activa la depuració USB a les opcions per a desenvolupadors i accepta l\'avís</string>
     <string name="tab_home">Inici</string>
     <string name="tab_apps">Aplicacions</string>
+    <string name="row_watching">Continua mirant</string>
     <string name="row_recent">Aplicacions recents</string>
     <string name="hide_from_home">Amaga de l\'inici</string>
     <string name="show_on_home">Mostra a l\'inici</string>
+    <string name="hide_all_from">Amaga-ho tot de %1$s</string>
+    <string name="hidden_watch_app">%1$s: tot de Continua mirant</string>
+    <string name="last_watched">Vist %1$s</string>
 </resources>

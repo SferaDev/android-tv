@@ -153,4 +153,8 @@
     <string name="row_recent">Нещодавні застосунки</string>
     <string name="hide_from_home">Приховати з головної</string>
     <string name="show_on_home">Показати на головній</string>
+    <string name="row_watching">Продовжити перегляд</string>
+    <string name="hide_all_from">Приховати все з %1$s</string>
+    <string name="hidden_watch_app">%1$s: усе в «Продовжити перегляд»</string>
+    <string name="last_watched">Переглянуто %1$s</string>
 </resources>

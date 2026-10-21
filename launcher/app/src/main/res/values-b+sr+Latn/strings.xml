@@ -71,7 +71,11 @@
     <string name="home_toggle_failed">ADB televizora nije dostupan: uključite USB otklanjanje grešaka u opcijama za programere i prihvatite upit</string>
     <string name="tab_home">Početna</string>
     <string name="tab_apps">Aplikacije</string>
+    <string name="row_watching">Nastavi gledanje</string>
     <string name="row_recent">Nedavne aplikacije</string>
     <string name="hide_from_home">Sakrij sa početne</string>
     <string name="show_on_home">Prikaži na početnoj</string>
+    <string name="hide_all_from">Sakrij sve iz %1$s</string>
+    <string name="hidden_watch_app">%1$s: sve iz Nastavi gledanje</string>
+    <string name="last_watched">Gledano %1$s</string>
 </resources>

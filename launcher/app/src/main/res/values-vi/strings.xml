@@ -118,7 +118,11 @@
     <string name="home_toggle_failed">Không kết nối được ADB của TV: bật gỡ lỗi USB trong Tùy chọn nhà phát triển và chấp nhận lời nhắc</string>
     <string name="tab_home">Trang chủ</string>
     <string name="tab_apps">Ứng dụng</string>
+    <string name="row_watching">Xem tiếp</string>
     <string name="row_recent">Ứng dụng gần đây</string>
     <string name="hide_from_home">Ẩn khỏi Trang chủ</string>
     <string name="show_on_home">Hiện trên Trang chủ</string>
+    <string name="hide_all_from">Ẩn tất cả từ %1$s</string>
+    <string name="hidden_watch_app">%1$s: tất cả Xem tiếp</string>
+    <string name="last_watched">Đã xem %1$s</string>
 </resources>

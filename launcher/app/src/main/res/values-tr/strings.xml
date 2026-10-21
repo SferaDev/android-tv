@@ -89,7 +89,11 @@
     <string name="home_toggle_failed">TV\'nin ADB\'sine ulaşılamadı: Geliştirici seçeneklerinde USB hata ayıklamayı açın ve isteği onaylayın</string>
     <string name="tab_home">Ana Sayfa</string>
     <string name="tab_apps">Uygulamalar</string>
+    <string name="row_watching">İzlemeye devam et</string>
     <string name="row_recent">Son uygulamalar</string>
     <string name="hide_from_home">Ana Sayfadan gizle</string>
     <string name="show_on_home">Ana Sayfada göster</string>
+    <string name="hide_all_from">%1$s içeriğinin tümünü gizle</string>
+    <string name="hidden_watch_app">%1$s: tüm İzlemeye devam et</string>
+    <string name="last_watched">Son izleme %1$s</string>
 </resources>

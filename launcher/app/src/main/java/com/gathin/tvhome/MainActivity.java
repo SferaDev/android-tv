@@ -75,12 +75,17 @@ import java.util.concurrent.Executors;
 
 /**
  * Google TV style home: a header with the Home and Apps tabs; on Home a hero for the focused card over its
- * full-bleed backdrop, then strips of cards (recent apps); every app on the Apps tab. All D-pad moves between cards
- * are decided here, with HomeNav.
+ * full-bleed backdrop, then strips of cards (continue watching, recent apps); every app on the Apps tab. All D-pad
+ * moves between cards are decided here, with HomeNav.
  */
 public class MainActivity extends Activity implements CardRow.Listener {
 
     private static final int LAUNCHER_SETTINGS_REQUEST = 42;
+    private static final int LISTINGS_REQUEST = 43;
+    /** Launcher state that is not a setting: whether the Watch Next permission was asked for already. */
+    private static final String STATE_NAME = "home_state", LISTINGS_ASKED = "listings_asked";
+    /** Other apps edit Watch Next in bursts; one reload after they settle. */
+    private static final long WATCH_NEXT_SETTLE_MS = 1500;
     /** Sent by QuickSettingsActivity: open Launcher settings from here so Home rebuilds when they close. */
     static final String ACTION_LAUNCHER_SETTINGS = "com.gathin.tvhome.action.LAUNCHER_SETTINGS";
     /** The system input switcher, forwarded here by InputsRequestActivity while handle_view_inputs is on. */
@@ -93,12 +98,12 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private static final long TIME_VALID_AFTER_MS = 1_735_689_600_000L;
     private static final long STATS_MS = 10_000L;
     /** Home strips, top to bottom; a fixed order so the screen stays predictable. */
-    static final int ROW_RECENT = 0, ROWS = 1;
+    static final int ROW_WATCHING = 0, ROW_RECENT = 1, ROWS = 2;
     /** The Apps tab's grid, as a row id for CardRow. */
     static final int APPS_GRID = 100;
     private static final int TAB_HOME = 0, TAB_APPS = 1;
-    private static final float RECENT_WIDTH_DP = 130f;
-    private static final int STRIP_LIMIT = 10;
+    private static final float RECENT_WIDTH_DP = 130f, WATCH_WIDTH_DP = 240f;
+    private static final int STRIP_LIMIT = HomeData.ROW_LIMIT;
     /** Left and Right across the tabs show each at once; the content follows when the focus rests. */
     private static final long TAB_SETTLE_MS = 150;
     private String liveTvPkg;
@@ -161,6 +166,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private final RecyclerView[] rows = new RecyclerView[ROWS];
     private final int[] rowLengths = new int[ROWS];
     private AppAdapter recentAdapter;
+    private HomeCards.WatchAdapter watchAdapter;
     private AppAdapter appsAdapter;
     private ImageCache images;
     private RecyclerView.RecycledViewPool pool;
@@ -170,8 +176,13 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private volatile List<AppAdapter.Entry> loadedApps = Collections.emptyList();
     /** The strips' cards before hiding, newest first, so a hide or show applies without a reload. */
     private List<AppAdapter.Entry> allRecent = Collections.emptyList();
+    private List<HomeCards.Watch> allWatching = Collections.emptyList();
     /** Items hidden from the Home strips (HiddenItems keys). */
     private Set<String> hidden = new HashSet<>();
+    private Runnable stopWatchNext;
+    private final Runnable watchNextChanged = () -> reload(false);
+    /** The adb fallback for the listings permission runs once per process, not on every Home. */
+    private static boolean listingsFallbackTried;
     private int pendingTab = -1;
     private final Runnable tabSettled = () -> showTab(pendingTab);
 
@@ -181,7 +192,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     // Static so they survive the activity being destroyed while another app is open (low-memory TVs,
     // or Developer options → "Don't keep activities"); they only reset when the process dies.
     private static int tab = TAB_HOME;
-    private static int rememberedRow = ROW_RECENT;
+    private static int rememberedRow = ROW_WATCHING;
     private static final int[] rememberedColumns = new int[ROWS];
     private static int rememberedTile;
     /** Put focus back on the remembered card once the data arrives, unless the remote was used meanwhile. */
@@ -418,11 +429,12 @@ public class MainActivity extends Activity implements CardRow.Listener {
 
     private void setUpRows() {
         homeRows = findViewById(R.id.homeRows);
-        int[] sectionIds = {R.id.sectionRecent};
-        int[] rowIds = {R.id.rowRecent};
-        int[] titleIds = {R.id.titleRecent};
+        int[] sectionIds = {R.id.sectionWatching, R.id.sectionRecent};
+        int[] rowIds = {R.id.rowWatching, R.id.rowRecent};
+        int[] titleIds = {R.id.titleWatching, R.id.titleRecent};
         recentAdapter = new AppAdapter(this, ROW_RECENT, this, Math.round(RECENT_WIDTH_DP * density), false, cfg);
-        RecyclerView.Adapter<?>[] adapters = {recentAdapter};
+        watchAdapter = new HomeCards.WatchAdapter(ROW_WATCHING, this, images, this::openWatch, cfg);
+        RecyclerView.Adapter<?>[] adapters = {watchAdapter, recentAdapter};
         // One pool for the strips and the grids; each kind of card has its own view type.
         pool = new RecyclerView.RecycledViewPool();
         for (int r = 0; r < ROWS; r++) {
@@ -563,7 +575,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         if (openLauncherSettingsIfAsked(intent)) return;
         if (openInputsIfAsked(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
-        rememberedRow = ROW_RECENT;
+        rememberedRow = ROW_WATCHING;
         Arrays.fill(rememberedColumns, 0);
         for (RecyclerView row : rows) row.scrollToPosition(0);
         homeRows.scrollTo(0, 0);
@@ -582,6 +594,10 @@ public class MainActivity extends Activity implements CardRow.Listener {
             registerReceiver(timeReceiver, timeFilter);
         }
         updateClockVisibility();
+        stopWatchNext = WatchNext.observe(this, () -> {
+            handler.removeCallbacks(watchNextChanged);
+            handler.postDelayed(watchNextChanged, WATCH_NEXT_SETTLE_MS);
+        });
     }
 
     @Override
@@ -603,6 +619,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         promptsPaused = false;
         keyedSinceResume = false;
         notificationBell.start();
+        askForListings();
         if (rebuildOnResume) {
             hidden = HiddenItems.keys(this);
             tilesReady = false;
@@ -664,6 +681,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         loader.execute(() -> {
             List<AppAdapter.Entry> entries = apps ? AppAdapter.load(app, config, shown) : loadedApps;
             loadedApps = entries;
+            HomeData.Rows data = HomeData.load(app);
             Map<String, AppAdapter.Entry> byPkg = new HashMap<>();
             for (AppAdapter.Entry e : entries) if (!byPkg.containsKey(e.pkg)) byPkg.put(e.pkg, e);
             List<AppAdapter.Entry> recent = new ArrayList<>();
@@ -672,10 +690,18 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 AppAdapter.Entry e = entryFor(app, pkg, byPkg);
                 if (e != null) recent.add(e);
             }
+            List<HomeCards.Watch> watching = new ArrayList<>();
+            for (WatchItem item : data.watching) {
+                // Shows only: an app with nothing more to say is already in Recent apps.
+                if (item.title == null) continue;
+                AppAdapter.Entry e = entryFor(app, item.pkg, byPkg);
+                if (e != null) watching.add(new HomeCards.Watch(item, e.label, e.banner, e.icon));
+            }
             handler.post(() -> {
                 if (isDestroyed()) return;
                 if (apps) loadedAppsShown(entries);
                 allRecent = recent;
+                allWatching = watching;
                 showLists();
                 if (apps) {
                     tilesReady = true;
@@ -683,6 +709,37 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 }
             });
         });
+    }
+
+    /**
+     * Continue watching needs READ_TV_LISTINGS: the platform dialog once, on the first Home; when that was denied or
+     * could not show, the launcher's own adb grant as the fallback.
+     */
+    private void askForListings() {
+        if (!WatchNext.missingPermission(this)) return;
+        android.content.SharedPreferences state = getSharedPreferences(STATE_NAME, MODE_PRIVATE);
+        if (!state.getBoolean(LISTINGS_ASKED, false)) {
+            state.edit().putBoolean(LISTINGS_ASKED, true).apply();
+            requestPermissions(new String[]{WatchNext.PERMISSION}, LISTINGS_REQUEST);
+        } else {
+            listingsFallback();
+        }
+    }
+
+    private void listingsFallback() {
+        if (listingsFallbackTried || !WatchNext.missingPermission(this)) return;
+        listingsFallbackTried = true;
+        Grants.grantListings(this, () -> {
+            if (!isDestroyed() && !WatchNext.missingPermission(this)) reload(false);
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
+        if (requestCode != LISTINGS_REQUEST) return;
+        if (!WatchNext.missingPermission(this)) reload(false);
+        else listingsFallback();
     }
 
     private void loadedAppsShown(List<AppAdapter.Entry> entries) {
@@ -704,9 +761,13 @@ public class MainActivity extends Activity implements CardRow.Listener {
         boolean hadContentFocus = focused != null && isInContent(focused);
         List<AppAdapter.Entry> recent = HiddenItems.visible(allRecent, e -> hidden.contains(HiddenItems.app(e.pkg)),
                 STRIP_LIMIT);
+        List<HomeCards.Watch> watching = HiddenItems.visible(allWatching,
+                w -> HiddenItems.watchHidden(hidden, w.item), STRIP_LIMIT);
         recentAdapter.setItems(recent, e -> false);
+        watchAdapter.setItems(watching);
         appsAdapter.notifyDataSetChanged();
         // A strip switched off in Settings, Home counts as empty, so it hides and focus skips it.
+        rowLengths[ROW_WATCHING] = cfg.rowShown(HomeRows.CONTINUE_WATCHING) ? watching.size() : 0;
         rowLengths[ROW_RECENT] = cfg.rowShown(HomeRows.RECENT_APPS) ? recent.size() : 0;
         for (int r = 0; r < ROWS; r++) sections[r].setVisibility(rowLengths[r] > 0 ? View.VISIBLE : View.GONE);
 
@@ -730,9 +791,31 @@ public class MainActivity extends Activity implements CardRow.Listener {
         return false;
     }
 
+    private void openWatch(HomeCards.Watch w) {
+        Intent i = WatchHistory.launchIntent(this, w.item);
+        try {
+            if (i == null) throw new ActivityNotFoundException();
+            startActivity(i);
+        } catch (Exception e) {
+            // A stale deep link: the app itself still opens.
+            Intent app = AppEntries.launch(getPackageManager(), w.item.pkg);
+            if (app != null) open(app);
+            else Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     // ---- hero and backdrop -----------------------------------------------------------------------
 
     private Hero.Item heroFor(int row, int position) {
+        if (row == ROW_WATCHING && position < watchAdapter.getItemCount()) {
+            HomeCards.Watch w = watchAdapter.watchAt(position);
+            String when = lastWatched(w.item.lastWatched);
+            String subtitle = w.item.title != null && w.subtitle != null ? w.subtitle + "  \u00B7  " + when : when;
+            Hero.Item h = new Hero.Item("w" + w.item.pkg + '\n' + w.title, w.title, subtitle, w.appLabel, w.icon,
+                    w.item.artwork, copy(w.banner != null ? w.banner : w.icon));
+            h.showTitle = w.item.title;
+            return h;
+        }
         if (row == ROW_RECENT && position < recentAdapter.getItemCount()) {
             AppAdapter.Entry e = recentAdapter.entryAt(position);
             return new Hero.Item("a" + e.pkg, e.label, null, null, e.icon, null, copy(e.banner != null ? e.banner : e.icon));
@@ -740,9 +823,19 @@ public class MainActivity extends Activity implements CardRow.Listener {
         return null;
     }
 
-    /** The first app: shown while no card is focused. */
+    /** "Last watched 2 hours ago"; the relative time starts in lower case after the words before it. */
+    private String lastWatched(long at) {
+        String relative = DateUtils.getRelativeTimeSpanString(at, System.currentTimeMillis(),
+                DateUtils.MINUTE_IN_MILLIS).toString();
+        if (!getString(R.string.last_watched).startsWith("%1$s") && !relative.isEmpty()) {
+            relative = relative.substring(0, 1).toLowerCase(Locale.getDefault()) + relative.substring(1);
+        }
+        return getString(R.string.last_watched, relative);
+    }
+
+    /** The most recent Continue watching item, else the most recent app: shown while no card is focused. */
     private Hero.Item defaultHero() {
-        int row = HomeNav.restoreRow(rowLengths, ROW_RECENT);
+        int row = HomeNav.restoreRow(rowLengths, ROW_WATCHING);
         return row == HomeNav.HEADER ? null : heroFor(row, 0);
     }
 
@@ -837,7 +930,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private int rowOf(RecyclerView list) {
         if (list == appsGrid) return APPS_GRID;
         for (int r = 0; r < ROWS; r++) if (rows[r] == list) return r;
-        return ROW_RECENT;
+        return ROW_WATCHING;
     }
 
     @Override
@@ -924,10 +1017,17 @@ public class MainActivity extends Activity implements CardRow.Listener {
         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout items = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (220 * density));
-        AppAdapter.Entry e = (row == ROW_RECENT ? recentAdapter : appsAdapter).entryAt(position);
-        addHideToggle(items, popup, HiddenItems.app(e.pkg), e.label);
-        addSettingsMenuRow(items, popup, getString(R.string.library_app_info), () -> open(
-                new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + e.pkg))));
+        if (row == ROW_RECENT || row == APPS_GRID) {
+            AppAdapter.Entry e = (row == ROW_RECENT ? recentAdapter : appsAdapter).entryAt(position);
+            addHideToggle(items, popup, HiddenItems.app(e.pkg), e.label);
+            addSettingsMenuRow(items, popup, getString(R.string.library_app_info), () -> open(
+                    new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + e.pkg))));
+        } else {
+            HomeCards.Watch w = watchAdapter.watchAt(position);
+            addHideToggle(items, popup, HiddenItems.watchEntry(w.item), HiddenItems.watchLabel(w.item));
+            addSettingsMenuRow(items, popup, getString(R.string.hide_all_from, w.appLabel),
+                    () -> setHidden(HiddenItems.watchApp(w.item.pkg), w.appLabel, true));
+        }
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popup.setWidth(Math.max((int) (220 * density), panel.getMeasuredWidth()));
         dropIn(popup, panel, card, rtl ? Gravity.END : Gravity.START);
@@ -1008,6 +1108,9 @@ public class MainActivity extends Activity implements CardRow.Listener {
         unregisterReceiver(packageReceiver);
         unregisterReceiver(timeReceiver);
         handler.removeCallbacks(clockCheck);
+        if (stopWatchNext != null) stopWatchNext.run();
+        stopWatchNext = null;
+        handler.removeCallbacks(watchNextChanged);
         rebuildOnResume = true;
     }
 

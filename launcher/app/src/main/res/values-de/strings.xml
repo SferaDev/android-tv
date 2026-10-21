@@ -64,7 +64,11 @@
     <string name="home_toggle_failed">ADB des Fernsehers nicht erreichbar: USB-Debugging in den Entwickleroptionen einschalten und die Abfrage bestätigen</string>
     <string name="tab_home">Startseite</string>
     <string name="tab_apps">Apps</string>
+    <string name="row_watching">Weiterschauen</string>
     <string name="row_recent">Zuletzt verwendet</string>
     <string name="hide_from_home">Auf Startseite ausblenden</string>
     <string name="show_on_home">Auf Startseite zeigen</string>
+    <string name="hide_all_from">Alles von %1$s ausblenden</string>
+    <string name="hidden_watch_app">%1$s: alles in Weiterschauen</string>
+    <string name="last_watched">Zuletzt gesehen %1$s</string>
 </resources>

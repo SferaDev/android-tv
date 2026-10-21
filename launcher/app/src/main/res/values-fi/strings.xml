@@ -94,7 +94,11 @@
     <string name="home_toggle_failed">Television ADB:hen ei saatu yhteyttä: ota USB-virheenkorjaus käyttöön kehittäjäasetuksista ja hyväksy kehote</string>
     <string name="tab_home">Koti</string>
     <string name="tab_apps">Sovellukset</string>
+    <string name="row_watching">Jatka katsomista</string>
     <string name="row_recent">Viimeisimmät sovellukset</string>
     <string name="hide_from_home">Piilota kotinäkymästä</string>
     <string name="show_on_home">Näytä kotinäkymässä</string>
+    <string name="hide_all_from">Piilota kaikki: %1$s</string>
+    <string name="hidden_watch_app">%1$s: kaikki Jatka katsomista</string>
+    <string name="last_watched">Katsottu %1$s</string>
 </resources>

@@ -94,7 +94,11 @@
     <string name="home_toggle_failed">টিভির ADB-তে পৌঁছানো যায়নি: ডেভেলপার অপশনে USB ডিবাগিং চালু করে অনুরোধটি গ্রহণ করুন</string>
     <string name="tab_home">হোম</string>
     <string name="tab_apps">অ্যাপ</string>
+    <string name="row_watching">দেখা চালিয়ে যান</string>
     <string name="row_recent">সাম্প্রতিক অ্যাপ</string>
     <string name="hide_from_home">হোম থেকে লুকান</string>
     <string name="show_on_home">হোমে দেখান</string>
+    <string name="hide_all_from">%1$s থেকে সব লুকান</string>
+    <string name="hidden_watch_app">%1$s: দেখা চালিয়ে যান-এর সব</string>
+    <string name="last_watched">শেষ দেখা %1$s</string>
 </resources>

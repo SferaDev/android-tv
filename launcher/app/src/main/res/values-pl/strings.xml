@@ -91,7 +91,11 @@
     <string name="home_toggle_failed">Brak połączenia z ADB telewizora: włącz debugowanie USB w opcjach programisty i zaakceptuj monit</string>
     <string name="tab_home">Główna</string>
     <string name="tab_apps">Aplikacje</string>
+    <string name="row_watching">Oglądaj dalej</string>
     <string name="row_recent">Ostatnie aplikacje</string>
     <string name="hide_from_home">Ukryj na głównej</string>
     <string name="show_on_home">Pokaż na głównej</string>
+    <string name="hide_all_from">Ukryj wszystko z %1$s</string>
+    <string name="hidden_watch_app">%1$s: całe Oglądaj dalej</string>
+    <string name="last_watched">Oglądane %1$s</string>
 </resources>
