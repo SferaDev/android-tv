@@ -432,12 +432,13 @@
     <string-array name="library_excluded_apps" translatable="false">
     </string-array>
 
-    <!-- Data rows on Home, top to bottom: continue_watching, recent_apps and games. Leave one out to hide it; also
-         set on the TV in Settings, Home. -->
+    <!-- Data rows on Home, top to bottom: continue_watching, recent_apps, games and recent_tv. Leave one out to
+         hide it; also set on the TV in Settings, Home. -->
     <string-array name="home_rows" translatable="false">
         <item>continue_watching</item>
         <item>recent_apps</item>
         <item>games</item>
+        <item>recent_tv</item>
     </string-array>
 
     <!-- Module cards: an app that declares a card (docs/specs/card.md) can stand in for its tile with its own

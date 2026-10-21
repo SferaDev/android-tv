@@ -78,6 +78,11 @@
                 android:id="@+id/tabGames"
                 style="@style/HeaderTab"
                 android:text="@string/tab_games" />
+
+            <TextView
+                android:id="@+id/tabTv"
+                style="@style/HeaderTab"
+                android:text="@string/tab_tv" />
         </LinearLayout>
 
         <View
@@ -320,6 +325,25 @@
                     style="@style/Row" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/sectionTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <TextView
+                    android:id="@+id/titleTv"
+                    style="@style/RowTitle"
+                    android:text="@string/row_tv" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rowTv"
+                    style="@style/Row" />
+            </LinearLayout>
+
                 </LinearLayout>
             </com.gathin.tvhome.RowsScrollView>
 
@@ -330,6 +354,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/gamesGrid"
                 style="@style/TabGrid" />
+
+            <include layout="@layout/home_tv_tab" />
 
             <!-- The Games tab before there are games: find the PC, pair with it, wait for its list. -->
             <LinearLayout

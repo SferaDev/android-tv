@@ -101,13 +101,19 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private static final long TIME_VALID_AFTER_MS = 1_735_689_600_000L;
     private static final long STATS_MS = 10_000L;
     /** Home strips, top to bottom; a fixed order so the screen stays predictable. */
-    static final int ROW_NOW_PLAYING = 0, ROW_WATCHING = 1, ROW_RECENT = 2, ROW_GAMES = 3, ROWS = 4;
-    /** The tab grids, as row ids for CardRow. */
-    static final int APPS_GRID = 100, GAMES_GRID = 101;
-    private static final int TAB_HOME = 0, TAB_APPS = 1, TAB_GAMES = 2;
+    static final int ROW_NOW_PLAYING = 0, ROW_WATCHING = 1, ROW_RECENT = 2, ROW_GAMES = 3, ROW_TV = 4, ROWS = 5;
+    /** The tab grids and the TV tab's inputs strip, as row ids for CardRow. */
+    static final int APPS_GRID = 100, GAMES_GRID = 101, TV_INPUTS = 102, TV_CHANNELS = 103;
+    private static final int TAB_HOME = 0, TAB_APPS = 1, TAB_GAMES = 2, TAB_TV = 3;
+    private static final float TV_WIDTH_DP = 200f;
+    /** Guide reads are one query per channel: enough for a screenful and a scroll, not a whole cable lineup. */
+    private static final int GUIDE_CHANNELS = 60;
     private static final float RECENT_WIDTH_DP = 130f, WATCH_WIDTH_DP = 240f, GAME_WIDTH_DP = 96f;
     private static final int STRIP_LIMIT = HomeData.ROW_LIMIT;
     private static final int STRIP_POOL = 12;
+    /** HDMI inputs register a few seconds after Home first shows. */
+    private static final int LAST_INPUT_TRIES = 10;
+    private static final long LAST_INPUT_RETRY_MS = 3_000;
     /** Left and Right across the tabs show each at once; the content follows when the focus rests. */
     private static final long TAB_SETTLE_MS = 150;
     private String liveTvPkg;
@@ -166,6 +172,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private TextView tabHome;
     private TextView tabApps;
     private TextView tabGames;
+    private TextView tabTv;
     private View btnInputs;
     /** config show_inputs_pill: false keeps the Inputs pill hidden even when the TV has inputs. */
     private boolean showInputsPill = true;
@@ -196,6 +203,14 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private RowsScrollView homeRows;
     private RecyclerView appsGrid;
     private RecyclerView gamesGrid;
+    private View tvTab;
+    private RecyclerView tvInputsList;
+    private RecyclerView tvChannelsGrid;
+    private TvCards.Adapter tvAdapter;
+    private TvCards.Adapter tvInputsAdapter;
+    private TvCards.Adapter tvChannelsAdapter;
+    private int tvColumns;
+    private List<TvCards.Tile> allTv = Collections.emptyList();
     private final View[] sections = new View[ROWS];
     private final RecyclerView[] rows = new RecyclerView[ROWS];
     private final int[] rowLengths = new int[ROWS];
@@ -242,6 +257,8 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private static final int[] rememberedColumns = new int[ROWS];
     private static int rememberedTile;
     private static int rememberedGame;
+    private static int rememberedInput;
+    private static int rememberedChannel;
     /** Put focus back on the remembered card once the data arrives, unless the remote was used meanwhile. */
     private boolean restoreFocusPending;
     private boolean keyedSinceResume;
@@ -513,13 +530,14 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private void setUpRows() {
         homeRows = findViewById(R.id.homeRows);
         // Now playing sits in the hero and is no list: index 0 has no RecyclerView.
-        int[] sectionIds = {R.id.nowPlaying, R.id.sectionWatching, R.id.sectionRecent, R.id.sectionGames};
-        int[] rowIds = {0, R.id.rowWatching, R.id.rowRecent, R.id.rowGames};
-        int[] titleIds = {0, R.id.titleWatching, R.id.titleRecent, R.id.titleGames};
+        int[] sectionIds = {R.id.nowPlaying, R.id.sectionWatching, R.id.sectionRecent, R.id.sectionGames, R.id.sectionTv};
+        int[] rowIds = {0, R.id.rowWatching, R.id.rowRecent, R.id.rowGames, R.id.rowTv};
+        int[] titleIds = {0, R.id.titleWatching, R.id.titleRecent, R.id.titleGames, R.id.titleTv};
         recentAdapter = new AppAdapter(this, ROW_RECENT, this, Math.round(RECENT_WIDTH_DP * density), false, cfg);
-        recentAdapter.setInputOpener(this::openInput);
+        recentAdapter.setInputOpener(this::openInputById);
         watchAdapter = new HomeCards.WatchAdapter(ROW_WATCHING, this, images, this::openWatch, cfg);
         gameAdapter = new HomeCards.GameAdapter(ROW_GAMES, this, images, g -> startGame(g.game), false, cfg);
+        tvAdapter = new TvCards.Adapter(ROW_TV, this, this::openTv, false, cfg);
         int recentWidth = Math.round(RECENT_WIDTH_DP * density), gameWidth = Math.round(GAME_WIDTH_DP * density);
         seeAllApps = new HomeCards.SeeAllAdapter(ROW_RECENT, this, () -> seeAll(TAB_APPS), recentWidth,
                 Math.round(recentWidth * 9f / 16f), R.layout.item_see_all, cfg);
@@ -529,7 +547,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         ConcatAdapter.Config concat = new ConcatAdapter.Config.Builder().setIsolateViewTypes(false)
                 .setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS).build();
         RecyclerView.Adapter<?>[] adapters = {null, watchAdapter, new ConcatAdapter(concat, recentAdapter, seeAllApps),
-                new ConcatAdapter(concat, gameAdapter, seeAllGames)};
+                new ConcatAdapter(concat, gameAdapter, seeAllGames), tvAdapter};
         // One pool for the strips and the grids; each kind of card has its own view type.
         pool = new RecyclerView.RecycledViewPool();
         // The uncapped strips scroll through many cards: keep enough of each strip card to rebind instead of inflate.
@@ -557,14 +575,28 @@ public class MainActivity extends Activity implements CardRow.Listener {
         appsGrid = findViewById(R.id.appsGrid);
         appsGrid.setLayoutManager(gridLayout(columns));
         appsAdapter = new AppAdapter(this, APPS_GRID, this, inner / columns - Math.round(16 * density), true, cfg);
-        appsAdapter.setInputOpener(this::openInput);
+        appsAdapter.setInputOpener(this::openInputById);
         appsGrid.setAdapter(appsAdapter);
         gamesGrid = findViewById(R.id.gamesGrid);
         gameColumns = Math.max(1, inner / Math.round((GAME_WIDTH_DP + 16) * density));
         gamesGrid.setLayoutManager(gridLayout(gameColumns));
         gamesAdapter = new HomeCards.GameAdapter(GAMES_GRID, this, images, g -> startGame(g.game), true, cfg);
         gamesGrid.setAdapter(gamesAdapter);
-        for (RecyclerView grid : new RecyclerView[]{appsGrid, gamesGrid}) {
+        tvTab = findViewById(R.id.tvTab);
+        tvInputsList = findViewById(R.id.tvInputs);
+        tvInputsList.setLayoutManager(stripLayout());
+        tvInputsAdapter = new TvCards.Adapter(TV_INPUTS, this, this::openTv, false, cfg);
+        tvInputsList.setAdapter(tvInputsAdapter);
+        tvChannelsGrid = findViewById(R.id.tvChannels);
+        tvColumns = Math.max(1, inner / Math.round((TV_WIDTH_DP + 16) * density));
+        tvChannelsGrid.setLayoutManager(gridLayout(tvColumns));
+        tvChannelsAdapter = new TvCards.Adapter(TV_CHANNELS, this, this::openTv, true, cfg);
+        tvChannelsGrid.setAdapter(tvChannelsAdapter);
+        if (rtl) {
+            ((TextView) findViewById(R.id.titleTvInputs)).setGravity(Gravity.RIGHT);
+            ((TextView) findViewById(R.id.titleTvChannels)).setGravity(Gravity.RIGHT);
+        }
+        for (RecyclerView grid : new RecyclerView[]{appsGrid, gamesGrid, tvInputsList, tvChannelsGrid}) {
             grid.setItemAnimator(null);
             grid.setHasFixedSize(true);
             grid.setRecycledViewPool(pool);
@@ -593,6 +625,10 @@ public class MainActivity extends Activity implements CardRow.Listener {
         tabHome = findViewById(R.id.tabHome);
         tabApps = findViewById(R.id.tabApps);
         tabGames = findViewById(R.id.tabGames);
+        tabTv = findViewById(R.id.tabTv);
+        // Streaming boxes have no inputs or tuner to show.
+        if (getSystemService(TV_INPUT_SERVICE) == null) tabTv.setVisibility(View.GONE);
+        tabTv.setOnClickListener(v -> showTab(TAB_TV));
         btnInputs = findViewById(R.id.btnInputs);
         btnSettings = findViewById(R.id.btnSettings);
         notificationBell = new NotificationBell(this, findViewById(R.id.btnBell));
@@ -600,7 +636,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         tabHome.setOnClickListener(v -> showTab(TAB_HOME));
         tabApps.setOnClickListener(v -> showTab(TAB_APPS));
         tabGames.setOnClickListener(v -> showTab(TAB_GAMES));
-        TextView[] tabs = {tabHome, tabApps, tabGames};
+        TextView[] tabs = {tabHome, tabApps, tabGames, tabTv};
         for (int i = 0; i < tabs.length; i++) {
             int which = i;
             tabs[i].setOnFocusChangeListener((v, focused) -> {
@@ -642,7 +678,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     }
 
     private View[] headerViews() {
-        return new View[]{tabHome, tabApps, tabGames, btnInputs, btnWifi, findViewById(R.id.btnSearch), findViewById(R.id.btnBell), btnSettings};
+        return new View[]{tabHome, tabApps, tabGames, tabTv, btnInputs, btnWifi, findViewById(R.id.btnSearch), findViewById(R.id.btnBell), btnSettings};
     }
 
     /** Left and Right along the header by where the buttons are on screen, so the Hebrew mirror needs nothing else. */
@@ -744,6 +780,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         }
         rebuildOnResume = false;
         if (openLiveTvAfterBoot()) return;
+        startOnLastInputAfterBoot();
         updateDate();
         // Callbacks keep the network and Inputs buttons current in the background; this refresh only catches anything
         // missed, and its binder calls would hold up the first frame back on Home, so later resumes run it after that frame.
@@ -766,6 +803,22 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 handler.postDelayed(this::playPetalShower, 450);
             }
         }
+    }
+
+    /** Android 14 refuses activity starts from a boot receiver, so the switch happens from Home in the foreground. */
+    private void startOnLastInputAfterBoot() {
+        if (!StartOnLastInput.enabled(this) || !StartOnLastInput.claimBoot(this)) return;
+        tryLastInput(LAST_INPUT_TRIES);
+    }
+
+    private void tryLastInput(int triesLeft) {
+        // Only while Home is still in front and untouched: a key press means the user chose something else.
+        if (!resumed || keyedSinceResume || isDestroyed()) return;
+        Context app = getApplicationContext();
+        loader.execute(() -> {
+            if (StartOnLastInput.open(app) != StartOnLastInput.Result.NOT_LISTED_YET || triesLeft <= 1) return;
+            handler.postDelayed(() -> tryLastInput(triesLeft - 1), LAST_INPUT_RETRY_MS);
+        });
     }
 
     /** Launcher settings' change count (Config.SETTINGS_REVISION_KEY); onResume rebuilds Home when it moved. */
@@ -817,6 +870,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 if (e != null) watching.add(new HomeCards.Watch(item, e.label, e.banner, e.icon));
             }
             List<HomeCards.Game> games = gameCards(app, data.games);
+            TvData tv = loadTv(app);
             AppAdapter.Entry moonlight = entryFor(app, SteamGames.MOONLIGHT_PACKAGE, byPkg);
             handler.post(() -> {
                 if (isDestroyed()) return;
@@ -826,6 +880,9 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 allRecent = recent;
                 allWatching = watching;
                 allGames = games;
+                allTv = tv.recent;
+                tvInputsAdapter.setItems(tv.inputs);
+                tvChannelsAdapter.setItems(tv.channels);
                 showLists();
                 if (apps) {
                     tilesReady = true;
@@ -833,6 +890,56 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 }
             });
         });
+    }
+
+    /** Recent TV, the inputs and the channels with now and next, for the strip and the TV tab. */
+    private static final class TvData {
+        final List<TvCards.Tile> recent = new ArrayList<>();
+        final List<TvCards.Tile> inputs = new ArrayList<>();
+        final List<TvCards.Tile> channels = new ArrayList<>();
+    }
+
+    /** Blocking: the input list, the channel table and its guide. Runs on the loader thread. */
+    private TvData loadTv(Context app) {
+        TvData out = new TvData();
+        String current = TvInputs.current(app);
+        Map<String, TvInputs.Input> inputs = new HashMap<>();
+        for (TvInputs.Input input : TvInputs.list(app)) {
+            inputs.put(input.id, input);
+            boolean on = input.id.equals(current);
+            out.inputs.add(new TvCards.Tile(input, on ? app.getString(R.string.tv_last_used) : null, on));
+        }
+        List<TvChannels.Channel> channels = TvChannels.list(app);
+        Map<Long, TvChannels.NowNext> guide = TvChannels.guide(app,
+                channels.subList(0, Math.min(GUIDE_CHANNELS, channels.size())), System.currentTimeMillis());
+        Map<String, TvCards.Tile> byChannel = new HashMap<>();
+        for (TvChannels.Channel c : channels) {
+            TvCards.Tile tile = new TvCards.Tile(c, onNow(app, guide.get(c.id)));
+            out.channels.add(tile);
+            byChannel.put(String.valueOf(c.id), tile);
+        }
+        for (RecentTv.Entry e : RecentTv.list(app)) {
+            if (RecentTv.INPUT.equals(e.kind) && inputs.containsKey(e.id)) {
+                TvInputs.Input input = inputs.get(e.id);
+                boolean on = e.id.equals(current);
+                out.recent.add(new TvCards.Tile(input, on ? app.getString(R.string.tv_last_used) : null, on));
+            } else if (RecentTv.CHANNEL.equals(e.kind) && byChannel.containsKey(e.id)) {
+                out.recent.add(byChannel.get(e.id));
+            }
+        }
+        return out;
+    }
+
+    /** "Now: title", else "Next: title", else null. */
+    private static String onNow(Context app, TvChannels.NowNext nn) {
+        if (nn == null) return null;
+        if (nn.now != null) return app.getString(R.string.tv_now, nn.now.title);
+        return nn.next != null ? app.getString(R.string.tv_next, nn.next.title) : null;
+    }
+
+    private void openTv(TvCards.Tile tile) {
+        boolean opened = tile.input != null ? TvInputs.open(this, tile.input) : TvChannels.open(this, tile.channel);
+        if (!opened) Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -913,6 +1020,10 @@ public class MainActivity extends Activity implements CardRow.Listener {
         rowLengths[ROW_WATCHING] = cfg.rowShown(HomeRows.CONTINUE_WATCHING) ? watching.size() : 0;
         rowLengths[ROW_RECENT] = cfg.rowShown(HomeRows.RECENT_APPS) && !recent.isEmpty() ? recent.size() + 1 : 0;
         rowLengths[ROW_GAMES] = cfg.rowShown(HomeRows.GAMES) && !games.isEmpty() ? games.size() + 1 : 0;
+        List<TvCards.Tile> recentTv = HiddenItems.visible(allTv, t -> hidden.contains(t.key()), STRIP_LIMIT);
+        tvAdapter.setItems(recentTv);
+        rowLengths[ROW_TV] = cfg.rowShown(HomeRows.RECENT_TV) ? recentTv.size() : 0;
+        refreshTvTab();
         for (int r = ROW_WATCHING; r < ROWS; r++) sections[r].setVisibility(rowLengths[r] > 0 ? View.VISIBLE : View.GONE);
         if (tab == TAB_GAMES) showTab(TAB_GAMES);
 
@@ -943,6 +1054,14 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 showLists();
             });
         });
+    }
+
+    /** The channels title and grid only when the tuner has channels. */
+    private void refreshTvTab() {
+        boolean channels = tvChannelsAdapter.getItemCount() > 0;
+        findViewById(R.id.titleTvChannels).setVisibility(channels ? View.VISIBLE : View.GONE);
+        tvChannelsGrid.setVisibility(channels ? View.VISIBLE : View.GONE);
+        findViewById(R.id.titleTvInputs).setVisibility(tvInputsAdapter.getItemCount() > 0 ? View.VISIBLE : View.GONE);
     }
 
     // ---- game streaming setup -------------------------------------------------------------------
@@ -990,7 +1109,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
 
     private boolean isInContent(View v) {
         for (View p = v; p != null; p = p.getParent() instanceof View ? (View) p.getParent() : null) {
-            if (p == homeRows || p == appsGrid || p == gamesGrid || p == gamesSetup.view()) return true;
+            if (p == homeRows || p == appsGrid || p == gamesGrid || p == gamesSetup.view() || p == tvTab) return true;
         }
         return false;
     }
@@ -1095,6 +1214,10 @@ public class MainActivity extends Activity implements CardRow.Listener {
             AppAdapter.Entry e = recentAdapter.entryAt(position);
             return new Hero.Item("a" + e.pkg, e.label, null, null, e.icon, null, copy(e.banner != null ? e.banner : e.icon));
         }
+        if (row == ROW_TV && position < tvAdapter.getItemCount()) {
+            TvCards.Tile t = tvAdapter.tileAt(position);
+            return new Hero.Item("t" + t.key(), t.title, t.subtitle, null, null, null, null);
+        }
         if (row == ROW_GAMES && position < gameAdapter.getItemCount()) {
             HomeCards.Game g = gameAdapter.gameAt(position);
             Hero.Item h = new Hero.Item("g" + g.game.name, g.game.name, null, moonlightLabel, moonlightIcon, g.cover, null);
@@ -1161,6 +1284,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         tabHome.setSelected(which == TAB_HOME);
         tabApps.setSelected(which == TAB_APPS);
         tabGames.setSelected(which == TAB_GAMES);
+        tabTv.setSelected(which == TAB_TV);
     }
 
     private void showTab(int which) {
@@ -1174,6 +1298,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         else if (entering) gamesSetup.enter();
         homeRows.setVisibility(which == TAB_HOME ? View.VISIBLE : View.GONE);
         appsGrid.setVisibility(which == TAB_APPS ? View.VISIBLE : View.GONE);
+        tvTab.setVisibility(which == TAB_TV ? View.VISIBLE : View.GONE);
         refreshGamesSetup();
         selectTab(which);
         if (which != TAB_HOME) hero.fade(0f);
@@ -1181,11 +1306,18 @@ public class MainActivity extends Activity implements CardRow.Listener {
     }
 
     private TextView selectedTab() {
-        return tab == TAB_APPS ? tabApps : tab == TAB_GAMES ? tabGames : tabHome;
+        return tab == TAB_APPS ? tabApps : tab == TAB_GAMES ? tabGames : tab == TAB_TV ? tabTv : tabHome;
     }
 
     /** Down from the header, or back from an app: the remembered card of the open tab, or the tab when there is none. */
     private void focusContent() {
+        if (tab == TAB_TV) {
+            int inputs = tvInputsAdapter.getItemCount(), channels = tvChannelsAdapter.getItemCount();
+            if (inputs > 0) focusIn(tvInputsList, HomeNav.column(rememberedInput, inputs));
+            else if (channels > 0) focusIn(tvChannelsGrid, HomeNav.column(rememberedChannel, channels));
+            else selectedTab().requestFocus();
+            return;
+        }
         if (tab == TAB_APPS || tab == TAB_GAMES) {
             boolean apps = tab == TAB_APPS;
             int count = apps ? appsAdapter.getItemCount() : gamesAdapter.getItemCount();
@@ -1226,6 +1358,8 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private int rowOf(RecyclerView list) {
         if (list == appsGrid) return APPS_GRID;
         if (list == gamesGrid) return GAMES_GRID;
+        if (list == tvInputsList) return TV_INPUTS;
+        if (list == tvChannelsGrid) return TV_CHANNELS;
         for (int r = 0; r < ROWS; r++) if (rows[r] == list) return r;
         return ROW_WATCHING;
     }
@@ -1238,6 +1372,14 @@ public class MainActivity extends Activity implements CardRow.Listener {
         }
         if (row == GAMES_GRID) {
             rememberedGame = position;
+            return;
+        }
+        if (row == TV_INPUTS) {
+            rememberedInput = position;
+            return;
+        }
+        if (row == TV_CHANNELS) {
+            rememberedChannel = position;
             return;
         }
         rememberedRow = row;
@@ -1270,6 +1412,39 @@ public class MainActivity extends Activity implements CardRow.Listener {
         boolean left = keyCode == KeyEvent.KEYCODE_DPAD_LEFT;
         boolean horizontal = left || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT;
         boolean down = keyCode == KeyEvent.KEYCODE_DPAD_DOWN;
+        if (row == TV_INPUTS) {
+            int count = tvInputsAdapter.getItemCount();
+            if (horizontal) {
+                int target = HomeNav.nextColumn(position, count, left == rtl);
+                if (target == position) return true;
+                focusIn(tvInputsList, target);
+            } else if (!down) {
+                selectedTab().requestFocus();
+            } else if (tvChannelsAdapter.getItemCount() > 0) {
+                focusIn(tvChannelsGrid, HomeNav.column(rememberedChannel, tvChannelsAdapter.getItemCount()));
+            } else {
+                return true;
+            }
+            click(keyCode);
+            return true;
+        }
+        if (row == TV_CHANNELS) {
+            int count = tvChannelsAdapter.getItemCount();
+            int target;
+            if (horizontal) {
+                if (GridNavigation.atHorizontalEdge(position, count, tvColumns, rtl, left)) return true;
+                target = left != rtl ? position - 1 : position + 1;
+            } else {
+                target = HomeNav.gridBelowStrip(position, count, tvColumns, down, tvInputsAdapter.getItemCount());
+            }
+            if (target == HomeNav.HEADER) selectedTab().requestFocus();
+            else if (target == HomeNav.STRIP_ABOVE) {
+                focusIn(tvInputsList, HomeNav.column(rememberedInput, tvInputsAdapter.getItemCount()));
+            } else if (target != position) focusIn(tvChannelsGrid, target);
+            else return true;
+            click(keyCode);
+            return true;
+        }
         if (row == APPS_GRID || row == GAMES_GRID) {
             boolean apps = row == APPS_GRID;
             int count = apps ? appsAdapter.getItemCount() : gamesAdapter.getItemCount();
@@ -1318,7 +1493,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
 
     // ---- hide from Home ---------------------------------------------------------------------------
 
-    /** Hold OK or Menu on a card: hide it from Home (or show it again from the Apps and Games tabs). */
+    /** Hold OK or Menu on a card: hide it from Home (or show it again from the Apps, Games and TV tabs). */
     @Override
     public void onCardMenu(int row, int position, View card) {
         if (openPopup != null) return;   // View's own long click got there first
@@ -1334,6 +1509,10 @@ public class MainActivity extends Activity implements CardRow.Listener {
             // Some firmware has no App info page at all; a row that only toasts "can't open" helps nobody.
             Intent info = SystemSettings.appInfo(this, e.pkg);
             if (info != null) addSettingsMenuRow(items, popup, getString(R.string.library_app_info), () -> open(info));
+        } else if (row == ROW_TV || row == TV_INPUTS || row == TV_CHANNELS) {
+            TvCards.Tile t = (row == ROW_TV ? tvAdapter : row == TV_INPUTS ? tvInputsAdapter : tvChannelsAdapter)
+                    .tileAt(position);
+            addHideToggle(items, popup, t.key(), t.title);
         } else if (row == ROW_WATCHING) {
             HomeCards.Watch w = watchAdapter.watchAt(position);
             addHideToggle(items, popup, HiddenItems.watchEntry(w.item), HiddenItems.watchLabel(w.item));
@@ -2018,80 +2197,20 @@ public class MainActivity extends Activity implements CardRow.Listener {
         return InputSources.mapped(inputSources, inputId);
     }
 
-    /** Switches to a passthrough input (HDMI, AV). An input mapped in `input_sources` is opened by sending
-     *  `input_action` with its source number as the int extra "input" (Xiaomi China firmware, whose tvplayer
-     *  answers com.xiaomi.mitv.tvplayer.EXTSRC_PLAY and nothing else). Otherwise the standard way is
-     *  ACTION_VIEW on its channel URI, which the Live TV app handles; where nothing takes that, the
-     *  configured `input_action` is sent with the same URI instead (XGIMI's HDMI player only answers
-     *  com.xgimi.action.hdmiPlayer). An `input_action` written as "package/.Activity" starts that activity
-     *  itself, ahead of the standard way, for firmware that answers the channel URI with "unsupported"
-     *  (Redmi X65, MiTV-NSOP0: com.xiaomi.mitv.tvplayer/.ExternalSourceActivity). With `input_uri_scheme` set (YaOS: live-tv) the same URI goes out
-     *  with that scheme and no MIME type. A player guarded by a permission this build does not declare
-     *  throws SecurityException, which used to take Home down with it (YaOS before the manifest asked
-     *  for ACCESS_TV_SOURCE). */
-    private void openInput(String inputId) {
-        // A CEC device is a child input of its HDMI port; the vendor source number belongs to the port
-        // (MiTV-MFFU0). Only that lookup uses the parent: the generic path below still opens the child.
-        String sourceId = inputId;
-        TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
-        if (tim != null) {
-            try {
-                TvInputInfo info = tim.getTvInputInfo(inputId);
-                if (info != null && info.getParentId() != null) sourceId = info.getParentId();
-            } catch (RuntimeException ignored) {
-            }
-        }
-        Integer source = mappedSource(sourceId);
-        if (source != null && source >= 0 && !inputAction.isEmpty()) {
-            try {
-                startActivity(inputActionIntent().putExtra("input", source.intValue())
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                return;
-            } catch (ActivityNotFoundException | SecurityException e) {
-                // fall through to the standard way
-            }
-        } else if (source == null && InputSources.isComponent(inputAction)) {
-            // An activity named in input_action is the vendor's own source picker (Xiaomi: tvplayer's
-            // ExternalSourceActivity). Its firmware answers the standard channel URI with "unsupported", so the
-            // row goes straight there; the picker is the overlay the remote's Source button opens.
-            try {
-                startActivity(inputActionIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                return;
-            } catch (ActivityNotFoundException | SecurityException e) {
-                // fall through to the standard way
-            }
-        }
-        Uri uri = TvContract.buildChannelUriForPassthroughInput(inputId);
-        Intent view = (inputUriScheme.isEmpty()
-                ? new Intent(Intent.ACTION_VIEW).setDataAndType(uri, "vnd.android.cursor.item/channel")
-                : new Intent(Intent.ACTION_VIEW, uri.buildUpon().scheme(inputUriScheme).build()))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        // Aim it at the TV app first: apps installed later (a streaming app, a file manager) can claim the same
-        // channel URI too, and with two or more handlers Android shows a chooser instead of the input (WhaleOS).
-        if (!liveTvPkg.isEmpty()) {
-            try {
-                startActivity(new Intent(view).setPackage(liveTvPkg));
-                return;
-            } catch (ActivityNotFoundException | SecurityException ignored) {
-            }
-        }
-        try {
-            startActivity(view);
-            return;
-        } catch (ActivityNotFoundException | SecurityException e) {
-            if (inputAction.isEmpty()) {
-                Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-        open(inputActionIntent().setDataAndType(uri, "vnd.android.cursor.item/channel"));
+    /** The same path as the TV tab, so the switch also lands in Recent TV. */
+    private void switchInput(TvInputs.Input input) {
+        if (!TvInputs.open(this, input)) Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
     }
 
-    /** `input_action` as an intent: an explicit component when it reads "package/.Activity", else an action. */
-    private Intent inputActionIntent() {
-        ComponentName component = InputSources.isComponent(inputAction)
-                ? ComponentName.unflattenFromString(inputAction) : null;
-        return component != null ? new Intent().setComponent(component) : new Intent(inputAction);
+    /** A tile whose launch_actions entry is "input:<id>" (config.xml): the same path as the Inputs menu's rows. */
+    private void openInputById(String inputId) {
+        for (TvInputs.Input input : TvInputs.list(this)) {
+            if (input.id.equals(inputId)) {
+                switchInput(input);
+                return;
+            }
+        }
+        switchInput(new TvInputs.Input(inputId, inputId, -1));
     }
 
     /** Dropdown menu under the Inputs pill: HDMI ports (with connection state), AV and Live TV. */
@@ -2120,6 +2239,8 @@ public class MainActivity extends Activity implements CardRow.Listener {
         String tunerId = null;
         boolean tunerIsHw = false;
         boolean tunerIsAnalog = false;
+        Map<String, TvInputs.Input> switchable = new HashMap<>();
+        for (TvInputs.Input input : TvInputs.list(this)) switchable.put(input.id, input);
         if (tim != null) {
             List<TvInputInfo> inputs = new ArrayList<>(tim.getTvInputList());
             // HDMI ports first in port order, then AV and the rest.
@@ -2187,35 +2308,38 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 if (hdmi && !label.toUpperCase(Locale.ROOT).contains("HDMI")) label = "HDMI " + label;
                 CharSequence custom = InputNames.tidy(info.loadCustomLabel(this));
                 boolean named = custom != null && custom.length() > 0 && !custom.toString().equals(label);
+                final String id = info.getId();
+                List<TvInputInfo> devices = cecDevices.get(id);
+                TvInputs.Input input = switchable.get(id);
+                if (input == null && devices == null) continue;
                 if (!hdmi && rows.getChildCount() > 0 && !sawNonHdmi) {
                     View line = addSeparator(rows);
                     if (connectedOnly) fold(line, folded);
                 }
                 if (!hdmi) sawNonHdmi = true;
-                List<TvInputInfo> devices = cecDevices.get(info.getId());
                 if (devices != null) {
                     // "Apple TV · HDMI 1": the device's own name (or the one given to it or to its port in
                     // Settings > Inputs), then the port. Opening the device's input also makes it the CEC
                     // active source, which wakes it.
                     for (TvInputInfo device : devices) {
+                        TvInputs.Input deviceInput = switchable.get(device.getId());
+                        if (deviceInput == null) continue;
                         CharSequence name = InputNames.tidy(device.loadCustomLabel(this));
                         if (name == null || name.length() == 0) name = named ? custom : device.loadLabel(this);
                         String deviceLabel = name == null || name.length() == 0 ? label : name + " \u00B7 " + label;
-                        final String deviceId = device.getId();
-                        int state = hdmiStateBogus ? -1 : tim.getInputState(deviceId);
-                        View row = addInputRow(rows, popup, R.drawable.ic_input, deviceLabel, state, () -> openInput(deviceId));
+                        int state = hdmiStateBogus ? -1 : tim.getInputState(device.getId());
+                        View row = addInputRow(rows, popup, R.drawable.ic_input, deviceLabel, state, () -> switchInput(deviceInput));
                         if (connectedOnly && InputFold.folds(true, state)) fold(row, folded);
                     }
                     continue;
                 }
                 // The name given in Settings > Inputs (e.g. "MacBook Pro") goes first, the port after it.
                 if (named) label = custom + " \u00B7 " + label;
-                final String id = info.getId();
                 // Analog AV jacks have no hotplug detection, and some TVs report them as always connected
                 // (TCL Smart TV Pro G03 says "Connected" with nothing plugged in), so AV rows show no state.
                 int state = !hdmi || hdmiStateBogus ? -1 : tim.getInputState(id);
                 View row = addInputRow(rows, popup, hdmi ? R.drawable.ic_input : R.drawable.ic_av, label, state,
-                        () -> openInput(id));
+                        () -> switchInput(input));
                 if (connectedOnly && InputFold.folds(hdmi, state)) fold(row, folded);
             }
         }
