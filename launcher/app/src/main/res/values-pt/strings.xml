@@ -155,7 +155,11 @@
     <string name="home_toggle_failed">Não foi possível acessar o ADB da TV: ative a depuração USB nas opções do desenvolvedor e aceite o aviso</string>
     <string name="tab_home">Início</string>
     <string name="tab_apps">Apps</string>
+    <string name="row_watching">Continuar assistindo</string>
     <string name="row_recent">Apps recentes</string>
     <string name="hide_from_home">Ocultar do Início</string>
     <string name="show_on_home">Mostrar no Início</string>
+    <string name="hide_all_from">Ocultar tudo de %1$s</string>
+    <string name="hidden_watch_app">%1$s: todo o Continuar assistindo</string>
+    <string name="last_watched">Assistido %1$s</string>
 </resources>
