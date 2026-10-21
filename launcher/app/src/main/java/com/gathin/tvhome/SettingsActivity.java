@@ -16,9 +16,11 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,15 +45,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The launcher's own Settings pages, one per section (remote buttons, Home, appearance, permissions). Every choice goes to {@link UserSettings}; the result is RESULT_OK once anything changed, so Home
- * rebuilds. Steps inside a page (capture a button, pick an app) are screens on a back stack: Back goes up one.
+ * The launcher's own Settings pages, one per section (remote buttons, games, Home, appearance, permissions). Every choice goes to {@link UserSettings}; the result is RESULT_OK once anything changed, so Home
+ * rebuilds. Steps inside a page (capture a button, pick an app, pair) are screens on a back stack: Back goes up one.
  */
 public final class SettingsActivity extends Activity {
     static final String EXTRA_PAGE = "page";
-    static final String REMOTE = "remote", HOME = "home", APPEARANCE = "appearance", ADVANCED = "advanced";
+    static final String REMOTE = "remote", GAMES = "games", HOME = "home",
+            APPEARANCE = "appearance", ADVANCED = "advanced";
     /** Section ids and titles, in the order Launcher settings lists them. */
-    static final String[] PAGES = {REMOTE, HOME, APPEARANCE, ADVANCED};
-    static final int[] PAGE_TITLES = {R.string.settings_remote, R.string.settings_home, R.string.settings_appearance, R.string.settings_advanced};
+    static final String[] PAGES = {REMOTE, GAMES, HOME, APPEARANCE, ADVANCED};
+    static final int[] PAGE_TITLES = {R.string.settings_remote, R.string.settings_games, R.string.settings_home, R.string.settings_appearance, R.string.settings_advanced};
 
     private static final String[] BACKGROUNDS = {"#000000", "#14171C", "#0B1426", "#0E1A14", "#1A0F1E", "#1C140F"};
     private static final int[] BACKGROUND_NAMES = {R.string.settings_bg_black, R.string.settings_bg_graphite,
@@ -77,10 +80,19 @@ public final class SettingsActivity extends Activity {
 
     private final Runnable sections = this::sectionsPage;
     private final Runnable remote = this::remotePage;
+    private final Runnable games = this::gamesPage;
     private final Runnable home = this::homePage;
     private final Runnable appearance = this::appearancePage;
     private final Runnable advanced = this::advancedPage;
     private final KeyCapture.Listener captured = code -> handler.post(() -> replace(() -> actionPage(code)));
+
+    private final GameHosts hosts = new GameHosts(this, () -> {
+        if (screen == games) render();
+    });
+    private final Runnable pairingPoll = this::pollPairing;
+    private String pairingState;
+    /** The page just rendered was the pairing one; any other abandons a pairing that waits for its PIN. */
+    private boolean pairingShown;
 
     static Intent intent(Context ctx, String page) {
         return new Intent(ctx, SettingsActivity.class).putExtra(EXTRA_PAGE, page);
@@ -99,6 +111,7 @@ public final class SettingsActivity extends Activity {
 
     private Runnable page(String id) {
         if (REMOTE.equals(id)) return remote;
+        if (GAMES.equals(id)) return games;
         if (HOME.equals(id)) return home;
         if (APPEARANCE.equals(id)) return appearance;
         if (ADVANCED.equals(id)) return advanced;
@@ -116,6 +129,14 @@ public final class SettingsActivity extends Activity {
     protected void onPause() {
         super.onPause();
         KeyCapture.stop(captured);
+        handler.removeCallbacks(pairingPoll);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        hosts.stop();
+        if (pairingShown) GameStreamPairing.stop();
     }
 
     @Override
@@ -161,10 +182,14 @@ public final class SettingsActivity extends Activity {
         }
         rendered = screen;
         KeyCapture.stop(captured);
+        handler.removeCallbacks(pairingPoll);
+        if (screen != games) hosts.stop();
         rows.removeAllViews();
         hint.setVisibility(View.GONE);
         big.setVisibility(View.GONE);
+        pairingShown = false;
         screen.run();
+        if (!pairingShown) GameStreamPairing.stop();
         rows.setVisibility(rows.getChildCount() == 0 ? View.GONE : View.VISIBLE);
         // Same screen again: keep focus on the same place, or the nearest row after it.
         View target = null;
@@ -415,12 +440,132 @@ public final class SettingsActivity extends Activity {
         return null;
     }
 
+    // ---- games ---------------------------------------------------------------------------------------------
+
+    private void gamesPage() {
+        header(R.string.settings_games, R.string.settings_games_hint);
+        Config cfg = Config.load(this);
+        if (!AppEntries.launchable(getPackageManager(), SteamGames.MOONLIGHT_PACKAGE)) {
+            row(getString(R.string.settings_games_no_moonlight), null, null, null);
+        }
+        String host = cfg.gamestreamHost;
+        if (host.isEmpty()) {
+            row(getString(R.string.settings_games_no_pc), null, null, null);
+        } else {
+            boolean paired = SteamGames.paired(this);
+            row(hostName(host), host, getString(paired ? R.string.settings_paired : R.string.settings_not_paired),
+                    null);
+            if (!paired) row(getString(R.string.settings_pair), null, null, () -> {
+                pairingState = null;
+                go(this::pairingPage);
+            });
+            row(getString(R.string.settings_forget_pc), null, null, () -> changed(GameHosts.forget(this)));
+        }
+        label(R.string.settings_games_found);
+        hosts.start();
+        if (hosts.found().isEmpty()) {
+            row(getString(hosts.timedOut() ? R.string.games_none_found : R.string.settings_games_searching), null,
+                    null, null);
+        }
+        for (Map.Entry<String, String> pc : hosts.found().entrySet()) {
+            String address = pc.getValue();
+            row(pc.getKey(), address, address.equals(host) ? CHECK : null, () -> chooseHost(address));
+        }
+        row(getString(R.string.settings_games_address), null, null, this::askAddress);
+    }
+
+    private String hostName(String address) {
+        for (Map.Entry<String, String> pc : hosts.found().entrySet()) {
+            if (pc.getValue().equals(address)) return pc.getKey();
+        }
+        return getString(R.string.settings_games_pc);
+    }
+
+    private void chooseHost(String address) {
+        if (!address.equals(Config.load(this).gamestreamHost)) {
+            if (!GameHosts.choose(this, address)) {
+                changed(false);
+                return;
+            }
+            setResult(RESULT_OK);
+        }
+        pairingState = null;
+        if (SteamGames.paired(this)) render();
+        else go(this::pairingPage);
+    }
+
+    private void askAddress() {
+        EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+        input.setSingleLine(true);
+        input.setText(Config.load(this).gamestreamHost);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_games_address)
+                .setMessage(R.string.settings_games_address_hint)
+                .setView(input)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    String address = input.getText().toString().trim();
+                    if (GameHosts.valid(address)) chooseHost(address);
+                    else Toast.makeText(this, R.string.settings_games_address_bad, Toast.LENGTH_LONG).show();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void pairingPage() {
+        String host = Config.load(this).gamestreamHost;
+        if (host.isEmpty()) {
+            backTo(games);
+            return;
+        }
+        header(getString(R.string.settings_pair_title, hostName(host)), getString(R.string.settings_pair_hint));
+        pairingShown = true;
+        boolean paired = SteamGames.paired(this);
+        if (!paired && !GameStreamPairing.running() && pairingState == null) {
+            GameStreamPairing.start(SteamGames.identityDir(this), host);
+        }
+        pairingState = GameStreamPairing.state(SteamGames.paired(this));
+        big.setVisibility(View.VISIBLE);
+        String pin = GameStreamPairing.pin();
+        if (paired) {
+            big.setText(CHECK);
+            hint.setText(R.string.settings_paired);
+            row(getString(R.string.settings_done), null, null, () -> backTo(games));
+            refreshGames();
+            return;
+        }
+        if (GameStreamPairing.running()) {
+            big.setText(pin != null ? pin : "…");
+        } else {
+            big.setText("✕");
+            hint.setText(GameStreamPairing.lastResult() == GameStreamClient.PairResult.PIN_WRONG
+                    ? R.string.settings_pair_wrong_pin : R.string.settings_pair_failed);
+            row(getString(R.string.settings_pair_again), null, null, () -> {
+                GameStreamPairing.start(SteamGames.identityDir(this), host);
+                render();
+            });
+        }
+        handler.postDelayed(pairingPoll, 500);
+    }
+
+    private void pollPairing() {
+        if (!GameStreamPairing.state(SteamGames.paired(this)).equals(pairingState)) render();
+        else handler.postDelayed(pairingPoll, 500);
+    }
+
+    /** Reads the new host's games now, so the row fills before the next Home refresh would. */
+    private void refreshGames() {
+        SteamGames.syncSoon();
+        Context app = getApplicationContext();
+        new Thread(() -> SteamGames.refresh(app, Config.load(app)), "games-refresh").start();
+    }
+
     // ---- home ----------------------------------------------------------------------------------------------
 
     private void homePage() {
         header(R.string.settings_home, R.string.settings_home_hint);
         Config cfg = Config.load(this);
-        int[] names = {R.string.settings_row_watch, R.string.settings_row_recent};
+        int[] names = {R.string.settings_row_watch, R.string.settings_row_recent, R.string.settings_row_games};
         for (int i = 0; i < HomeRows.ALL.size(); i++) {
             String id = HomeRows.ALL.get(i);
             boolean shown = cfg.rowShown(id);
