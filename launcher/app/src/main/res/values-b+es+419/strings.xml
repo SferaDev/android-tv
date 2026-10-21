@@ -286,4 +286,9 @@
     <string name="game_not_closed">No se pudo cerrar %1$s en %2$s</string>
     <string name="game_running_app">la app abierta</string>
     <string name="game_unpaired">Vuelve a vincular %1$s para jugar a sus juegos</string>
+    <string name="now_playing_previous">Anterior</string>
+    <string name="now_playing_play_pause">Reproducir o pausar</string>
+    <string name="now_playing_next">Siguiente</string>
+    <string name="now_playing_stop">Detener</string>
+    <string name="now_playing">Reproduciendo ahora</string>
 </resources>

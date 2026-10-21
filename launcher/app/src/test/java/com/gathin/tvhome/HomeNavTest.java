@@ -113,4 +113,21 @@ public class HomeNavTest {
             }
         }
     }
+
+    @Test public void firstFromSkipsRowsAboveAndEmptyOnes() {
+        int[] lengths = {4, 0, 3, 5};
+        assertEquals(2, HomeNav.firstFrom(lengths, 1));
+        assertEquals(0, HomeNav.firstFrom(lengths, 0));
+        assertEquals(H, HomeNav.firstFrom(new int[]{4, 0, 0}, 1));
+    }
+
+    @Test public void nowPlayingAboveTheStripsIsOneUpFromTheFirstAndTheHeaderIsOneUpFromIt() {
+        // Now playing (cover and three controls), Continue watching empty, Recent apps, Games.
+        int[] lengths = {4, 0, 6, 2};
+        assertEquals(0, HomeNav.nextRow(lengths, 2, false));
+        assertEquals(H, HomeNav.nextRow(lengths, 0, false));
+        assertEquals(2, HomeNav.nextRow(lengths, 0, true));
+        lengths[0] = 0;
+        assertEquals(H, HomeNav.nextRow(lengths, 2, false));
+    }
 }
