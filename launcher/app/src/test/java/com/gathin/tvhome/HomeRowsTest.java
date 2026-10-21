@@ -14,8 +14,10 @@ public class HomeRowsTest {
     }
 
     @Test public void hidingAndShowingAgainKeepsTheOrder() {
-        assertEquals(Arrays.asList("continue_watching", "games"), HomeRows.toggle(HomeRows.ALL, "recent_apps", false));
-        assertEquals(HomeRows.ALL, HomeRows.toggle(Arrays.asList("continue_watching", "games"), "recent_apps", true));
+        assertEquals(Arrays.asList("continue_watching", "games", "recent_tv"),
+                HomeRows.toggle(HomeRows.ALL, "recent_apps", false));
+        assertEquals(HomeRows.ALL,
+                HomeRows.toggle(Arrays.asList("continue_watching", "games", "recent_tv"), "recent_apps", true));
         assertEquals(Collections.singletonList("continue_watching"),
                 HomeRows.toggle(Collections.<String>emptyList(), "continue_watching", true));
         assertEquals(Arrays.asList("recent_apps", "games"),

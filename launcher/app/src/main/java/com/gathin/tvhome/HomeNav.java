@@ -7,6 +7,8 @@ package com.gathin.tvhome;
 final class HomeNav {
     /** Up from the first row or the grid's first line: focus goes to the header. */
     static final int HEADER = -1;
+    /** Up from a grid's first line when a strip sits above it (the TV tab's inputs). */
+    static final int STRIP_ABOVE = -2;
 
     private HomeNav() { }
 
@@ -51,5 +53,11 @@ final class HomeNav {
         int lastLineStart = ((count - 1) / columns) * columns;
         if (position >= lastLineStart) return position;
         return Math.min(position + columns, count - 1);
+    }
+
+    /** Like {@link #gridVertical}, for a grid under a strip of {@code stripLength} cards: Up from the first line goes there. */
+    static int gridBelowStrip(int position, int count, int columns, boolean down, int stripLength) {
+        int target = gridVertical(position, count, columns, down);
+        return target == HEADER && stripLength > 0 ? STRIP_ABOVE : target;
     }
 }

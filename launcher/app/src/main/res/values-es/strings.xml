@@ -191,6 +191,12 @@
     <string name="now_playing_next">Siguiente</string>
     <string name="now_playing_stop">Detener</string>
     <string name="now_playing">Reproduciendo ahora</string>
+    <string name="tab_tv">TV</string>
+    <string name="row_tv">TV reciente</string>
+    <string name="tv_channels">Canales</string>
+    <string name="tv_last_used">Usada por última vez</string>
+    <string name="tv_now">Ahora: %1$s</string>
+    <string name="tv_next">Después: %1$s</string>
     <string name="settings_remote">Botones del mando</string>
     <string name="settings_remote_hint">Asigna una acción a un botón: abrir una aplicación, las entradas o los ajustes, o activar y desactivar el launcher original. Útil para botones que dejaron de funcionar al desactivar el launcher original.</string>
     <string name="settings_key_service">Servicio de botones del mando</string>
@@ -279,6 +285,8 @@
     <string name="notifications_clear">Borrar todo</string>
     <string name="notifications_none">No hay notificaciones</string>
     <string name="search">Buscar</string>
+    <string name="settings_start_on_input">Empezar en la última entrada</string>
+    <string name="settings_start_on_input_hint">Al encender la TV, abre la entrada o el canal en el que estabas.</string>
     <string name="settings_backup">Copia de seguridad</string>
     <string name="settings_export">Exportar ajustes</string>
     <string name="settings_export_hint">Guarda los botones del mando, el PC de juegos, las filas, los elementos ocultos y los colores en un archivo que puedes conservar. No incluye claves ni certificados.</string>
