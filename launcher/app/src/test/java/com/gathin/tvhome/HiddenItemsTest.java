@@ -140,4 +140,8 @@ public class HiddenItemsTest {
         assertEquals(Arrays.asList("a", "c", "d", "e"), HiddenItems.visible(items, s -> s.equals("b"), 10));
         assertTrue(HiddenItems.visible(items, s -> true, 10).isEmpty());
     }
+
+    @Test public void tvKeysShareThePrefix() {
+        assertTrue(RecentTv.key(RecentTv.CHANNEL, "7").startsWith(HiddenItems.TV));
+    }
 }

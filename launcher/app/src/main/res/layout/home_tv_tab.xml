@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The TV tab: the inputs as a strip, then the tuner's channels as a grid when there are any. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvTab"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:visibility="gone"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <TextView
+        android:id="@+id/titleTvInputs"
+        style="@style/RowTitle"
+        android:text="@string/inputs" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tvInputs"
+        style="@style/Row" />
+
+    <TextView
+        android:id="@+id/titleTvChannels"
+        style="@style/RowTitle"
+        android:text="@string/tv_channels"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tvChannels"
+        style="@style/TabGrid"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>

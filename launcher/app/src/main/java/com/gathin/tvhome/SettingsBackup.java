@@ -34,7 +34,7 @@ final class SettingsBackup {
                 "moonlight_host_name"}) KEYS.put(k, Type.STRING);
         for (String k : new String[]{"animations", "advanced_effects", "shamsi_date", "module_cards", "reduced_motion",
                 "online_artwork", "show_home_settings_shortcut", "show_stats", "app_library", "settings_key_panel",
-                "wallpaper", "show_network_pill", "wallpaper_true_color"}) KEYS.put(k, Type.BOOL);
+                "wallpaper", "show_network_pill", "wallpaper_true_color", StartOnLastInput.KEY}) KEYS.put(k, Type.BOOL);
         for (String k : new String[]{"columns", "sky_intensity", "wallpaper_rotation_minutes", "wallpaper_dim",
                 "home_idle_clock_minutes", WatchHistory.MAX_AGE_KEY}) {
             KEYS.put(k, Type.INT);
