@@ -9,13 +9,16 @@ import static org.junit.Assert.*;
 
 public class HomeRowsTest {
     @Test public void sanitizeDropsUnknownAndRepeated() {
-        assertEquals(Collections.singletonList("recent_apps"),
-                HomeRows.sanitize(Arrays.asList("recent_apps", "nope", "recent_apps")));
+        assertEquals(Arrays.asList("recent_apps", "continue_watching"),
+                HomeRows.sanitize(Arrays.asList("recent_apps", "nope", "continue_watching", "recent_apps")));
     }
 
-    @Test public void hidingAndShowingAgain() {
-        assertTrue(HomeRows.toggle(HomeRows.ALL, "recent_apps", false).isEmpty());
-        assertEquals(HomeRows.ALL, HomeRows.toggle(Collections.<String>emptyList(), "recent_apps", true));
+    @Test public void hidingAndShowingAgainKeepsTheOrder() {
+        assertEquals(Collections.singletonList("continue_watching"), HomeRows.toggle(HomeRows.ALL, "recent_apps", false));
+        assertEquals(HomeRows.ALL, HomeRows.toggle(Collections.singletonList("continue_watching"), "recent_apps", true));
+        assertEquals(Collections.singletonList("continue_watching"),
+                HomeRows.toggle(Collections.<String>emptyList(), "continue_watching", true));
+        assertEquals(HomeRows.ALL, HomeRows.toggle(Collections.singletonList("recent_apps"), "continue_watching", true));
     }
 
     @Test public void unknownRowIsIgnored() {
