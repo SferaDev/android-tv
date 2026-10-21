@@ -44,6 +44,8 @@ final class Hero {
         final Drawable fallback;
         /** A show's or game's name to look up online when art is not a large landscape picture; null for none. */
         String showTitle, gameName;
+        /** Already decoded (Now playing's cover); takes the place of art. */
+        Bitmap picture;
 
         Item(String key, String title, String subtitle, String appName, Drawable badge, String art, Drawable fallback) {
             this.key = key;
@@ -142,6 +144,22 @@ final class Hero {
         else backdrop.setAlpha(to);
     }
 
+    /** The text gives the Now playing card room beside it. */
+    void narrow(boolean narrow) {
+        int full = text.getResources().getDimensionPixelSize(R.dimen.hero_text_width);
+        int width = full;
+        if (narrow) {
+            int screen = text.getResources().getDisplayMetrics().widthPixels;
+            int card = text.getResources().getDimensionPixelSize(R.dimen.now_playing_width);
+            width = Math.min(full, screen - Math.round(96 * density) - card - Math.round(24 * density));
+        }
+        for (View v : new View[]{(View) app.getParent(), title, subtitle}) {
+            if (v.getLayoutParams().width == width) continue;
+            v.getLayoutParams().width = width;
+            v.requestLayout();
+        }
+    }
+
     /** The decoded pictures come back from the disk cache on demand. */
     void trim() {
         backdrops.evictAll();
@@ -204,7 +222,7 @@ final class Hero {
         }
         images.run(() -> {
             if (backdrops.get(h.key) == null) {
-                Bitmap picture = h.art != null ? images.decodeLarge(h.art, w) : null;
+                Bitmap picture = h.picture != null ? h.picture : h.art != null ? images.decodeLarge(h.art, w) : null;
                 try {
                     backdrops.put(h.key, Backdrop.compose(picture, h.fallback, h.title, w, ht, headerScrim(), rtl));
                 } catch (RuntimeException | OutOfMemoryError e) {

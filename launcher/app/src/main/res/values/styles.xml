@@ -55,6 +55,18 @@
         <item name="android:background">@drawable/header_button_bg</item>
     </style>
 
+    <!-- Previous, play or pause, next on the Now playing card. -->
+    <style name="NowPlayingButton">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:background">@drawable/round_button_bg</item>
+        <item name="android:tint">@drawable/pill_text</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+
     <!-- A Home row: its title, then a horizontal list whose first card lines up with the header (48dp, less the
          card's own 8dp padding). -->
     <style name="RowTitle">
