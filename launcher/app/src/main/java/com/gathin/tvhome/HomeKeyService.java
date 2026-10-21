@@ -92,6 +92,7 @@ public class HomeKeyService extends AccessibilityService {
     private boolean steppingOut;
     /** The bound helper, so the opt-in broadcast can arm it without waiting for a new connection. */
     static HomeKeyService running;
+    private final UserSettings.Listener reload = this::loadConfig;
 
     @Override
     protected void onServiceConnected() {
@@ -101,6 +102,7 @@ public class HomeKeyService extends AccessibilityService {
         // The service is directBootAware: Android 11 skips a service that is not while the user is still
         // locked at boot, writes accessibility_enabled=0 and, on TCL G03 firmware, never binds it after the
         // unlock. Config.load reads credential-protected storage, so wait for the unlock before reading it.
+        UserSettings.addListener(reload);
         UserManager users = getSystemService(UserManager.class);
         if (users.isUserUnlocked()) {
             loadConfig();
@@ -140,6 +142,7 @@ public class HomeKeyService extends AccessibilityService {
         if (running == this) running = null;
         RemoteKeys.frontPackage = "";
         RemoteKeys.release(this);
+        UserSettings.removeListener(reload);
         stopWaitingForUnlock();
         if (screenOnReceiver != null) unregisterReceiver(screenOnReceiver);
         if (standbyExit != null) {
@@ -193,6 +196,8 @@ public class HomeKeyService extends AccessibilityService {
         settingsKeycodes = config.settingsKeycodes;
         settingsPanel = config.settingsKeyPanel;
         settingsClearTask = config.settingsKeyClearTask;
+        // Settings reload this live, so a switch turned off releases what it held.
+        if (consumeVolumeKeys && !config.consumeVolumeKeys) VolumeKeys.stop();
         consumeVolumeKeys = config.consumeVolumeKeys;
         appKeys = RemoteKeys.parseAppKeys(config.appKeys);
         appScancodes = RemoteKeys.parseAppScancodes(config.appKeys);
@@ -233,8 +238,9 @@ public class HomeKeyService extends AccessibilityService {
         armStandbyExit();
         holdAppKeys = RemoteKeys.parseHoldAppKeys(config.appKeys);
         holdAppScancodes = RemoteKeys.parseHoldAppScancodes(config.appKeys);
-        // gamepad_passthrough and volume_pauses_filter, off by default.
-        if (gamepads == null) gamepads = GamepadPassthrough.start(this, config);
+        // gamepad_passthrough and volume_pauses_filter, off by default. Settings reload this live, so restart it on the new config.
+        if (gamepads != null) gamepads.stop();
+        gamepads = GamepadPassthrough.start(this, config);
     }
 
     /** A tap's target: the "front:" entry while the button's own app is already in front, else the usual one. */
@@ -262,6 +268,7 @@ public class HomeKeyService extends AccessibilityService {
             powerOnUntil = 0;
         }
         if (consumeVolumeKeys && VolumeKeys.handle(this, event)) return true;
+        if (KeyCapture.offer(event)) return true;
         // A scancode entry is more specific than any keycode, so it goes first.
         if (RemoteKeys.handle(this, event, inFront(appScancodes, frontAppScancodes, event.getScanCode()),
                 holdAppScancodes.get(event.getScanCode()))) return true;
