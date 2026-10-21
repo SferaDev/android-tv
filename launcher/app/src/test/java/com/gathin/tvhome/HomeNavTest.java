@@ -130,4 +130,12 @@ public class HomeNavTest {
         lengths[0] = 0;
         assertEquals(H, HomeNav.nextRow(lengths, 2, false));
     }
+
+    @Test public void upFromTheChannelsGoesToTheInputsStripWhenThereIsOne() {
+        // 10 channels in 4 columns under a strip of 3 inputs.
+        assertEquals(HomeNav.STRIP_ABOVE, HomeNav.gridBelowStrip(2, 10, 4, false, 3));
+        assertEquals(H, HomeNav.gridBelowStrip(2, 10, 4, false, 0));
+        assertEquals(1, HomeNav.gridBelowStrip(5, 10, 4, false, 3));
+        assertEquals(9, HomeNav.gridBelowStrip(5, 10, 4, true, 3));
+    }
 }

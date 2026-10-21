@@ -565,7 +565,8 @@ public final class SettingsActivity extends Activity {
     private void homePage() {
         header(R.string.settings_home, R.string.settings_home_hint);
         Config cfg = Config.load(this);
-        int[] names = {R.string.settings_row_watch, R.string.settings_row_recent, R.string.settings_row_games};
+        int[] names = {R.string.settings_row_watch, R.string.settings_row_recent, R.string.settings_row_games,
+                R.string.row_tv};
         for (int i = 0; i < HomeRows.ALL.size(); i++) {
             String id = HomeRows.ALL.get(i);
             boolean shown = cfg.rowShown(id);
@@ -574,6 +575,9 @@ public final class SettingsActivity extends Activity {
         }
         row(getString(R.string.settings_watch_max_age), getString(R.string.settings_watch_max_age_hint),
                 watchAgeLabel(WatchHistory.maxAgeDays(this)), () -> go(this::watchAgePage));
+        boolean startOnLast = StartOnLastInput.enabled(this);
+        row(getString(R.string.settings_start_on_input), getString(R.string.settings_start_on_input_hint),
+                onOff(startOnLast), () -> changed(UserSettings.put(this, StartOnLastInput.KEY, !startOnLast)));
         label(R.string.settings_hidden);
         List<HiddenItems.Item> hidden = HiddenItems.list(this);
         if (hidden.isEmpty()) row(getString(R.string.settings_hidden_none), null, null, null);

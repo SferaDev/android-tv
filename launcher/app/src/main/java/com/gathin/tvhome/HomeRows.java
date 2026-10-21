@@ -10,7 +10,9 @@ final class HomeRows {
     static final String CONTINUE_WATCHING = "continue_watching";
     static final String RECENT_APPS = "recent_apps";
     static final String GAMES = "games";
-    static final List<String> ALL = Collections.unmodifiableList(Arrays.asList(CONTINUE_WATCHING, RECENT_APPS, GAMES));
+    static final String RECENT_TV = "recent_tv";
+    static final List<String> ALL = Collections.unmodifiableList(
+            Arrays.asList(CONTINUE_WATCHING, RECENT_APPS, GAMES, RECENT_TV));
 
     private HomeRows() { }
 
