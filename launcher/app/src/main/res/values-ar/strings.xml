@@ -10,10 +10,6 @@
     <string name="not_connected">لا يوجد جهاز</string>
     <string name="live_tv">البث المباشر</string>
     <string name="no_inputs">لم يتم العثور على مدخلات</string>
-    <string name="good_morning">صباح الخير</string>
-    <string name="good_afternoon">مساء الخير</string>
-    <string name="good_evening">مساء الخير</string>
-    <string name="good_night">ليلة سعيدة</string>
     <string name="ethernet">إيثرنت</string>
     <string name="offline">غير متصل</string>
     <string name="not_available">غير متاح على هذا التلفاز</string>
@@ -91,9 +87,13 @@
         <item quantity="many">%1$d تطبيقًا</item>
         <item quantity="other">%1$d تطبيق</item>
     </plurals>
-    <string name="greeting_with_name">%1$s، %2$s</string>
     <string name="home_toggle_allow">سيطلب التلفاز السماح بتصحيح أخطاء USB: حدّد \"السماح دائمًا\" ثم اضغط سماح</string>
     <string name="home_toggle_stock_on">تم تشغيل المشغّل الأصلي</string>
     <string name="home_toggle_stock_off">تم إيقاف المشغّل الأصلي</string>
     <string name="home_toggle_failed">تعذّر الوصول إلى ADB في التلفاز: فعّل تصحيح أخطاء USB في خيارات المطوّر واقبل الطلب</string>
+    <string name="tab_home">الرئيسية</string>
+    <string name="tab_apps">التطبيقات</string>
+    <string name="row_recent">التطبيقات الأخيرة</string>
+    <string name="hide_from_home">إخفاء من الرئيسية</string>
+    <string name="show_on_home">إظهار في الرئيسية</string>
 </resources>

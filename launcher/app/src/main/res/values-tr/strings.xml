@@ -10,10 +10,6 @@
     <string name="not_connected">Cihaz Yok</string>
     <string name="live_tv">Canlı TV</string>
     <string name="no_inputs">Giriş Bulunamadı</string>
-    <string name="good_morning">Günaydın</string>
-    <string name="good_afternoon">İyi Günler</string>
-    <string name="good_evening">İyi Akşamlar</string>
-    <string name="good_night">İyi Geceler</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Çevrimdışı</string>
     <string name="not_available">Bu TV’de kullanılamıyor</string>
@@ -87,9 +83,13 @@
         <item quantity="one">%1$d uygulama</item>
         <item quantity="other">%1$d uygulama</item>
     </plurals>
-    <string name="greeting_with_name">%1$s, %2$s</string>
     <string name="home_toggle_allow">TV, USB hata ayıklamaya izin vermenizi isteyecek: \"Her zaman izin ver\" seçeneğini işaretleyip İzin ver\'e basın</string>
     <string name="home_toggle_stock_on">Orijinal başlatıcı açık</string>
     <string name="home_toggle_stock_off">Orijinal başlatıcı kapalı</string>
     <string name="home_toggle_failed">TV\'nin ADB\'sine ulaşılamadı: Geliştirici seçeneklerinde USB hata ayıklamayı açın ve isteği onaylayın</string>
+    <string name="tab_home">Ana Sayfa</string>
+    <string name="tab_apps">Uygulamalar</string>
+    <string name="row_recent">Son uygulamalar</string>
+    <string name="hide_from_home">Ana Sayfadan gizle</string>
+    <string name="show_on_home">Ana Sayfada göster</string>
 </resources>

@@ -16,8 +16,8 @@ Home shortcuts and never uninstalls apps.
 ## Standard behavior
 
 Set `"app_library": true` in a theme’s `config.json`, or enable the `app_library`
-bool in `config.xml`. It is off by default. A small glass pill appears after the
-last row of Home apps.
+bool in `config.xml`. It is off by default. It opens from the Settings button's
+hold-OK menu, and "Home" below means the Apps tab.
 
 The horizontal library lists installed apps with a TV or ordinary Android launch
 activity, preferring the TV entry when both exist. It excludes services and apps
@@ -33,9 +33,7 @@ subtle tint. Updating an existing app does not mark it as new.
 - Press OK on a checked app to open it.
 - Hold OK for Open, Add to Home or Remove from Home, and App info. The menu uses
   the existing Inputs dropdown resources and stays over the selected card.
-- Back closes the menu first, then the library. Down from the last Home row or
-  Right from the final app reaches the library pill; Up returns to the last row.
-  Hebrew mirrors the horizontal direction, so Left from the final app reaches it.
+- Back closes the menu first, then the library, and focus returns to Settings.
 
 With `tile_menu` on, holding OK on a Home tile offers Remove from Home as well, next to Move and App info.
 The remote's Menu key opens that same menu on the focused tile. With `tile_menu` off,
@@ -50,8 +48,8 @@ Choices are stored in the launcher’s private `library_apps.txt` and
 atomically. An unreadable file is left unchanged if an edit fails. Choices
 survive restarts and app updates; missing or disabled packages are omitted until
 they return. Explicit Home removals override theme defaults until re-added.
-Theme config, dock ordering, module-card decisions and other saved tile order
-are not edited. Disabling the library button keeps existing Home choices.
+Theme config and module-card decisions are not edited. Disabling the library
+keeps existing Home choices.
 
 The library uses the existing package receiver to refresh after app changes.
 Labels and Home membership are cached for each refresh; icons load only for

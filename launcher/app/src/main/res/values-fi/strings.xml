@@ -10,10 +10,6 @@
     <string name="not_connected">Ei laitetta</string>
     <string name="live_tv">TV-kanavat</string>
     <string name="no_inputs">Lähteitä ei löytynyt</string>
-    <string name="good_morning">Hyvää huomenta</string>
-    <string name="good_afternoon">Hyvää päivää</string>
-    <string name="good_evening">Hyvää iltaa</string>
-    <string name="good_night">Hyvää yötä</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Ei yhteyttä</string>
     <string name="not_available">Ei käytettävissä tässä televisiossa</string>
@@ -64,7 +60,6 @@
     <string name="card_state_new">Uusi</string>
     <string name="card_state_new_key">Uusi avain</string>
     <string name="card_state_new_label">Uusi nimi</string>
-    <string name="greeting_with_name">%1$s, %2$s</string>
     <string name="stats_cpu">Suoritin %1$d %%</string>
     <string name="stats_memory">Muisti %1$d / %2$d Mt</string>
     <string name="stats_storage">Tallennustilaa vapaana %1$s</string>
@@ -97,4 +92,9 @@
     <string name="home_toggle_stock_on">Alkuperäinen käynnistin päällä</string>
     <string name="home_toggle_stock_off">Alkuperäinen käynnistin pois</string>
     <string name="home_toggle_failed">Television ADB:hen ei saatu yhteyttä: ota USB-virheenkorjaus käyttöön kehittäjäasetuksista ja hyväksy kehote</string>
+    <string name="tab_home">Koti</string>
+    <string name="tab_apps">Sovellukset</string>
+    <string name="row_recent">Viimeisimmät sovellukset</string>
+    <string name="hide_from_home">Piilota kotinäkymästä</string>
+    <string name="show_on_home">Näytä kotinäkymässä</string>
 </resources>

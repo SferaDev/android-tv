@@ -26,13 +26,77 @@
     </style>
     <style name="TopButton" parent="TopButtonBase" />
 
-    <!-- Icon-only pill: a 42dp circle (pill_bg's 21dp corners) with the 22dp icon centred by even padding. Give it a
+    <!-- Header tab inside the tabs pill: selected is filled light, the rest are text only. -->
+    <style name="HeaderTab">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:paddingStart">18dp</item>
+        <item name="android:paddingEnd">18dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/tab_bg</item>
+        <item name="android:textColor">@drawable/tab_text</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">@string/font_medium</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <!-- Round icon button in the header; the Wi-Fi one widens to show the network name while focused. Give it a
          contentDescription, since there is no text. -->
-    <style name="TopButtonIcon" parent="TopButtonBase">
-        <item name="android:layout_width">42dp</item>
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">10dp</item>
+    <style name="HeaderIcon" parent="TopButtonBase">
+        <item name="android:layout_height">36dp</item>
+        <item name="android:minWidth">36dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
         <item name="android:drawablePadding">0dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:background">@drawable/header_button_bg</item>
+    </style>
+
+    <!-- A Home row: its title, then a horizontal list whose first card lines up with the header (48dp, less the
+         card's own 8dp padding). -->
+    <style name="RowTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">48dp</item>
+        <item name="android:paddingEnd">48dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:gravity">left</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">#E6FFFFFF</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@string/font_medium</item>
+    </style>
+    <style name="Row">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">40dp</item>
+        <item name="android:paddingEnd">40dp</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:clipChildren">false</item>
+        <item name="android:overScrollMode">never</item>
+        <item name="android:scrollbars">none</item>
+        <item name="android:descendantFocusability">afterDescendants</item>
+    </style>
+
+    <!-- The Apps tab: a grid lined up with the header like the strips. -->
+    <style name="TabGrid">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingStart">40dp</item>
+        <item name="android:paddingEnd">40dp</item>
+        <item name="android:paddingBottom">40dp</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:clipChildren">false</item>
+        <item name="android:overScrollMode">never</item>
+        <item name="android:scrollbars">none</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:descendantFocusability">afterDescendants</item>
     </style>
 
     <style name="SettingsRow">

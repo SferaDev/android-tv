@@ -106,6 +106,8 @@ final class Config {
     /** Reorder button in the top bar (config.xml reorder_button); the Settings long-press menu offers it either way. */
     final boolean reorderButton;
     /** Show the Wi-Fi/Ethernet pill in the top bar (config.xml, show_network_pill). */
+    /** Fetch a large picture for a show or game that has none, from TVmaze or Steam (config.xml, online_artwork). */
+    final boolean onlineArtwork;
     final boolean showNetworkPill;
     /** Show the Inputs pill when the TV has inputs to list (config.xml, show_inputs_pill). */
     final boolean showInputsPill;
@@ -198,6 +200,9 @@ final class Config {
     /** Shape of the glow behind the focused app (config.xml, glow_style): {@link #GLOW_RADIAL} or {@link #GLOW_HORIZON}. */
     final String glowStyle;
 
+    /** Data rows shown on Home, top to bottom (config.xml home_rows; ids in {@link HomeRows}). */
+    final List<String> homeRows;
+
     static final String GLOW_RADIAL = "radial", GLOW_HORIZON = "horizon";
     /** Show each rotating wallpaper's name from wallpapers/captions.txt (config.xml / theme wallpaper_captions). */
     final boolean wallpaperCaptions;
@@ -219,7 +224,9 @@ final class Config {
                    List<RaceWeekend.Race> raceCalendar, boolean cinematicHome, boolean ambientGlow, boolean appGlow, boolean fadeRows, int homeIdleClockMinutes,
                    boolean keyFilter, boolean dockGlass, String glowStyle, boolean wallpaperCaptions,
                    boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean cinematicDots, boolean cinematicWhiteFocus, boolean wifiStatusColor, int cinematicScrim, int cinematicArt,
-                   Map<String, Set<String>> wallpaperMoods) {
+                   Map<String, Set<String>> wallpaperMoods, boolean onlineArtwork, List<String> homeRows) {
+        this.onlineArtwork = onlineArtwork;
+        this.homeRows = Collections.unmodifiableList(homeRows);
         this.handleViewInputs = handleViewInputs;
         this.tileMenu = tileMenu;
         this.inputKeycodes = inputKeycodes;
@@ -344,6 +351,8 @@ final class Config {
         boolean topMenu = res.getBoolean(R.bool.top_menu);
         boolean launcherSettingsButton = res.getBoolean(R.bool.launcher_settings_button);
         boolean reorderButton = res.getBoolean(R.bool.reorder_button);
+        boolean onlineArtwork = res.getBoolean(R.bool.online_artwork);
+        List<String> homeRows = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.home_rows)));
         boolean showNetworkPill = res.getBoolean(R.bool.show_network_pill);
         boolean showInputsPill = res.getBoolean(R.bool.show_inputs_pill);
         boolean iconOnlyButtons = res.getBoolean(R.bool.icon_only_buttons);
@@ -423,6 +432,8 @@ final class Config {
             topMenu = bool(json, "top_menu", topMenu);
             launcherSettingsButton = bool(json, "launcher_settings_button", launcherSettingsButton);
             reorderButton = bool(json, "reorder_button", reorderButton);
+            onlineArtwork = bool(json, "online_artwork", onlineArtwork);
+            homeRows = stringList(json, "home_rows", homeRows);
             showNetworkPill = bool(json, "show_network_pill", showNetworkPill);
             showInputsPill = bool(json, "show_inputs_pill", showInputsPill);
             iconOnlyButtons = bool(json, "icon_only_buttons", iconOnlyButtons);
@@ -519,7 +530,8 @@ final class Config {
                 Math.max(0, Math.min(100, skyIntensity)), settingsKeycodes, settingsKeyPanel, restoreKeyServices, wallpaperEnabled, wallpaper,
                 wallpapers, rotationMinutes, wallpaperDim, dockOpacity, wallpaperOrder, applied,
                 festival, inputKeycodes, appKeys, stockHomeRedirect, json == null ? Collections.emptyList() : raceCalendar(json), cinematic, ambientGlow, appGlow, fadeRows,
-                Math.max(0, idleClockMinutes), keyFilter, dockGlass, glowStyle, wallpaperCaptions, handleViewInputs, tileMenu, dockEvenPadding, cinematicDots, cinematicWhiteFocus, wifiStatusColor, cinematicScrim, cinematicArt, wallpaperMoods);
+                Math.max(0, idleClockMinutes), keyFilter, dockGlass, glowStyle, wallpaperCaptions, handleViewInputs, tileMenu, dockEvenPadding, cinematicDots, cinematicWhiteFocus, wifiStatusColor, cinematicScrim, cinematicArt, wallpaperMoods,
+                onlineArtwork, HomeRows.sanitize(homeRows));
     }
 
     /**
@@ -550,6 +562,10 @@ final class Config {
                     r.optString("name", "Grand Prix").trim(), r.optString("place", "").trim(), parsed));
         }
         return races;
+    }
+
+    boolean rowShown(String id) {
+        return homeRows.contains(id);
     }
 
     /** The theme's keys with the TV's on top; null when there is neither. Copies, never changes, its arguments. */

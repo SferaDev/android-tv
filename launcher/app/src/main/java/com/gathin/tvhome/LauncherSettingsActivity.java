@@ -23,16 +23,11 @@ public final class LauncherSettingsActivity extends Activity {
     private static final int SECTION_REQUEST = 1;
     private SharedPreferences choices;
     private final TextView[] columnChoices = new TextView[4];
-    private final TextView[] rowChoices = new TextView[4];
-    private static final int[] DOCK_OPACITIES = {100, 70, 50, 30};
-    private final TextView[] dockChoices = new TextView[DOCK_OPACITIES.length];
     private TextView wallpaperChoice;
     private TextView animationsChoice;
     private TextView advancedChoice;
     private TextView followThemeChoice;
     private int columns;
-    private int rowsBelowDock;
-    private int dockOpacity;
     private boolean animations;
     private boolean advancedEffects;
 
@@ -57,8 +52,6 @@ public final class LauncherSettingsActivity extends Activity {
             finish();
         });
         columns = config.columns;
-        rowsBelowDock = config.rowsBelowDock;
-        dockOpacity = config.dockOpacity;
         animations = config.animations;
         advancedEffects = config.animations && config.advancedEffects;
 
@@ -74,36 +67,10 @@ public final class LauncherSettingsActivity extends Activity {
                 refresh();
             });
         }
-        int[] rowIds = {R.id.rows0, R.id.rows1, R.id.rows2, R.id.rows3};
-        for (int i = 0; i < rowIds.length; i++) {
-            final int value = i;
-            rowChoices[i] = findViewById(rowIds[i]);
-            rowChoices[i].setOnClickListener(v -> {
-                if (rowsBelowDock == value) return;
-                rowsBelowDock = value;
-                choices.edit().putInt(Config.ROWS_BELOW_DOCK_KEY, value).apply();
-                changed();
-                refresh();
-            });
-        }
-        int[] dockIds = {R.id.dock100, R.id.dock70, R.id.dock50, R.id.dock30};
-        for (int i = 0; i < dockIds.length; i++) {
-            final int value = DOCK_OPACITIES[i];
-            dockChoices[i] = findViewById(dockIds[i]);
-            dockChoices[i].setOnClickListener(v -> {
-                if (dockOpacity == value) return;
-                dockOpacity = value;
-                choices.edit().putInt(Config.DOCK_OPACITY_KEY, value).apply();
-                changed();
-                refresh();
-            });
-        }
         // Keep the numeric choices increasing in the Hebrew reading direction. Reorder the
         // actual views so D-pad focus follows their positions without changing the saved values.
         if (getResources().getBoolean(R.bool.rtl_app_grid)) {
             reverseRow(columnChoices);
-            reverseRow(rowChoices);
-            reverseRow(dockChoices);
         }
         wallpaperChoice = findViewById(R.id.wallpaperChoice);
         wallpaperChoice.setOnClickListener(v -> showWallpaperPicker());
@@ -132,13 +99,10 @@ public final class LauncherSettingsActivity extends Activity {
         followThemeChoice = findViewById(R.id.followThemeChoice);
         followThemeChoice.setOnClickListener(v -> {
             if (!hasOnTvChoices()) return;
-            choices.edit().remove("columns").remove(Config.ROWS_BELOW_DOCK_KEY).remove("animations")
-                    .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY)
-                    .remove(Config.DOCK_OPACITY_KEY).commit();
+            choices.edit().remove("columns").remove("animations")
+                    .remove("advanced_effects").remove(Config.WALLPAPER_CHOICE_KEY).commit();
             Config current = Config.load(this);
             columns = current.columns;
-            rowsBelowDock = current.rowsBelowDock;
-            dockOpacity = current.dockOpacity;
             animations = current.animations;
             advancedEffects = current.animations && current.advancedEffects;
             changed();
@@ -238,12 +202,6 @@ public final class LauncherSettingsActivity extends Activity {
         for (int i = 0; i < columnChoices.length; i++) {
             columnChoices[i].setSelected(columns == i + 4);
         }
-        for (int i = 0; i < rowChoices.length; i++) {
-            rowChoices[i].setSelected(rowsBelowDock == i);
-        }
-        for (int i = 0; i < dockChoices.length; i++) {
-            dockChoices[i].setSelected(dockOpacity == DOCK_OPACITIES[i]);
-        }
         animationsChoice.setText(getString(R.string.animations_state,
                 getString(animations ? R.string.on : R.string.off)));
         advancedChoice.setText(getString(R.string.advanced_effects_state,
@@ -259,7 +217,7 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     private boolean hasOnTvChoices() {
-        return choices.contains("columns") || choices.contains(Config.ROWS_BELOW_DOCK_KEY)
+        return choices.contains("columns")
                 || choices.contains("animations") || choices.contains("advanced_effects")
                 || choices.contains(Config.WALLPAPER_CHOICE_KEY) || choices.contains(Config.DOCK_OPACITY_KEY);
     }

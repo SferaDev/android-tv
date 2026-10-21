@@ -159,7 +159,7 @@ final class AppLibraryDialog {
         panel.setPadding(dp(12), dp(8), dp(12), dp(12));
         panel.setBackgroundResource(R.drawable.glass_panel);
         View decor = activity.getWindow().getDecorView();
-        catalogWidth = Math.min(dp(800), Math.max(dp(200), decor.getWidth() - dp(64)));
+        catalogWidth = Math.min(dp(800), Math.max(dp(200), decor.getWidth() - dp(96)));
         int width = catalogWidth;
         int height = dp(280);
         popup = new PopupWindow(panel, width, height, true);
@@ -606,6 +606,7 @@ final class AppLibraryDialog {
             row.addView(content, new FrameLayout.LayoutParams(-1, -1));
             ImageView icon = new ImageView(activity);
             icon.setId(R.id.icon);
+            icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
             content.addView(icon, new LinearLayout.LayoutParams(dp(60), dp(60)));
             TextView name = text("", 15, Color.WHITE);

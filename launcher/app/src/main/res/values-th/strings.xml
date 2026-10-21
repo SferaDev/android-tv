@@ -10,10 +10,6 @@
     <string name="not_connected">ไม่มีอุปกรณ์</string>
     <string name="live_tv">ทีวีสด</string>
     <string name="no_inputs">ไม่พบแหล่งสัญญาณ</string>
-    <string name="good_morning">สวัสดีตอนเช้า</string>
-    <string name="good_afternoon">สวัสดีตอนบ่าย</string>
-    <string name="good_evening">สวัสดีตอนเย็น</string>
-    <string name="good_night">สวัสดียามค่ำคืน</string>
     <string name="ethernet">อีเทอร์เน็ต</string>
     <string name="offline">ออฟไลน์</string>
     <string name="not_available">ทีวีเครื่องนี้ไม่รองรับ</string>
@@ -61,9 +57,13 @@
     <plurals name="library_app_count">
         <item quantity="other">%1$d แอป</item>
     </plurals>
-    <string name="greeting_with_name">%1$s %2$s</string>
     <string name="home_toggle_allow">ทีวีจะขออนุญาตการแก้ไขข้อบกพร่อง USB: เลือก \"อนุญาตเสมอ\" แล้วกดอนุญาต</string>
     <string name="home_toggle_stock_on">เปิดลอนเชอร์เดิมแล้ว</string>
     <string name="home_toggle_stock_off">ปิดลอนเชอร์เดิมแล้ว</string>
     <string name="home_toggle_failed">เชื่อมต่อ ADB ของทีวีไม่ได้: เปิดการแก้ไขข้อบกพร่อง USB ในตัวเลือกสำหรับนักพัฒนาแล้วยอมรับคำขอ</string>
+    <string name="tab_home">หน้าแรก</string>
+    <string name="tab_apps">แอป</string>
+    <string name="row_recent">แอปล่าสุด</string>
+    <string name="hide_from_home">ซ่อนจากหน้าแรก</string>
+    <string name="show_on_home">แสดงในหน้าแรก</string>
 </resources>

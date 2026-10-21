@@ -8,10 +8,6 @@
     <string name="not_connected">Nessun dispositivo</string>
     <string name="live_tv">TV in diretta</string>
     <string name="no_inputs">Nessun ingresso trovato</string>
-    <string name="good_morning">Buongiorno</string>
-    <string name="good_afternoon">Buon pomeriggio</string>
-    <string name="good_evening">Buonasera</string>
-    <string name="good_night">Buonanotte</string>
     <string name="offline">Offline</string>
     <string name="not_available">Non disponibile su questa TV</string>
     <string name="cant_open">Impossibile aprire %1$s</string>

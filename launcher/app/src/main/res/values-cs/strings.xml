@@ -10,10 +10,6 @@
     <string name="not_connected">Žádné zařízení</string>
     <string name="live_tv">Televize</string>
     <string name="no_inputs">Nenašly se žádné vstupy</string>
-    <string name="good_morning">Dobré ráno</string>
-    <string name="good_afternoon">Dobré odpoledne</string>
-    <string name="good_evening">Dobrý večer</string>
-    <string name="good_night">Dobrou noc</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Bez připojení</string>
     <string name="not_available">Na této televizi není k dispozici</string>
@@ -93,5 +89,4 @@
         <item quantity="many">%1$d aplikace</item>
         <item quantity="other">%1$d aplikací</item>
     </plurals>
-    <string name="greeting_with_name">%1$s, %2$s</string>
 </resources>

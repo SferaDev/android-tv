@@ -10,10 +10,6 @@
     <string name="not_connected">Nema uređaja</string>
     <string name="live_tv">TV programi</string>
     <string name="no_inputs">Nema pronađenih ulaza</string>
-    <string name="good_morning">Dobro jutro</string>
-    <string name="good_afternoon">Dobar dan</string>
-    <string name="good_evening">Dobro veče</string>
-    <string name="good_night">Laku noć</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Nema mreže</string>
     <string name="not_available">Nije dostupno na ovom televizoru</string>
@@ -69,9 +65,13 @@
         <item quantity="few">%1$d aplikacije</item>
         <item quantity="other">%1$d aplikacija</item>
     </plurals>
-    <string name="greeting_with_name">%1$s, %2$s</string>
     <string name="home_toggle_allow">TV će tražiti dozvolu za USB otklanjanje grešaka: označite \"Uvek dozvoli\" i pritisnite Dozvoli</string>
     <string name="home_toggle_stock_on">Originalni pokretač je uključen</string>
     <string name="home_toggle_stock_off">Originalni pokretač je isključen</string>
     <string name="home_toggle_failed">ADB televizora nije dostupan: uključite USB otklanjanje grešaka u opcijama za programere i prihvatite upit</string>
+    <string name="tab_home">Početna</string>
+    <string name="tab_apps">Aplikacije</string>
+    <string name="row_recent">Nedavne aplikacije</string>
+    <string name="hide_from_home">Sakrij sa početne</string>
+    <string name="show_on_home">Prikaži na početnoj</string>
 </resources>

@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:textColor="#FFFFFFFF"
             android:textSize="34sp"
-            android:fontFamily="@string/font_light"
+            android:fontFamily="@string/font_regular"
             android:textAlignment="viewStart" />
 
         <TextView

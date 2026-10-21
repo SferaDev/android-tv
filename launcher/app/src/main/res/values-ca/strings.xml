@@ -10,10 +10,6 @@
     <string name="not_connected">Cap dispositiu</string>
     <string name="live_tv">TV en directe</string>
     <string name="no_inputs">No s\'ha trobat cap entrada</string>
-    <string name="good_morning">Bon dia</string>
-    <string name="good_afternoon">Bona tarda</string>
-    <string name="good_evening">Bon vespre</string>
-    <string name="good_night">Bona nit</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Sense connexió</string>
     <string name="not_available">No disponible en aquest televisor</string>
@@ -107,4 +103,9 @@
     <string name="home_toggle_stock_on">Llançador original activat</string>
     <string name="home_toggle_stock_off">Llançador original desactivat</string>
     <string name="home_toggle_failed">No s\'ha pogut accedir a l\'ADB del televisor: activa la depuració USB a les opcions per a desenvolupadors i accepta l\'avís</string>
+    <string name="tab_home">Inici</string>
+    <string name="tab_apps">Aplicacions</string>
+    <string name="row_recent">Aplicacions recents</string>
+    <string name="hide_from_home">Amaga de l\'inici</string>
+    <string name="show_on_home">Mostra a l\'inici</string>
 </resources>

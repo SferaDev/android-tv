@@ -10,10 +10,6 @@
     <string name="not_connected">未連接裝置</string>
     <string name="live_tv">電視直播</string>
     <string name="no_inputs">找不到輸入來源</string>
-    <string name="good_morning">早安</string>
-    <string name="good_afternoon">午安</string>
-    <string name="good_evening">晚安</string>
-    <string name="good_night">夜深了</string>
     <string name="ethernet">有線網路</string>
     <string name="offline">未連上網路</string>
     <string name="not_available">這台電視不支援此功能</string>
@@ -86,9 +82,13 @@
     <plurals name="library_app_count">
         <item quantity="other">%1$d 個應用程式</item>
     </plurals>
-    <string name="greeting_with_name">%1$s，%2$s</string>
     <string name="home_toggle_allow">電視會詢問是否允許 USB 偵錯：勾選「一律允許」並按允許</string>
     <string name="home_toggle_stock_on">原廠桌面已開啟</string>
     <string name="home_toggle_stock_off">原廠桌面已關閉</string>
     <string name="home_toggle_failed">無法連線至電視的 ADB：請在開發人員選項中開啟 USB 偵錯並接受提示</string>
+    <string name="tab_home">主頁</string>
+    <string name="tab_apps">應用程式</string>
+    <string name="row_recent">最近使用的應用程式</string>
+    <string name="hide_from_home">從主頁隱藏</string>
+    <string name="show_on_home">在主頁顯示</string>
 </resources>

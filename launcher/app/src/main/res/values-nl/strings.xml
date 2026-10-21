@@ -10,10 +10,6 @@
     <string name="not_connected">Geen apparaat</string>
     <string name="live_tv">Live tv</string>
     <string name="no_inputs">Geen ingangen gevonden</string>
-    <string name="good_morning">Goedemorgen</string>
-    <string name="good_afternoon">Goedemiddag</string>
-    <string name="good_evening">Goedenavond</string>
-    <string name="good_night">Goedenacht</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Offline</string>
     <string name="not_available">Niet beschikbaar op deze tv</string>
@@ -97,7 +93,6 @@
         <item quantity="one">%1$d app</item>
         <item quantity="other">%1$d apps</item>
     </plurals>
-    <string name="greeting_with_name">%1$s, %2$s</string>
 
     <string name="race_kicker">Ronde %1$d · %2$s · %3$s</string>
     <string name="race_kicker_no_place">Ronde %1$d · %2$s</string>

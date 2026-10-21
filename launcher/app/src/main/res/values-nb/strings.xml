@@ -10,10 +10,6 @@
     <string name="not_connected">Ingen enhet</string>
     <string name="live_tv">Direkte-TV</string>
     <string name="no_inputs">Fant ingen innganger</string>
-    <string name="good_morning">God morgen</string>
-    <string name="good_afternoon">God ettermiddag</string>
-    <string name="good_evening">God kveld</string>
-    <string name="good_night">God natt</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Frakoblet</string>
     <string name="not_available">Ikke tilgjengelig på denne TV-en</string>
@@ -97,7 +93,6 @@
         <item quantity="one">%1$d app</item>
         <item quantity="other">%1$d apper</item>
     </plurals>
-    <string name="greeting_with_name">%1$s, %2$s</string>
     <string name="race_kicker">Runde %1$d · %2$s · %3$s</string>
     <string name="race_kicker_no_place">Runde %1$d · %2$s</string>
     <string name="race_next">%1$s om %2$s</string>

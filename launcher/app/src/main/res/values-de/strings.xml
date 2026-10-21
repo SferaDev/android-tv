@@ -10,17 +10,11 @@
     <string name="not_connected">Kein Gerät</string>
     <string name="live_tv">Live TV</string>
     <string name="no_inputs">Keine Quellen gefunden</string>
-    <string name="good_morning">Guten Morgen</string>
-    <string name="good_afternoon">Guten Tag</string>
-    <string name="good_evening">Guten Abend</string>
-    <string name="good_night">Gute Nacht</string>
     <string name="ethernet">LAN</string>
     <string name="offline">Offline</string>
     <string name="not_available">Auf diesem TV nicht verfügbar</string>
     <string name="cant_open">%1$s lässt sich nicht öffnen</string>
     <string name="date_format">EEEE, d. MMMM</string>
-    <!-- Two lines next to the clock: the long German weekday and month names do not fit on one. -->
-    <string name="date_format_home">EEEE\nd. MMMM</string>
     <string name="stats_cpu">CPU %1$d%%</string>
     <string name="stats_memory">Speicher %1$d / %2$d MB</string>
     <string name="stats_storage">Speicherplatz %1$s frei</string>
@@ -64,9 +58,13 @@
         <item quantity="one">%1$d App</item>
         <item quantity="other">%1$d Apps</item>
     </plurals>
-    <string name="greeting_with_name">%1$s, %2$s</string>
     <string name="home_toggle_allow">Der Fernseher fragt nach USB-Debugging: \"Immer zulassen\" ankreuzen und Zulassen drücken</string>
     <string name="home_toggle_stock_on">Standard-Launcher an</string>
     <string name="home_toggle_stock_off">Standard-Launcher aus</string>
     <string name="home_toggle_failed">ADB des Fernsehers nicht erreichbar: USB-Debugging in den Entwickleroptionen einschalten und die Abfrage bestätigen</string>
+    <string name="tab_home">Startseite</string>
+    <string name="tab_apps">Apps</string>
+    <string name="row_recent">Zuletzt verwendet</string>
+    <string name="hide_from_home">Auf Startseite ausblenden</string>
+    <string name="show_on_home">Auf Startseite zeigen</string>
 </resources>
