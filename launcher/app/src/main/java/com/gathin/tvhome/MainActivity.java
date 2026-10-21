@@ -55,6 +55,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -104,6 +105,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private static final int TAB_HOME = 0, TAB_APPS = 1;
     private static final float RECENT_WIDTH_DP = 130f, WATCH_WIDTH_DP = 240f;
     private static final int STRIP_LIMIT = HomeData.ROW_LIMIT;
+    private static final int STRIP_POOL = 12;
     /** Left and Right across the tabs show each at once; the content follows when the focus rests. */
     private static final long TAB_SETTLE_MS = 150;
     private String liveTvPkg;
@@ -167,6 +169,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private final int[] rowLengths = new int[ROWS];
     private AppAdapter recentAdapter;
     private HomeCards.WatchAdapter watchAdapter;
+    private HomeCards.SeeAllAdapter seeAllApps;
     private AppAdapter appsAdapter;
     private ImageCache images;
     private RecyclerView.RecycledViewPool pool;
@@ -434,9 +437,17 @@ public class MainActivity extends Activity implements CardRow.Listener {
         int[] titleIds = {R.id.titleWatching, R.id.titleRecent};
         recentAdapter = new AppAdapter(this, ROW_RECENT, this, Math.round(RECENT_WIDTH_DP * density), false, cfg);
         watchAdapter = new HomeCards.WatchAdapter(ROW_WATCHING, this, images, this::openWatch, cfg);
-        RecyclerView.Adapter<?>[] adapters = {watchAdapter, recentAdapter};
+        int recentWidth = Math.round(RECENT_WIDTH_DP * density);
+        seeAllApps = new HomeCards.SeeAllAdapter(ROW_RECENT, this, this::seeAll, recentWidth,
+                Math.round(recentWidth * 9f / 16f), R.layout.item_see_all, cfg);
+        // Card view types as they are, so the shared pool keeps telling the kinds apart.
+        ConcatAdapter.Config concat = new ConcatAdapter.Config.Builder().setIsolateViewTypes(false)
+                .setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS).build();
+        RecyclerView.Adapter<?>[] adapters = {watchAdapter, new ConcatAdapter(concat, recentAdapter, seeAllApps)};
         // One pool for the strips and the grids; each kind of card has its own view type.
         pool = new RecyclerView.RecycledViewPool();
+        // The uncapped strips scroll through many cards: keep enough of each strip card to rebind instead of inflate.
+        pool.setMaxRecycledViews(-R.layout.item_app, STRIP_POOL);
         for (int r = 0; r < ROWS; r++) {
             sections[r] = findViewById(sectionIds[r]);
             if (rtl) ((TextView) findViewById(titleIds[r])).setGravity(Gravity.RIGHT);
@@ -685,8 +696,11 @@ public class MainActivity extends Activity implements CardRow.Listener {
             Map<String, AppAdapter.Entry> byPkg = new HashMap<>();
             for (AppAdapter.Entry e : entries) if (!byPkg.containsKey(e.pkg)) byPkg.put(e.pkg, e);
             List<AppAdapter.Entry> recent = new ArrayList<>();
-            // The configured favourites (config.xml dock_apps).
-            for (String pkg : config.dockApps) {
+            List<String> everyApp = new ArrayList<>();
+            for (AppAdapter.Entry e : entries) everyApp.add(e.pkg);
+            // Until usage access has data (or is granted), the configured favourites lead.
+            List<String> used = data.recent.isEmpty() ? config.dockApps : data.recent;
+            for (String pkg : PopularApps.strip(used, everyApp, PopularApps.excluded(app))) {
                 AppAdapter.Entry e = entryFor(app, pkg, byPkg);
                 if (e != null) recent.add(e);
             }
@@ -760,15 +774,16 @@ public class MainActivity extends Activity implements CardRow.Listener {
         View focused = getCurrentFocus();
         boolean hadContentFocus = focused != null && isInContent(focused);
         List<AppAdapter.Entry> recent = HiddenItems.visible(allRecent, e -> hidden.contains(HiddenItems.app(e.pkg)),
-                STRIP_LIMIT);
+                Integer.MAX_VALUE);
         List<HomeCards.Watch> watching = HiddenItems.visible(allWatching,
                 w -> HiddenItems.watchHidden(hidden, w.item), STRIP_LIMIT);
         recentAdapter.setItems(recent, e -> false);
+        seeAllApps.setShown(!recent.isEmpty());
         watchAdapter.setItems(watching);
         appsAdapter.notifyDataSetChanged();
         // A strip switched off in Settings, Home counts as empty, so it hides and focus skips it.
         rowLengths[ROW_WATCHING] = cfg.rowShown(HomeRows.CONTINUE_WATCHING) ? watching.size() : 0;
-        rowLengths[ROW_RECENT] = cfg.rowShown(HomeRows.RECENT_APPS) ? recent.size() : 0;
+        rowLengths[ROW_RECENT] = cfg.rowShown(HomeRows.RECENT_APPS) && !recent.isEmpty() ? recent.size() + 1 : 0;
         for (int r = 0; r < ROWS; r++) sections[r].setVisibility(rowLengths[r] > 0 ? View.VISIBLE : View.GONE);
 
         boolean restore = restoreFocusPending && !keyedSinceResume && openPopup == null && cardPrompt == null;
@@ -789,6 +804,16 @@ public class MainActivity extends Activity implements CardRow.Listener {
             if (p == homeRows || p == appsGrid) return true;
         }
         return false;
+    }
+
+    /** The Recent apps strip's See all card: the Apps tab, with the focus on its first card. */
+    private void seeAll() {
+        rememberedTile = 0;
+        // Hiding Home with the focus in it drops the focus on the Home tab, whose settle timer then reopens Home.
+        tabApps.requestFocus();
+        showTab(TAB_APPS);
+        appsGrid.scrollToPosition(0);
+        focusContent();
     }
 
     private void openWatch(HomeCards.Watch w) {
@@ -1014,6 +1039,8 @@ public class MainActivity extends Activity implements CardRow.Listener {
     /** Hold OK or Menu on a card: hide it from Home (or show it again from the Apps tab). */
     @Override
     public void onCardMenu(int row, int position, View card) {
+        // See all has no menu.
+        if (row == ROW_RECENT && position >= recentAdapter.getItemCount()) return;
         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout items = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (220 * density));

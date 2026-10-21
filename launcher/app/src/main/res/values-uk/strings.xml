@@ -157,4 +157,5 @@
     <string name="hide_all_from">Приховати все з %1$s</string>
     <string name="hidden_watch_app">%1$s: усе в «Продовжити перегляд»</string>
     <string name="last_watched">Переглянуто %1$s</string>
+    <string name="see_all">Показати всі</string>
 </resources>

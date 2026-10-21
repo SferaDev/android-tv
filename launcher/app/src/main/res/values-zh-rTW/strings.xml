@@ -94,5 +94,6 @@
     <string name="show_on_home">在主頁顯示</string>
     <string name="hide_all_from">隱藏 %1$s 的全部內容</string>
     <string name="hidden_watch_app">%1$s：全部繼續觀看</string>
+    <string name="see_all">查看全部</string>
     <string name="last_watched">上次觀看：%1$s</string>
 </resources>

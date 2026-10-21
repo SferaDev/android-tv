@@ -95,5 +95,6 @@
     <string name="show_on_home">Ana Sayfada göster</string>
     <string name="hide_all_from">%1$s içeriğinin tümünü gizle</string>
     <string name="hidden_watch_app">%1$s: tüm İzlemeye devam et</string>
+    <string name="see_all">Tümünü gör</string>
     <string name="last_watched">Son izleme %1$s</string>
 </resources>

@@ -111,5 +111,6 @@
     <string name="show_on_home">Mostra a l\'inici</string>
     <string name="hide_all_from">Amaga-ho tot de %1$s</string>
     <string name="hidden_watch_app">%1$s: tot de Continua mirant</string>
+    <string name="see_all">Mostra-ho tot</string>
     <string name="last_watched">Vist %1$s</string>
 </resources>

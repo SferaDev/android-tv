@@ -201,6 +201,8 @@
     <string name="settings_appearance_theme_hint">Use the theme\'s background and wallpaper again</string>
     <string name="settings_advanced">Permissions</string>
     <string name="settings_advanced_hint">What the launcher may read. Each opens the TV\'s own settings for it where the TV has them.</string>
+    <string name="settings_usage_access">Usage access</string>
+    <string name="settings_usage_access_hint">For Recent apps</string>
     <string name="settings_listener_access">Notification access</string>
     <string name="settings_listener_access_hint">Lets Now playing see what is playing</string>
     <string name="settings_granted">Allowed</string>
@@ -219,6 +221,7 @@
     <string name="show_on_home">Show on Home</string>
     <string name="hide_all_from">Hide all from %1$s</string>
     <string name="hidden_watch_app">%1$s: all Continue watching</string>
+    <string name="see_all">See all</string>
     <string name="last_watched">Last watched %1$s</string>
     <string name="settings_online_artwork">Online artwork</string>
     <string name="settings_online_artwork_hint">Show images from TVmaze (CC BY-SA)</string>

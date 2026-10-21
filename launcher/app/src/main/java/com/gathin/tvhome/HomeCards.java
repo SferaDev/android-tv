@@ -158,4 +158,70 @@ final class HomeCards {
             }
         }
     }
+
+    /** One "See all" card at the end of a strip, the size of the strip's cards; empty while the strip is. */
+    static final class SeeAllAdapter extends CardRow.Adapter<SeeAllAdapter.Holder> {
+        private final Runnable open;
+        private final int width, height, viewType;
+        private boolean shown;
+
+        /** viewType keeps each size apart in the shared view pool. */
+        SeeAllAdapter(int row, CardRow.Listener listener, Runnable open, int widthPx, int heightPx, int viewType,
+                      Config cfg) {
+            super(row, listener, cfg);
+            this.open = open;
+            this.width = widthPx;
+            this.height = heightPx;
+            this.viewType = viewType;
+        }
+
+        void setShown(boolean show) {
+            if (show == shown) return;
+            shown = show;
+            if (show) notifyItemInserted(0);
+            else notifyItemRemoved(0);
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return viewType;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public int getItemCount() {
+            return shown ? 1 : 0;
+        }
+
+        @NonNull
+        @Override
+        public Holder onCreateViewHolder(@NonNull ViewGroup parent, int type) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_see_all, parent, false);
+            ViewGroup.LayoutParams lp = v.findViewById(R.id.card).getLayoutParams();
+            lp.width = width;
+            lp.height = height;
+            return new Holder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull Holder h, int position) {
+            sync(h.card);
+            h.card.setOnClickListener(v -> open.run());
+        }
+
+        final class Holder extends RecyclerView.ViewHolder {
+            final View card;
+
+            Holder(View v) {
+                super(v);
+                card = v.findViewById(R.id.card);
+                card.setContentDescription(v.getResources().getString(R.string.see_all));
+                wire(this, card);
+            }
+        }
+    }
 }

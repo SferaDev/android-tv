@@ -69,5 +69,6 @@
     <string name="show_on_home">แสดงในหน้าแรก</string>
     <string name="hide_all_from">ซ่อนทั้งหมดจาก %1$s</string>
     <string name="hidden_watch_app">%1$s: ดูต่อทั้งหมด</string>
+    <string name="see_all">ดูทั้งหมด</string>
     <string name="last_watched">ดูล่าสุด %1$s</string>
 </resources>
