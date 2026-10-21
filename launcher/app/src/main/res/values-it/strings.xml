@@ -290,4 +290,9 @@
     <string name="settings_forget_pc">Olvidar este PC</string>
     <string name="settings_done">Hecho</string>
     <string name="settings_row_games">Juegos</string>
+    <string name="now_playing_previous">Anterior</string>
+    <string name="now_playing_play_pause">Reproducir o pausar</string>
+    <string name="now_playing_next">Siguiente</string>
+    <string name="now_playing_stop">Detener</string>
+    <string name="now_playing">Reproduciendo ahora</string>
 </resources>

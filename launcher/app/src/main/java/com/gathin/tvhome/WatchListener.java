@@ -6,7 +6,7 @@ import android.service.notification.StatusBarNotification;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Enabled through Grants so the launcher may read the notifications (header bell). */
+/** Enabled through Grants so the launcher may read media sessions (Now playing) and the notifications (header bell). */
 public class WatchListener extends NotificationListenerService {
     @Override
     public void onListenerConnected() {
