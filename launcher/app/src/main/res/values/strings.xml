@@ -267,6 +267,11 @@
     <string name="game_unpaired">Pair with %1$s again to play its games</string>
     <string name="settings_online_artwork">Online artwork</string>
     <string name="settings_online_artwork_hint">Show images from TVmaze (CC BY-SA)</string>
+    <string name="now_playing_previous">Previous</string>
+    <string name="now_playing_play_pause">Play or pause</string>
+    <string name="now_playing_next">Next</string>
+    <string name="now_playing_stop">Stop</string>
+    <string name="now_playing">Now playing</string>
     <string name="notifications">Notifications</string>
     <string name="notifications_count">Notifications, %1$d</string>
     <string name="notifications_clear">Clear all</string>

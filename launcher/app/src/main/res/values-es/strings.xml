@@ -125,6 +125,11 @@
     <string name="game_unpaired">Vuelve a vincular %1$s para jugar a sus juegos</string>
     <string name="settings_online_artwork">Imágenes de internet</string>
     <string name="settings_online_artwork_hint">Muestra imágenes de TVmaze (CC BY-SA)</string>
+    <string name="now_playing_previous">Anterior</string>
+    <string name="now_playing_play_pause">Reproducir o pausar</string>
+    <string name="now_playing_next">Siguiente</string>
+    <string name="now_playing_stop">Detener</string>
+    <string name="now_playing">Reproduciendo ahora</string>
     <string name="settings_remote">Botones del mando</string>
     <string name="settings_remote_hint">Asigna una acción a un botón: abrir una aplicación, las entradas o los ajustes, o activar y desactivar el launcher original. Útil para botones que dejaron de funcionar al desactivar el launcher original.</string>
     <string name="settings_key_service">Servicio de botones del mando</string>

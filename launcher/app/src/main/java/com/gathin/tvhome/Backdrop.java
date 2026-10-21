@@ -102,6 +102,11 @@ final class Backdrop {
         paint.setShader(null);
     }
 
+    /** The picture's rich tone and deep shade, as {@link #tones} gives them. */
+    static int[] tonesOf(Bitmap picture) {
+        return tones(sample(picture));
+    }
+
     private static int[] sample(Bitmap picture) {
         Bitmap small = Bitmap.createScaledBitmap(picture, 12, 12, true);
         int[] px = new int[144];

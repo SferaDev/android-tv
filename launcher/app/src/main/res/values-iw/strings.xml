@@ -223,6 +223,11 @@
     <string name="game_unpaired">צריך לבצע שוב התאמה עם %1$s כדי לשחק במשחקים שלו</string>
     <string name="settings_online_artwork">תמונות מהאינטרנט</string>
     <string name="settings_online_artwork_hint">הצגת תמונות מ-TVmaze (CC BY-SA)</string>
+    <string name="now_playing_previous">הקודם</string>
+    <string name="now_playing_play_pause">הפעלה או השהיה</string>
+    <string name="now_playing_next">הבא</string>
+    <string name="now_playing_stop">עצירה</string>
+    <string name="now_playing">מתנגן עכשיו</string>
     <string name="notifications">התראות</string>
     <string name="notifications_count">התראות, %1$d</string>
     <string name="notifications_clear">נקה הכול</string>

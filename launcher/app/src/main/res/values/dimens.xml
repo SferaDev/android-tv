@@ -4,4 +4,6 @@
     <dimen name="hero_height">180dp</dimen>
     <!-- The hero text column, about half the screen: the backdrop's subject shows to its side. -->
     <dimen name="hero_text_width">520dp</dimen>
+    <!-- The Now playing card in the hero; the hero text narrows beside it. -->
+    <dimen name="now_playing_width">400dp</dimen>
 </resources>

@@ -101,7 +101,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private static final long TIME_VALID_AFTER_MS = 1_735_689_600_000L;
     private static final long STATS_MS = 10_000L;
     /** Home strips, top to bottom; a fixed order so the screen stays predictable. */
-    static final int ROW_WATCHING = 0, ROW_RECENT = 1, ROW_GAMES = 2, ROWS = 3;
+    static final int ROW_NOW_PLAYING = 0, ROW_WATCHING = 1, ROW_RECENT = 2, ROW_GAMES = 3, ROWS = 4;
     /** The tab grids, as row ids for CardRow. */
     static final int APPS_GRID = 100, GAMES_GRID = 101;
     private static final int TAB_HOME = 0, TAB_APPS = 1, TAB_GAMES = 2;
@@ -206,6 +206,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     private String moonlightLabel;
 
     private Hero hero;
+    private NowPlayingCard nowPlaying;
     private int heroRow = -1, heroPosition;
 
     // Static so they survive the activity being destroyed while another app is open (low-memory TVs,
@@ -376,6 +377,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
             if (heroRow >= 0) prefetchAround(heroRow, heroPosition);
         });
         setUpRows();
+        nowPlaying = new NowPlayingCard(this, images, hero, rtl, ROW_NOW_PLAYING, this, this::nowPlayingChanged);
         setUpGrids();
         setUpHeader();
         gamesSetup = new GamesSetup(this, tabGames, gamesSetupHost());
@@ -454,9 +456,10 @@ public class MainActivity extends Activity implements CardRow.Listener {
 
     private void setUpRows() {
         homeRows = findViewById(R.id.homeRows);
-        int[] sectionIds = {R.id.sectionWatching, R.id.sectionRecent, R.id.sectionGames};
-        int[] rowIds = {R.id.rowWatching, R.id.rowRecent, R.id.rowGames};
-        int[] titleIds = {R.id.titleWatching, R.id.titleRecent, R.id.titleGames};
+        // Now playing sits in the hero and is no list: index 0 has no RecyclerView.
+        int[] sectionIds = {R.id.nowPlaying, R.id.sectionWatching, R.id.sectionRecent, R.id.sectionGames};
+        int[] rowIds = {0, R.id.rowWatching, R.id.rowRecent, R.id.rowGames};
+        int[] titleIds = {0, R.id.titleWatching, R.id.titleRecent, R.id.titleGames};
         recentAdapter = new AppAdapter(this, ROW_RECENT, this, Math.round(RECENT_WIDTH_DP * density), false, cfg);
         watchAdapter = new HomeCards.WatchAdapter(ROW_WATCHING, this, images, this::openWatch, cfg);
         gameAdapter = new HomeCards.GameAdapter(ROW_GAMES, this, images, g -> startGame(g.game), false, cfg);
@@ -468,7 +471,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         // Card view types as they are, so the shared pool keeps telling the kinds apart.
         ConcatAdapter.Config concat = new ConcatAdapter.Config.Builder().setIsolateViewTypes(false)
                 .setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS).build();
-        RecyclerView.Adapter<?>[] adapters = {watchAdapter, new ConcatAdapter(concat, recentAdapter, seeAllApps),
+        RecyclerView.Adapter<?>[] adapters = {null, watchAdapter, new ConcatAdapter(concat, recentAdapter, seeAllApps),
                 new ConcatAdapter(concat, gameAdapter, seeAllGames)};
         // One pool for the strips and the grids; each kind of card has its own view type.
         pool = new RecyclerView.RecycledViewPool();
@@ -477,6 +480,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         pool.setMaxRecycledViews(-R.layout.item_game, STRIP_POOL);
         for (int r = 0; r < ROWS; r++) {
             sections[r] = findViewById(sectionIds[r]);
+            if (rowIds[r] == 0) continue;
             if (rtl) ((TextView) findViewById(titleIds[r])).setGravity(Gravity.RIGHT);
             RecyclerView row = findViewById(rowIds[r]);
             LinearLayoutManager layout = stripLayout();
@@ -624,7 +628,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
         rememberedRow = ROW_WATCHING;
         Arrays.fill(rememberedColumns, 0);
-        for (RecyclerView row : rows) row.scrollToPosition(0);
+        for (RecyclerView row : rows) if (row != null) row.scrollToPosition(0);
         homeRows.scrollTo(0, 0);
         showTab(TAB_HOME);
         rebuildOnResume = true;
@@ -670,6 +674,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         refreshGamesSetup();
         if (tab == TAB_GAMES) gamesSetup.startPairing();
         askForListings();
+        nowPlaying.start();
         if (rebuildOnResume) {
             hidden = HiddenItems.keys(this);
             tilesReady = false;
@@ -850,7 +855,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         rowLengths[ROW_WATCHING] = cfg.rowShown(HomeRows.CONTINUE_WATCHING) ? watching.size() : 0;
         rowLengths[ROW_RECENT] = cfg.rowShown(HomeRows.RECENT_APPS) && !recent.isEmpty() ? recent.size() + 1 : 0;
         rowLengths[ROW_GAMES] = cfg.rowShown(HomeRows.GAMES) && !games.isEmpty() ? games.size() + 1 : 0;
-        for (int r = 0; r < ROWS; r++) sections[r].setVisibility(rowLengths[r] > 0 ? View.VISIBLE : View.GONE);
+        for (int r = ROW_WATCHING; r < ROWS; r++) sections[r].setVisibility(rowLengths[r] > 0 ? View.VISIBLE : View.GONE);
         if (tab == TAB_GAMES) showTab(TAB_GAMES);
 
         boolean restore = restoreFocusPending && !keyedSinceResume && openPopup == null && cardPrompt == null;
@@ -1011,6 +1016,14 @@ public class MainActivity extends Activity implements CardRow.Listener {
     // ---- hero and backdrop -----------------------------------------------------------------------
 
     private Hero.Item heroFor(int row, int position) {
+        NowPlayingItem p = nowPlaying.item();
+        if (row == ROW_NOW_PLAYING && p != null) {
+            Hero.Item h = new Hero.Item("n" + p.pkg + '\n' + p.title + '\n' + p.subtitle, p.title,
+                    p.subtitle.isEmpty() ? null : p.subtitle, nowPlaying.appLabel(), nowPlaying.appIcon(),
+                    p.artwork == null ? p.artUri : null, copy(nowPlaying.appIcon()));
+            h.picture = p.artwork;
+            return h;
+        }
         if (row == ROW_WATCHING && position < watchAdapter.getItemCount()) {
             HomeCards.Watch w = watchAdapter.watchAt(position);
             String when = lastWatched(w.item.lastWatched);
@@ -1063,6 +1076,12 @@ public class MainActivity extends Activity implements CardRow.Listener {
             Hero.Item h = heroFor(row, p);
             if (h != null) hero.prefetch(h);
         }
+    }
+
+    private void nowPlayingChanged(boolean lostFocus) {
+        rowLengths[ROW_NOW_PLAYING] = nowPlaying.targets().size();
+        if (lostFocus) focusContent();
+        else if (heroRow == ROW_NOW_PLAYING && nowPlaying.item() != null) hero.schedule(heroFor(ROW_NOW_PLAYING, 0));
     }
 
     // ---- tabs and focus --------------------------------------------------------------------------
@@ -1125,7 +1144,8 @@ public class MainActivity extends Activity implements CardRow.Listener {
     }
 
     private void focusCard(int row, int column) {
-        focusIn(rows[row], column);
+        if (row == ROW_NOW_PLAYING) nowPlaying.focus(column);
+        else focusIn(rows[row], column);
     }
 
     /** Focuses the card at {@code position}, first bringing it on screen when it is not laid out. */
@@ -1175,13 +1195,16 @@ public class MainActivity extends Activity implements CardRow.Listener {
      * dims. The list clamps the scroll, so the last strips stop at the bottom.
      */
     private void scrollToRow(int row) {
-        int first = HomeNav.restoreRow(rowLengths, 0);
-        if (first == HomeNav.HEADER) return;
-        int y = row == first ? 0 : sections[row].getTop();
+        // Now playing is part of the hero, so it and the first strip both keep the hero on screen.
+        int first = HomeNav.firstFrom(rowLengths, ROW_WATCHING);
+        boolean top = row == ROW_NOW_PLAYING || row == first;
+        if (first == HomeNav.HEADER && !top) return;
+        int y = top ? 0 : sections[row].getTop();
         if (animations && !reducedMotion) homeRows.smoothScrollTo(0, y);
         else homeRows.scrollTo(0, y);
-        hero.dim(row != first);
-        hero.setVisible(row == first);
+        hero.dim(!top);
+        // The Now playing card sits in the hero and leaves with it.
+        hero.setVisible(top, nowPlaying.view());
     }
 
     @Override
@@ -1209,6 +1232,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         if (horizontal) {
             // Reading order runs right to left in Hebrew: Left moves forward there.
             int target = HomeNav.nextColumn(position, rowLengths[row], left == rtl);
+            if (row == ROW_NOW_PLAYING) target = HomeNav.nextColumn(position, nowPlaying.targets().size(), left == rtl);
             if (target == position) return true;
             focusCard(row, target);
             click(keyCode);
@@ -1327,6 +1351,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
         handler.removeCallbacks(minuteTick);
         hero.pause();
         gamesSetup.pause();
+        nowPlaying.stop();
         stopStats();
         if (diya != null) diya.stop();
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
