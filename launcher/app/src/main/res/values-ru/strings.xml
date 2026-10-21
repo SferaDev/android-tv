@@ -159,4 +159,9 @@
     <string name="home_toggle_stock_on">Стандартный лаунчер включён</string>
     <string name="home_toggle_stock_off">Стандартный лаунчер выключен</string>
     <string name="home_toggle_failed">Не удалось подключиться к ADB телевизора: включите отладку по USB в параметрах разработчика и подтвердите запрос</string>
+    <string name="tab_home">Главная</string>
+    <string name="tab_apps">Приложения</string>
+    <string name="row_recent">Недавние приложения</string>
+    <string name="hide_from_home">Скрыть с главной</string>
+    <string name="show_on_home">Показать на главной</string>
 </resources>

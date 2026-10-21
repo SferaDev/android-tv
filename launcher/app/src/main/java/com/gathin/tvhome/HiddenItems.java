@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Things hidden from Home on the TV, kept in {@link UserSettings}: an app ({@link #app}). The label is what Settings
- * shows in its list to unhide.
+ * shows in its list to unhide. The Apps tab still lists everything.
  */
 final class HiddenItems {
     static final String APP = "app:";
@@ -63,6 +64,16 @@ final class HiddenItems {
     static Set<String> keys(List<Item> items) {
         Set<String> out = new LinkedHashSet<>();
         for (Item item : items) out.add(item.key);
+        return out;
+    }
+
+    /** The first {@code limit} items that are not hidden, in order. */
+    static <T> List<T> visible(List<T> items, Predicate<T> hidden, int limit) {
+        List<T> out = new ArrayList<>();
+        for (T item : items) {
+            if (out.size() >= limit) break;
+            if (!hidden.test(item)) out.add(item);
+        }
         return out;
     }
 

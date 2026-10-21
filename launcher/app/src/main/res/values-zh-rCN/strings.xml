@@ -155,4 +155,9 @@
     <string name="home_toggle_stock_on">原厂桌面已开启</string>
     <string name="home_toggle_stock_off">原厂桌面已关闭</string>
     <string name="home_toggle_failed">无法连接电视的 ADB：请在开发者选项中开启 USB 调试并接受提示</string>
+    <string name="tab_home">主页</string>
+    <string name="tab_apps">应用</string>
+    <string name="row_recent">最近使用的应用</string>
+    <string name="hide_from_home">从主页隐藏</string>
+    <string name="show_on_home">在主页显示</string>
 </resources>

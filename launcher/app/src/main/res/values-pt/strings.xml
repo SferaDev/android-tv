@@ -35,7 +35,6 @@
     <string name="not_available">Não disponível nesta TV</string>
     <string name="cant_open">Não foi possível abrir %1$s</string>
     <string name="date_format">EEEE  d \'de\' MMMM</string>
-    <string name="date_format_home">EEEE\nd \'de\' MMMM</string>
     <string name="stats_cpu">CPU %1$d%%</string>
     <string name="stats_memory">Memória %1$d / %2$d MB</string>
     <string name="stats_storage">Armazenamento %1$s livre</string>
@@ -95,8 +94,6 @@
         <item quantity="many">%1$d apps</item>
         <item quantity="other">%1$d apps</item>
     </plurals>
-    <string name="greeting_with_name">%1$s, %2$s</string>
-
     <!-- Launcher settings, quick settings panel, race-weekend panel and cinematic shelf. -->
     <string name="launcher_settings">Configurações do launcher</string>
     <string name="native_settings">Configurações do fabricante</string>
@@ -156,4 +153,9 @@
     <string name="home_toggle_stock_on">Launcher original ativado</string>
     <string name="home_toggle_stock_off">Launcher original desativado</string>
     <string name="home_toggle_failed">Não foi possível acessar o ADB da TV: ative a depuração USB nas opções do desenvolvedor e aceite o aviso</string>
+    <string name="tab_home">Início</string>
+    <string name="tab_apps">Apps</string>
+    <string name="row_recent">Apps recentes</string>
+    <string name="hide_from_home">Ocultar do Início</string>
+    <string name="show_on_home">Mostrar no Início</string>
 </resources>
