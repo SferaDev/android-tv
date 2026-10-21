@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A Recent games card: the portrait cover, or the game's name on a gradient while there is none. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:id="@+id/card"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="96dp"
+        android:layout_height="144dp"
+        android:foreground="@drawable/card_focus"
+        android:focusable="true"
+        android:clickable="true">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:gravity="center"
+            android:maxLines="5"
+            android:ellipsize="end"
+            android:textColor="#FFFFFFFF"
+            android:textSize="15sp"
+            android:fontFamily="@string/font_medium"
+            android:lineSpacingExtra="2dp" />
+
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null" />
+
+        <ImageView
+            android:id="@+id/hiddenBadge"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="6dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_eye_off"
+            android:background="@drawable/badge_bg"
+            android:visibility="gone"
+            android:contentDescription="@null" />
+    </FrameLayout>
+</FrameLayout>

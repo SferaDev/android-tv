@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- GameStream answers serverinfo and pairing over plain HTTP on the LAN (port 47989; the rest is TLS pinned at
+         pairing), and the PC's address is picked on the TV, so no domain list can name it. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

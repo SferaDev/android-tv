@@ -15,8 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-/** The Continue watching cards, for the Home strips. Built off the main thread, then handed to these adapters. */
+/** The Continue watching and Games cards, for the Home strips and the Games tab. Built off the main thread, then handed to these adapters. */
 final class HomeCards {
     private HomeCards() { }
 
@@ -41,6 +42,17 @@ final class HomeCards {
                 title = appLabel;
                 subtitle = null;
             }
+        }
+    }
+
+    static final class Game {
+        final SteamGame game;
+        /** Cached cover file path, or null: the card then shows the name on a gradient. */
+        final String cover;
+
+        Game(SteamGame game, String cover) {
+            this.game = game;
+            this.cover = cover;
         }
     }
 
@@ -154,6 +166,87 @@ final class HomeCards {
                 badge = v.findViewById(R.id.badge);
                 title = v.findViewById(R.id.title);
                 subtitle = v.findViewById(R.id.subtitle);
+                wire(this, card);
+            }
+        }
+    }
+
+    static final class GameAdapter extends CardRow.Adapter<GameAdapter.Holder> {
+        private final ImageCache images;
+        private final Consumer<Game> open;
+        private final boolean grid;
+        private List<Game> items = new ArrayList<>();
+        private Predicate<Game> hiddenFromHome = g -> false;
+
+        GameAdapter(int row, CardRow.Listener listener, ImageCache images, Consumer<Game> open, boolean grid, Config cfg) {
+            super(row, listener, cfg);
+            this.grid = grid;
+            this.images = images;
+            this.open = open;
+        }
+
+        void setItems(List<Game> games, Predicate<Game> hidden) {
+            items = games;
+            hiddenFromHome = hidden;
+            notifyDataSetChanged();
+        }
+
+        Game gameAt(int position) {
+            return items.get(position);
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return grid ? R.layout.item_game : -R.layout.item_game;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return items.get(position).game.name.hashCode();
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
+        @NonNull
+        @Override
+        public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_game, parent, false);
+            if (grid) v.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+            return new Holder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull Holder h, int position) {
+            Game g = items.get(position);
+            sync(h.card);
+            h.card.setContentDescription(g.game.name);
+            h.name.setText(g.game.name);
+            h.name.setVisibility(View.VISIBLE);
+            h.cover.setImageDrawable(null);
+            ImageCache.clear(h.cover);
+            h.card.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR, gradientFor(g.game.name)));
+            if (g.cover != null) {
+                images.load(g.cover, h.card.getLayoutParams().width, h.cover, () -> h.name.setVisibility(View.GONE));
+            }
+            h.card.setOnClickListener(v -> open.accept(g));
+            h.hidden.setVisibility(grid && hiddenFromHome.test(g) ? View.VISIBLE : View.GONE);
+        }
+
+        final class Holder extends RecyclerView.ViewHolder {
+            final View card;
+            final ImageView cover;
+            final TextView name;
+            final View hidden;
+
+            Holder(View v) {
+                super(v);
+                card = v.findViewById(R.id.card);
+                cover = v.findViewById(R.id.cover);
+                name = v.findViewById(R.id.name);
+                hidden = v.findViewById(R.id.hiddenBadge);
                 wire(this, card);
             }
         }

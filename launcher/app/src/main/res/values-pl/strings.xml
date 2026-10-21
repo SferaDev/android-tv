@@ -102,6 +102,8 @@
     <string name="tab_home">Główna</string>
     <string name="tab_apps">Aplikacje</string>
     <string name="row_watching">Oglądaj dalej</string>
+    <string name="row_games">Ostatnie gry</string>
+    <string name="tab_games">Gry</string>
     <string name="row_recent">Ostatnie aplikacje</string>
     <string name="hide_from_home">Ukryj na głównej</string>
     <string name="show_on_home">Pokaż na głównej</string>

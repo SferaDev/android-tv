@@ -9,7 +9,8 @@ import java.util.List;
 final class HomeRows {
     static final String CONTINUE_WATCHING = "continue_watching";
     static final String RECENT_APPS = "recent_apps";
-    static final List<String> ALL = Collections.unmodifiableList(Arrays.asList(CONTINUE_WATCHING, RECENT_APPS));
+    static final String GAMES = "games";
+    static final List<String> ALL = Collections.unmodifiableList(Arrays.asList(CONTINUE_WATCHING, RECENT_APPS, GAMES));
 
     private HomeRows() { }
 

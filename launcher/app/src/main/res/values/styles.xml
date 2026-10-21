@@ -83,7 +83,7 @@
         <item name="android:descendantFocusability">afterDescendants</item>
     </style>
 
-    <!-- The Apps tab: a grid lined up with the header like the strips. -->
+    <!-- The Apps and Games tabs: a grid lined up with the header like the strips. -->
     <style name="TabGrid">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>

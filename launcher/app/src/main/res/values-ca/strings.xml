@@ -115,6 +115,8 @@
     <string name="tab_home">Inici</string>
     <string name="tab_apps">Aplicacions</string>
     <string name="row_watching">Continua mirant</string>
+    <string name="row_games">Jocs recents</string>
+    <string name="tab_games">Jocs</string>
     <string name="row_recent">Aplicacions recents</string>
     <string name="hide_from_home">Amaga de l\'inici</string>
     <string name="show_on_home">Mostra a l\'inici</string>

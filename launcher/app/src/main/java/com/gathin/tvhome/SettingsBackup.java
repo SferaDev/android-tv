@@ -16,7 +16,7 @@ import java.util.Set;
  * A file with the choices made on the TV: {@code {"kind": "tvhome-settings", "version": 1, "config": {...},
  * "hidden": [...]}}. "config" carries the remote button mappings too (app_keys, settings_key_keycodes,
  * input_key_keycodes). Only the keys listed in {@link #KEYS} are written or read back, so nothing else the launcher
- * keeps (the adb key) can end up in a backup.
+ * keeps (the adb key, the GameStream client key and certificate) can end up in a backup.
  */
 final class SettingsBackup {
     static final String KIND = "tvhome-settings";
@@ -30,7 +30,8 @@ final class SettingsBackup {
 
     static {
         for (String k : new String[]{"live_tv_package", "live_tv_action", "source_panel_service", "source_panel_action",
-                "input_action", "vpn_app", "background_color"}) KEYS.put(k, Type.STRING);
+                "input_action", "vpn_app", "background_color", "gamestream_host", "moonlight_host_uuid",
+                "moonlight_host_name"}) KEYS.put(k, Type.STRING);
         for (String k : new String[]{"animations", "advanced_effects", "shamsi_date", "module_cards", "reduced_motion",
                 "online_artwork", "show_home_settings_shortcut", "show_stats", "app_library", "settings_key_panel",
                 "wallpaper", "show_network_pill", "wallpaper_true_color"}) KEYS.put(k, Type.BOOL);
