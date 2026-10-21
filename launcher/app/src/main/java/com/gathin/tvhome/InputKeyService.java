@@ -31,16 +31,24 @@ public class InputKeyService extends AccessibilityService {
     private boolean consumeVolumeKeys;
     /** Stops key filtering while a game controller is connected; null unless gamepad_passthrough and key_filter. */
     private GamepadPassthrough gamepads;
+    private final UserSettings.Listener reload = this::loadConfig;
 
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
-        // From config.xml or a theme's config.json; theme.sh rebinds this service after a push.
+        loadConfig();
+        UserSettings.addListener(reload);
+    }
+
+    /** From config.xml, a theme's config.json (theme.sh rebinds this service after a push) or Settings. */
+    private void loadConfig() {
         Config config = Config.load(this);
         // restore_key_services: note that this helper runs, so Home can put it back after a force stop.
         repairRecord = config.restoreKeyServices;
         if (repairRecord) ServiceRepair.connected(this, getClass());
         inputKeycodes = config.inputKeycodes;
+        // Settings reload this live, so a switch turned off releases what it held.
+        if (consumeVolumeKeys && !config.consumeVolumeKeys) VolumeKeys.stop();
         consumeVolumeKeys = config.consumeVolumeKeys;
         appKeys = RemoteKeys.parseAppKeys(config.appKeys);
         appScancodes = RemoteKeys.parseAppScancodes(config.appKeys);
@@ -52,6 +60,10 @@ public class InputKeyService extends AccessibilityService {
             gamepads = new GamepadPassthrough(this);
             gamepads.start();
         }
+        else if (!(config.gamepadPassthrough && config.keyFilter) && gamepads != null) {
+            gamepads.stop();
+            gamepads = null;
+        }
     }
 
     private boolean isInputKey(int keyCode) {
@@ -62,6 +74,7 @@ public class InputKeyService extends AccessibilityService {
 
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
+        if (KeyCapture.offer(event)) return true;
         if (consumeVolumeKeys && VolumeKeys.handle(this, event)) return true;
         // A scancode entry is more specific than any keycode, so it goes first.
         if (RemoteKeys.handle(this, event, appScancodes.get(event.getScanCode()),
@@ -89,6 +102,7 @@ public class InputKeyService extends AccessibilityService {
     @Override
     public void onDestroy() {
         RemoteKeys.release(this);
+        UserSettings.removeListener(reload);
         if (gamepads != null) gamepads.stop();
         if (consumeVolumeKeys) VolumeKeys.stop();
         super.onDestroy();
