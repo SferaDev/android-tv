@@ -202,4 +202,17 @@
     <string name="notifications_clear">Borrar todo</string>
     <string name="notifications_none">No hay notificaciones</string>
     <string name="search">Buscar</string>
+    <string name="settings_row_watch">Seguir viendo</string>
+    <string name="settings_watch_max_age">Antigüedad máxima en Seguir viendo</string>
+    <string name="settings_watch_max_age_hint">Deja fuera lo que viste por última vez hace más tiempo</string>
+    <string name="settings_age_week">1 semana</string>
+    <string name="settings_age_2_weeks">2 semanas</string>
+    <string name="settings_age_month">1 mes</string>
+    <string name="settings_age_2_months">2 meses</string>
+    <string name="settings_age_3_months">3 meses</string>
+    <string name="settings_age_none">Sin límite</string>
+    <string name="row_watching">Seguir viendo</string>
+    <string name="hide_all_from">Ocultar todo de %1$s</string>
+    <string name="hidden_watch_app">%1$s: todo Seguir viendo</string>
+    <string name="last_watched">Visto %1$s</string>
 </resources>

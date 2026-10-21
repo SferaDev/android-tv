@@ -49,6 +49,13 @@ final class Grants {
         if (!notifications) adb.shell("cmd notification allow_listener " + listenerComponent(app));
     }
 
+    /** Fallback for when the READ_TV_LISTINGS dialog was denied or could not show; runs on its own thread. */
+    static void grantListings(Context ctx, Runnable done) {
+        Context app = ctx.getApplicationContext();
+        if (!WatchNext.missingPermission(app)) return;
+        grantPermissionNow(app, WatchNext.PERMISSION, done);
+    }
+
     /** Turns on both key services over SelfAdb, keeping any other accessibility service that is on. */
     static void enableKeyServicesNow(Context ctx, Runnable done) {
         Context app = ctx.getApplicationContext();

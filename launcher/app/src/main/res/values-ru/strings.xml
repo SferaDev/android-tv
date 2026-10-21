@@ -161,7 +161,11 @@
     <string name="home_toggle_failed">Не удалось подключиться к ADB телевизора: включите отладку по USB в параметрах разработчика и подтвердите запрос</string>
     <string name="tab_home">Главная</string>
     <string name="tab_apps">Приложения</string>
+    <string name="row_watching">Продолжить просмотр</string>
     <string name="row_recent">Недавние приложения</string>
     <string name="hide_from_home">Скрыть с главной</string>
     <string name="show_on_home">Показать на главной</string>
+    <string name="hide_all_from">Скрыть всё из %1$s</string>
+    <string name="hidden_watch_app">%1$s: всё в «Продолжить просмотр»</string>
+    <string name="last_watched">Просмотрено %1$s</string>
 </resources>
