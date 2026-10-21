@@ -3,11 +3,13 @@ package com.gathin.tvhome;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +20,7 @@ import java.util.List;
 /** Remote-friendly settings owned by the launcher; system settings stay one row away. */
 public final class LauncherSettingsActivity extends Activity {
     static final String EXTRA_REORDER = "com.gathin.tvhome.extra.REORDER_FROM_SETTINGS";
+    private static final int SECTION_REQUEST = 1;
     private SharedPreferences choices;
     private final TextView[] columnChoices = new TextView[4];
     private final TextView[] rowChoices = new TextView[4];
@@ -37,6 +40,14 @@ public final class LauncherSettingsActivity extends Activity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.activity_launcher_settings);
+        LinearLayout sections = findViewById(R.id.settingsSections);
+        for (int i = 0; i < SettingsActivity.PAGES.length; i++) {
+            String page = SettingsActivity.PAGES[i];
+            TextView row = (TextView) LayoutInflater.from(this).inflate(R.layout.settings_section_row, sections, false);
+            row.setText(SettingsActivity.PAGE_TITLES[i]);
+            row.setOnClickListener(v -> startActivityForResult(SettingsActivity.intent(this, page), SECTION_REQUEST));
+            sections.addView(row);
+        }
         choices = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE);
         Config config = Config.load(this);
         View reorderChoice = findViewById(R.id.reorderChoice);
@@ -202,6 +213,18 @@ public final class LauncherSettingsActivity extends Activity {
         setResult(RESULT_OK);
         choices.edit().putLong(Config.SETTINGS_REVISION_KEY,
                 choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();
+    }
+
+    /** Opens Launcher settings through Home, so Home rebuilds with the new choices when they close. */
+    public static void open(Context ctx) {
+        ctx.startActivity(new Intent(ctx, MainActivity.class).setAction(MainActivity.ACTION_LAUNCHER_SETTINGS)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SECTION_REQUEST && resultCode == RESULT_OK) setResult(RESULT_OK);
     }
 
     private void setAdvanced(boolean enabled) {

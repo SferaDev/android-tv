@@ -50,6 +50,7 @@ public class HomeKeyService extends AccessibilityService {
     private BroadcastReceiver unlockReceiver;
     /** The stock launcher's HOME activities (stock_home_redirect), disabled ones included. */
     private final Set<String> stockHome = new HashSet<>();
+    private final UserSettings.Listener reload = this::loadConfig;
 
     @Override
     protected void onServiceConnected() {
@@ -58,6 +59,7 @@ public class HomeKeyService extends AccessibilityService {
         // The service is directBootAware: Android 11 skips a service that is not while the user is still
         // locked at boot, writes accessibility_enabled=0 and, on TCL G03 firmware, never binds it after the
         // unlock. Config.load reads credential-protected storage, so wait for the unlock before reading it.
+        UserSettings.addListener(reload);
         UserManager users = getSystemService(UserManager.class);
         if (users.isUserUnlocked()) {
             loadConfig();
@@ -86,6 +88,7 @@ public class HomeKeyService extends AccessibilityService {
 
     @Override
     public void onDestroy() {
+        UserSettings.removeListener(reload);
         stopWaitingForUnlock();
         super.onDestroy();
     }
@@ -128,6 +131,7 @@ public class HomeKeyService extends AccessibilityService {
 
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
+        if (KeyCapture.offer(event)) return true;
         // A scancode entry is more specific than any keycode, so it goes first.
         if (RemoteKeys.handle(this, event, appScancodes.get(event.getScanCode()),
                 holdAppScancodes.get(event.getScanCode()))) return true;

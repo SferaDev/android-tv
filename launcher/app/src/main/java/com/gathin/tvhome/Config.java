@@ -31,7 +31,8 @@ import java.util.Set;
  * {@code config.json} in the app's external files directory
  * ({@code /sdcard/Android/data/com.gathin.tvhome/files/}). Every key in the JSON is optional and an
  * unknown or badly typed key is ignored, so a theme can change the dock and the look without a rebuild:
- * {@code tools/theme.sh themes/<name>} pushes a theme folder there and restarts Home.
+ * {@code tools/theme.sh themes/<name>} pushes a theme folder there and restarts Home. Choices made in the launcher's
+ * Settings on the TV ({@link UserSettings}, same keys) go over both: config.xml, then the theme, then the TV.
  *
  * Read once in {@link MainActivity#onCreate}; nothing here touches the network.
  */
@@ -383,14 +384,15 @@ final class Config {
         int cinematicScrim = res.getInteger(R.integer.cinematic_scrim);
         Map<String, Set<String>> wallpaperMoods = moods(res.getString(R.string.wallpaper_moods));
         String glowStyle = res.getString(R.string.glow_style);
-        boolean applied = false;
 
         File dir = dir(ctx);
         File file = dir != null ? new File(dir, FILE_NAME) : null;
         boolean mounted = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-        JSONObject json = readOverlay(ctx, file, mounted);
+        JSONObject theme = readOverlay(ctx, file, mounted);
+        boolean applied = theme != null;
+        JSONObject user = UserSettings.read(ctx);
+        JSONObject json = overlay(theme, user.optJSONObject(UserSettings.CONFIG));
         if (json != null) {
-            applied = true;
             dock = stringList(json, "dock_apps", dock);
             fillDock = bool(json, "fill_dock", fillDock);
             hidden = stringList(json, "hidden_apps", hidden);
@@ -463,6 +465,8 @@ final class Config {
             if (moods != null) wallpaperMoods = moods(moods);
             glowStyle = string(json, "glow_style", glowStyle);
         }
+        Set<String> hiddenOnTv = HiddenItems.apps(HiddenItems.keys(HiddenItems.decode(user.optJSONArray(UserSettings.HIDDEN))));
+        for (String pkg : hiddenOnTv) if (!hidden.contains(pkg)) hidden.add(pkg);
         // A theme push or reset invalidates choices made on the TV. On first use, remember the
         // current theme without clearing choices from an older launcher version.
         SharedPreferences choices = ctx.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE);
@@ -546,6 +550,24 @@ final class Config {
                     r.optString("name", "Grand Prix").trim(), r.optString("place", "").trim(), parsed));
         }
         return races;
+    }
+
+    /** The theme's keys with the TV's on top; null when there is neither. Copies, never changes, its arguments. */
+    static JSONObject overlay(JSONObject theme, JSONObject user) {
+        boolean noUser = user == null || user.length() == 0;
+        if (theme == null && noUser) return null;
+        try {
+            JSONObject out = theme == null ? new JSONObject() : new JSONObject(theme.toString());
+            if (!noUser) {
+                for (java.util.Iterator<String> it = user.keys(); it.hasNext(); ) {
+                    String key = it.next();
+                    out.put(key, user.get(key));
+                }
+            }
+            return out;
+        } catch (org.json.JSONException e) {
+            return theme;
+        }
     }
 
     private static void syncThemeChoices(SharedPreferences choices, File dir, File config) {

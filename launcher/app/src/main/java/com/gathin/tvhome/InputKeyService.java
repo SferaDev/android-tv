@@ -27,11 +27,23 @@ public class InputKeyService extends AccessibilityService {
     private Map<Integer, String> holdAppScancodes = Collections.emptyMap();
     /** restore_key_services was on when the config was read: this helper is noted for ServiceRepair. */
     private boolean repairRecord;
+    private final UserSettings.Listener reload = this::loadConfig;
 
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
-        // From config.xml or a theme's config.json; theme.sh rebinds this service after a push.
+        loadConfig();
+        UserSettings.addListener(reload);
+    }
+
+    @Override
+    public void onDestroy() {
+        UserSettings.removeListener(reload);
+        super.onDestroy();
+    }
+
+    /** From config.xml, a theme's config.json (theme.sh rebinds this service after a push) or Settings. */
+    private void loadConfig() {
         Config config = Config.load(this);
         // restore_key_services: note that this helper runs, so Home can put it back after a force stop.
         repairRecord = config.restoreKeyServices;
@@ -52,6 +64,7 @@ public class InputKeyService extends AccessibilityService {
 
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
+        if (KeyCapture.offer(event)) return true;
         // A scancode entry is more specific than any keycode, so it goes first.
         if (RemoteKeys.handle(this, event, appScancodes.get(event.getScanCode()),
                 holdAppScancodes.get(event.getScanCode()))) return true;
