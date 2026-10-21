@@ -186,4 +186,20 @@
     <string name="settings_import_hidden">Elementos ocultos a añadir: %1$d</string>
     <string name="settings_import_skipped">No reconocidos, omitidos: %1$d</string>
     <string name="settings_import_apply">Aplicar</string>
+    <string name="settings_home_hint">Las filas de Inicio y lo que has ocultado de él.</string>
+    <string name="settings_row_recent">Aplicaciones recientes</string>
+    <string name="settings_listener_access">Acceso a notificaciones</string>
+    <string name="settings_listener_access_hint">Permite a Reproduciendo ahora ver qué suena</string>
+    <string name="tab_home">Inicio</string>
+    <string name="tab_apps">Aplicaciones</string>
+    <string name="row_recent">Aplicaciones recientes</string>
+    <string name="hide_from_home">Ocultar en Inicio</string>
+    <string name="show_on_home">Mostrar en Inicio</string>
+    <string name="settings_online_artwork">Imágenes de internet</string>
+    <string name="settings_online_artwork_hint">Muestra imágenes de TVmaze (CC BY-SA)</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="notifications_count">Notificaciones, %1$d</string>
+    <string name="notifications_clear">Borrar todo</string>
+    <string name="notifications_none">No hay notificaciones</string>
+    <string name="search">Buscar</string>
 </resources>

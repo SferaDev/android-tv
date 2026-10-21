@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The hero text block above the first Home strip; with the header it covers about the top 55% of a TV. -->
+    <dimen name="hero_height">180dp</dimen>
+    <!-- The hero text column, about half the screen: the backdrop's subject shows to its side. -->
+    <dimen name="hero_text_width">520dp</dimen>
+</resources>

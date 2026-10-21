@@ -11,10 +11,6 @@
     <string name="live_tv">TV kanallar</string>
     <string name="no_inputs">Manbalar topilmadi</string>
     <string name="more_inputs">Boshqa manbalar</string>
-    <string name="good_morning">Xayrli tong</string>
-    <string name="good_afternoon">Xayrli kun</string>
-    <string name="good_evening">Xayrli kech</string>
-    <string name="good_night">Xayrli tun</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Internet yoʻq</string>
     <string name="not_available">Bu televizorda mavjud emas</string>
@@ -102,7 +98,6 @@
         <item quantity="one">%1$d ta ilova</item>
         <item quantity="other">%1$d ta ilova</item>
     </plurals>
-    <string name="greeting_with_name">%1$s, %2$s</string>
     <string name="race_kicker">%1$d-bosqich · %2$s · %3$s</string>
     <string name="race_kicker_no_place">%1$d-bosqich · %2$s</string>
     <string name="race_next">%1$s, %2$s dan soʻng</string>

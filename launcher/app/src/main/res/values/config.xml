@@ -15,7 +15,7 @@
         <item>com.amazon.tv.launcher/com.amazon.tv.launcher.ui.MainSettingsActivity</item>
     </string-array>
 
-    <!-- Apps pinned to the dock row at the bottom, in this order. Missing apps are skipped. -->
+    <!-- Apps first in the Apps tab, in this order, and the Recent apps row. Missing apps are skipped. -->
     <string-array name="dock_apps">
         <item>com.netflix.ninja</item>
         <item>com.amazon.amazonvideo.livingroom</item>
@@ -384,9 +384,8 @@
          for bigger tiles when rows_below_dock is 2 or 3. -->
     <bool name="dock_title">true</bool>
 
-    <!-- Tiles per row in the grid; the dock always has this many slots. Tiles are 180dp wide at 4 columns and
-         shrink to fit from 5 up (about 144dp at 5, 117dp at 6 on a 1080p TV). -->
-    <integer name="columns">4</integer>
+    <!-- Tiles per line in the Apps tab; the tiles shrink to fit (about 110dp wide at 7 columns on a 1080p TV). -->
+    <integer name="columns">7</integer>
 
     <!-- Basic motion is on; advanced effects are opt-in in the launcher's own Settings screen. -->
     <bool name="animations">true</bool>
@@ -426,6 +425,11 @@
     <string-array name="library_excluded_apps" translatable="false">
     </string-array>
 
+    <!-- Data rows on Home: recent_apps. Leave it out to hide it; also set on the TV in Settings, Home. -->
+    <string-array name="home_rows" translatable="false">
+        <item>recent_apps</item>
+    </string-array>
+
     <!-- Module cards: an app that declares a card (docs/specs/card.md) can stand in for its tile with its own
          label, caption and glow colour, once you answer Show on the prompt. false: never look for cards or ask. -->
     <bool name="module_cards">true</bool>
@@ -442,6 +446,10 @@
          (reduced_motion also removes the overshoot, but scrolls in one jump). Can also be set with
          "focus_overshoot" in a theme's config.json. -->
     <bool name="focus_overshoot">true</bool>
+
+    <!-- Online artwork: the hero backdrop for shows (TVmaze, CC BY-SA) and games (Steam) is fetched once and cached.
+         false: no request is ever made. Can also be set with "online_artwork": false in config.json. -->
+    <bool name="online_artwork">true</bool>
 
     <!-- One line under the clock: CPU, free memory and free storage. Off by default; a theme can set
          "show_stats": true. Nothing is read, and the clock does not move, while this is false. -->

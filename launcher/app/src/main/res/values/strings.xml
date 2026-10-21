@@ -127,6 +127,7 @@
     <string name="greeting_with_name">%1$s, %2$s</string>
 
     <!-- Race-weekend panel (RaceWeekend). -->
+    <!-- Race-weekend panel (RaceWeekend). Session names come from the calendar. -->
     <string name="race_kicker">Round %1$d · %2$s · %3$s</string>
     <string name="race_kicker_no_place">Round %1$d · %2$s</string>
     <string name="race_next">%1$s in %2$s</string>
@@ -162,6 +163,7 @@
     <string name="home_toggle_stock_on">Stock launcher on</string>
     <string name="home_toggle_stock_off">Stock launcher off</string>
     <string name="home_toggle_failed">Could not reach the TV\'s ADB: turn on USB debugging in Developer options and accept the prompt</string>
+    <!-- The launcher's own Settings pages (SettingsActivity). -->
     <string name="settings_remote">Remote buttons</string>
     <string name="settings_remote_hint">Give a button an action: open an app, the inputs or settings, or switch the stock launcher on and off. Useful for buttons that stopped working when the stock launcher was turned off.</string>
     <string name="settings_key_service">Remote button service</string>
@@ -184,6 +186,8 @@
     <string name="settings_action_settings">Open settings</string>
     <string name="settings_pick_app">Choose the app this button opens</string>
     <string name="settings_home">Home</string>
+    <string name="settings_home_hint">Rows on Home, and things you hid from it.</string>
+    <string name="settings_row_recent">Recent apps</string>
     <string name="settings_hidden">Hidden</string>
     <string name="settings_hidden_none">Nothing is hidden</string>
     <string name="settings_unhide">Press OK to show it again</string>
@@ -201,17 +205,31 @@
     <string name="settings_appearance_theme_hint">Use the theme\'s background and wallpaper again</string>
     <string name="settings_advanced">Permissions</string>
     <string name="settings_advanced_hint">What the launcher may read. Each opens the TV\'s own settings for it where the TV has them.</string>
+    <string name="settings_listener_access">Notification access</string>
+    <string name="settings_listener_access_hint">Lets Now playing see what is playing</string>
     <string name="settings_granted">Allowed</string>
     <string name="settings_not_granted">Not allowed</string>
     <string name="settings_grant_auto">Grant automatically</string>
     <string name="settings_grant_auto_hint">Uses the TV\'s own USB debugging; the TV asks you to allow it once</string>
     <string name="settings_reset">Reset launcher settings</string>
-    <string name="settings_reset_hint">Forgets every choice made here: remote buttons, hidden items and colours.</string>
+    <string name="settings_reset_hint">Forgets every choice made here: remote buttons, rows, hidden items and colours.</string>
     <string name="settings_reset_confirm">Reset</string>
     <string name="settings_not_saved">Couldn\'t save the change</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_apps">Apps</string>
+    <string name="row_recent">Recent apps</string>
+    <string name="hide_from_home">Hide from Home</string>
+    <string name="show_on_home">Show on Home</string>
+    <string name="settings_online_artwork">Online artwork</string>
+    <string name="settings_online_artwork_hint">Show images from TVmaze (CC BY-SA)</string>
+    <string name="notifications">Notifications</string>
+    <string name="notifications_count">Notifications, %1$d</string>
+    <string name="notifications_clear">Clear all</string>
+    <string name="notifications_none">No notifications</string>
+    <string name="search">Search</string>
     <string name="settings_backup">Backup</string>
     <string name="settings_export">Export settings</string>
-    <string name="settings_export_hint">Saves remote buttons, hidden items and colours to a file you can keep. No keys or certificates are included.</string>
+    <string name="settings_export_hint">Saves remote buttons, rows, hidden items and colours to a file you can keep. No keys or certificates are included.</string>
     <string name="settings_export_done">Saved to %1$s</string>
     <string name="settings_backup_chosen_file">the file you chose</string>
     <string name="settings_export_failed">Couldn\'t write the file</string>

@@ -158,4 +158,9 @@
     <string name="home_toggle_stock_on">Стандартний лаунчер увімкнено</string>
     <string name="home_toggle_stock_off">Стандартний лаунчер вимкнено</string>
     <string name="home_toggle_failed">Не вдалося під\'єднатися до ADB телевізора: увімкніть налагодження через USB у параметрах розробника й підтвердьте запит</string>
+    <string name="tab_home">Головна</string>
+    <string name="tab_apps">Застосунки</string>
+    <string name="row_recent">Нещодавні застосунки</string>
+    <string name="hide_from_home">Приховати з головної</string>
+    <string name="show_on_home">Показати на головній</string>
 </resources>

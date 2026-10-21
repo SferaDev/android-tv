@@ -11,10 +11,6 @@
     <string name="live_tv">TV Langsung</string>
     <string name="no_inputs">Tidak ada input ditemukan</string>
     <string name="more_inputs">Input lainnya</string>
-    <string name="good_morning">Selamat Pagi</string>
-    <string name="good_afternoon">Selamat Siang</string>
-    <string name="good_evening">Selamat Sore</string>
-    <string name="good_night">Selamat Malam</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Luring</string>
     <string name="not_available">Tidak tersedia di TV ini</string>
@@ -101,7 +97,6 @@
         <item quantity="one">%1$d aplikasi</item>
         <item quantity="other">%1$d aplikasi</item>
     </plurals>
-    <string name="greeting_with_name">%1$s, %2$s</string>
     <string name="race_kicker">Putaran %1$d · %2$s · %3$s</string>
     <string name="race_kicker_no_place">Putaran %1$d · %2$s</string>
     <string name="race_next">%1$s dalam %2$s</string>

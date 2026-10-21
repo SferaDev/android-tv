@@ -5,20 +5,49 @@ import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 /**
- * The key services and the runtime permissions. The TV's own Settings screen is the normal path; SelfAdb
+ * The watch listener and the key services. The TV's own Settings screen is the normal path; SelfAdb
  * grants them only where that screen does not exist, or when the user asks for it from Settings.
  */
 final class Grants {
+    private static final AtomicBoolean STARTED = new AtomicBoolean();
     private static final Pattern COMPONENT = Pattern.compile("^[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+$");
     private static final Pattern PERMISSION = Pattern.compile("^[A-Za-z0-9_.]+$");
     static final String ACCESSIBILITY = "enabled_accessibility_services";
+    static final String LISTENERS = "enabled_notification_listeners";
 
     private Grants() { }
+
+    /** Once per process, on its own thread: only what the TV offers no Settings screen for. */
+    static void start(Context ctx) {
+        if (!STARTED.compareAndSet(false, true)) return;
+        Context app = ctx.getApplicationContext();
+        boolean notifications = !needsAdb(listenerGranted(app), resolves(app, listenerIntent()));
+        if (notifications) return;
+        SelfAdb.inBackground(app, "grants", true, adb -> grant(adb, app, notifications), null);
+    }
+
+    /** "Grant automatically" in Settings: whatever is still missing, over SelfAdb. */
+    static void grantNow(Context ctx, Runnable done) {
+        Context app = ctx.getApplicationContext();
+        boolean notifications = listenerGranted(app);
+        SelfAdb.inBackground(app, "grants", false, adb -> grant(adb, app, notifications), done);
+    }
+
+    /** No normal path: not granted, and the TV has no Settings screen to grant it in. */
+    static boolean needsAdb(boolean granted, boolean settingsScreen) {
+        return !granted && !settingsScreen;
+    }
+
+    private static void grant(SelfAdb adb, Context app, boolean notifications) throws IOException {
+        if (!notifications) adb.shell("cmd notification allow_listener " + listenerComponent(app));
+    }
 
     /** Turns on both key services over SelfAdb, keeping any other accessibility service that is on. */
     static void enableKeyServicesNow(Context ctx, Runnable done) {
@@ -42,6 +71,10 @@ final class Grants {
         }, done);
     }
 
+    static Intent listenerIntent() {
+        return new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
+    }
+
     static Intent accessibilityIntent() {
         return new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
     }
@@ -50,16 +83,34 @@ final class Grants {
         return intent.resolveActivity(ctx.getPackageManager()) != null;
     }
 
+    static boolean listenerGranted(Context app) {
+        return listenerEnabled(Settings.Secure.getString(app.getContentResolver(), LISTENERS),
+                listenerComponent(app));
+    }
+
     static boolean serviceEnabled(Context app, Class<?> service) {
         return componentListed(Settings.Secure.getString(app.getContentResolver(), ACCESSIBILITY),
                 app.getPackageName(), service.getName());
+    }
+
+    private static String listenerComponent(Context app) {
+        return component(app, WatchListener.class);
     }
 
     private static String component(Context app, Class<?> cls) {
         return new ComponentName(app, cls).flattenToString();
     }
 
-    /** Whether the colon separated setting lists this component, also in the short "pkg/.Class" form adb users type. */
+    /** Whether the colon separated enabled_notification_listeners value lists this component. */
+    static boolean listenerEnabled(String setting, String component) {
+        if (setting == null) return false;
+        for (String entry : setting.split(":")) {
+            if (entry.equals(component)) return true;
+        }
+        return false;
+    }
+
+    /** Like {@link #listenerEnabled}, also accepting the short "pkg/.Class" form adb users type. */
     static boolean componentListed(String setting, String pkg, String cls) {
         if (setting == null) return false;
         String shortName = cls.startsWith(pkg + ".") ? "." + cls.substring(pkg.length() + 1) : null;
