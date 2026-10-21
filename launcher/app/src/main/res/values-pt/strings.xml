@@ -161,5 +161,6 @@
     <string name="show_on_home">Mostrar no Início</string>
     <string name="hide_all_from">Ocultar tudo de %1$s</string>
     <string name="hidden_watch_app">%1$s: todo o Continuar assistindo</string>
+    <string name="see_all">Ver tudo</string>
     <string name="last_watched">Assistido %1$s</string>
 </resources>

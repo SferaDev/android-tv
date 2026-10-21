@@ -87,5 +87,6 @@
     <string name="show_on_home">Prikaži na početnoj</string>
     <string name="hide_all_from">Sakrij sve iz %1$s</string>
     <string name="hidden_watch_app">%1$s: sve iz Nastavi gledanje</string>
+    <string name="see_all">Prikaži sve</string>
     <string name="last_watched">Gledano %1$s</string>
 </resources>

@@ -167,5 +167,6 @@
     <string name="show_on_home">Показать на главной</string>
     <string name="hide_all_from">Скрыть всё из %1$s</string>
     <string name="hidden_watch_app">%1$s: всё в «Продолжить просмотр»</string>
+    <string name="see_all">Показать все</string>
     <string name="last_watched">Просмотрено %1$s</string>
 </resources>

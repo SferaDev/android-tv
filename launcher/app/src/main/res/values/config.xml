@@ -15,7 +15,8 @@
         <item>com.amazon.tv.launcher/com.amazon.tv.launcher.ui.MainSettingsActivity</item>
     </string-array>
 
-    <!-- Apps first in the Apps tab, in this order, and the Recent apps row. Missing apps are skipped. -->
+    <!-- Apps first in the Apps tab, in this order, and the Popular apps row until usage access has data. Missing
+         apps are skipped. -->
     <string-array name="dock_apps">
         <item>com.netflix.ninja</item>
         <item>com.amazon.amazonvideo.livingroom</item>

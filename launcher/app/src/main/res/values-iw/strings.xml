@@ -206,6 +206,8 @@
     <string name="settings_appearance_theme_hint">חזרה לרקע ולטפט של ערכת הנושא</string>
     <string name="settings_advanced">הרשאות</string>
     <string name="settings_advanced_hint">מה מסך הבית רשאי לקרוא. כל פריט פותח את הגדרות הטלוויזיה עבורו, אם קיימות.</string>
+    <string name="settings_usage_access">גישה לנתוני שימוש</string>
+    <string name="settings_usage_access_hint">עבור אפליקציות אחרונות</string>
     <string name="settings_listener_access">גישה להתראות</string>
     <string name="settings_listener_access_hint">מאפשר ל\"מתנגן עכשיו\" לדעת מה מתנגן</string>
     <string name="settings_granted">מותר</string>
@@ -224,6 +226,7 @@
     <string name="show_on_home">הצגה במסך הבית</string>
     <string name="hide_all_from">הסתרת הכול מ-%1$s</string>
     <string name="hidden_watch_app">%1$s: כל הפריטים בהמשך צפייה</string>
+    <string name="see_all">הצגת הכול</string>
     <string name="last_watched">נצפה %1$s</string>
     <string name="settings_online_artwork">תמונות מהאינטרנט</string>
     <string name="settings_online_artwork_hint">הצגת תמונות מ-TVmaze (CC BY-SA)</string>
