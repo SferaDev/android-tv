@@ -100,6 +100,8 @@
     <string name="tab_home">Ana Sayfa</string>
     <string name="tab_apps">Uygulamalar</string>
     <string name="row_watching">İzlemeye devam et</string>
+    <string name="row_games">Son oyunlar</string>
+    <string name="tab_games">Oyunlar</string>
     <string name="row_recent">Son uygulamalar</string>
     <string name="hide_from_home">Ana Sayfadan gizle</string>
     <string name="show_on_home">Ana Sayfada göster</string>

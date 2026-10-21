@@ -21,7 +21,7 @@
             android:textColor="#FFFFFFFF"
             android:textSize="34sp" />
 
-        <!-- Remote buttons, Home, Appearance, Permissions: filled from SettingsActivity.PAGES. -->
+        <!-- Remote buttons, Games, Home, Appearance, Permissions: filled from SettingsActivity.PAGES. -->
         <LinearLayout
             android:id="@+id/settingsSections"
             android:layout_width="match_parent"
