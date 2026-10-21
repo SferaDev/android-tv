@@ -92,7 +92,7 @@ final class CardRow {
             card.removeCallbacks(this);
             if (down < 0 || fired) return;
             fired = true;
-            int pos = holder.getBindingAdapterPosition();
+            int pos = holder.getAbsoluteAdapterPosition();
             if (pos == RecyclerView.NO_POSITION || !card.isFocused() || !card.hasWindowFocus()) return;
             card.setPressed(false);
             listener.onCardMenu(row, pos, card);
@@ -121,7 +121,8 @@ final class CardRow {
         card.setOnKeyListener((v, keyCode, event) -> {
             if (hold != null && isOkKey(keyCode) && hold.onKey(event)) return true;
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
-            int pos = holder.getBindingAdapterPosition();
+            // The strip's position, not the part's: a See all card follows the cards in a ConcatAdapter.
+            int pos = holder.getAbsoluteAdapterPosition();
             if (keyCode == KeyEvent.KEYCODE_MENU) {
                 if (pos != RecyclerView.NO_POSITION && event.getRepeatCount() == 0) listener.onCardMenu(row, pos, v);
                 return true;
@@ -131,7 +132,7 @@ final class CardRow {
             return pos == RecyclerView.NO_POSITION || listener.onCardKey(row, pos, keyCode);
         });
         card.setOnLongClickListener(v -> {
-            int pos = holder.getBindingAdapterPosition();
+            int pos = holder.getAbsoluteAdapterPosition();
             if (pos != RecyclerView.NO_POSITION) listener.onCardMenu(row, pos, v);
             return true;
         });
@@ -149,7 +150,7 @@ final class CardRow {
             v.setTranslationZ(focused ? FOCUS_LIFT_DP * density : 0f);
             for (View label : focusOnly) label.setAlpha(focused ? 1f : 0f);
             if (!focused && hold != null) hold.cancel();   // a dialog or another window took the remote while OK was held
-            int pos = holder.getBindingAdapterPosition();
+            int pos = holder.getAbsoluteAdapterPosition();
             if (focused && pos != RecyclerView.NO_POSITION) listener.onCardFocused(row, pos);
         });
     }

@@ -80,5 +80,6 @@
     <string name="show_on_home">Auf Startseite zeigen</string>
     <string name="hide_all_from">Alles von %1$s ausblenden</string>
     <string name="hidden_watch_app">%1$s: alles in Weiterschauen</string>
+    <string name="see_all">Alle anzeigen</string>
     <string name="last_watched">Zuletzt gesehen %1$s</string>
 </resources>
