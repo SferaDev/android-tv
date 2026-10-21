@@ -35,7 +35,7 @@ final class SettingsBackup {
                 "online_artwork", "show_home_settings_shortcut", "show_stats", "app_library", "settings_key_panel",
                 "wallpaper", "show_network_pill", "wallpaper_true_color"}) KEYS.put(k, Type.BOOL);
         for (String k : new String[]{"columns", "sky_intensity", "wallpaper_rotation_minutes", "wallpaper_dim",
-                "home_idle_clock_minutes"}) {
+                "home_idle_clock_minutes", WatchHistory.MAX_AGE_KEY}) {
             KEYS.put(k, Type.INT);
         }
         for (String k : new String[]{"dock_apps", "hidden_apps", "app_keys", "home_rows"}) KEYS.put(k, Type.STRINGS);

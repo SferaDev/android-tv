@@ -99,7 +99,11 @@
     <string name="home_toggle_failed">Impossible de joindre l\'ADB de la TV : activez le débogage USB dans les options pour les développeurs et acceptez la demande</string>
     <string name="tab_home">Accueil</string>
     <string name="tab_apps">Applications</string>
+    <string name="row_watching">Reprendre la lecture</string>
     <string name="row_recent">Applications récentes</string>
     <string name="hide_from_home">Masquer de l\'accueil</string>
     <string name="show_on_home">Afficher sur l\'accueil</string>
+    <string name="hide_all_from">Tout masquer de %1$s</string>
+    <string name="hidden_watch_app">%1$s : tout Reprendre la lecture</string>
+    <string name="last_watched">Regardé %1$s</string>
 </resources>

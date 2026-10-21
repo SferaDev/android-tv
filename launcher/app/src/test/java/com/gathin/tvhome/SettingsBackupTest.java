@@ -12,7 +12,7 @@ public class SettingsBackupTest {
     private static JSONObject root() throws Exception {
         JSONObject root = UserSettings.decode("");
         root.getJSONObject("config").put("vpn_app", "com.example.vpn").put("columns", 6)
-                .put("wallpaper_dim", 14)
+                .put(WatchHistory.MAX_AGE_KEY, 14)
                 .put("app_keys", UserSettings.json(Arrays.asList("190:com.example.tube")))
                 .put("settings_key_keycodes", UserSettings.json(new int[]{176}))
                 .put("adb_private_key", "SECRET").put("client_cert", "SECRET");
@@ -27,7 +27,7 @@ public class SettingsBackupTest {
         JSONObject out = new JSONObject(text);
         assertEquals(SettingsBackup.KIND, out.getString("kind"));
         assertEquals(6, out.getJSONObject("config").getInt("columns"));
-        assertEquals(14, out.getJSONObject("config").getInt("wallpaper_dim"));
+        assertEquals(14, out.getJSONObject("config").getInt(WatchHistory.MAX_AGE_KEY));
         assertEquals("190:com.example.tube", out.getJSONObject("config").getJSONArray("app_keys").getString(0));
         assertEquals("app:com.example.a", out.getJSONArray("hidden").getJSONObject(0).getString("key"));
     }

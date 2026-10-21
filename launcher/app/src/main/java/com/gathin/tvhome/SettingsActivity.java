@@ -57,6 +57,11 @@ public final class SettingsActivity extends Activity {
     private static final int[] BACKGROUND_NAMES = {R.string.settings_bg_black, R.string.settings_bg_graphite,
             R.string.settings_bg_midnight, R.string.settings_bg_forest, R.string.settings_bg_plum,
             R.string.settings_bg_espresso};
+    /** Continue watching age limits in days; 0 is no limit. */
+    private static final int[] WATCH_AGES = {7, 14, 30, 60, 90, 0};
+    private static final int[] WATCH_AGE_NAMES = {R.string.settings_age_week, R.string.settings_age_2_weeks,
+            R.string.settings_age_month, R.string.settings_age_2_months, R.string.settings_age_3_months,
+            R.string.settings_age_none};
     private static final String CHECK = "✓";
     private static final int PERMISSION_REQUEST = 7;
     private static final int EXPORT_REQUEST = 8, IMPORT_REQUEST = 9;
@@ -415,22 +420,42 @@ public final class SettingsActivity extends Activity {
     private void homePage() {
         header(R.string.settings_home, R.string.settings_home_hint);
         Config cfg = Config.load(this);
-        int[] names = {R.string.settings_row_recent};
+        int[] names = {R.string.settings_row_watch, R.string.settings_row_recent};
         for (int i = 0; i < HomeRows.ALL.size(); i++) {
             String id = HomeRows.ALL.get(i);
             boolean shown = cfg.rowShown(id);
             row(getString(names[i]), null, onOff(shown),
                     () -> changed(UserSettings.put(this, "home_rows", HomeRows.toggle(Config.load(this).homeRows, id, !shown))));
         }
+        row(getString(R.string.settings_watch_max_age), getString(R.string.settings_watch_max_age_hint),
+                watchAgeLabel(WatchHistory.maxAgeDays(this)), () -> go(this::watchAgePage));
         label(R.string.settings_hidden);
         List<HiddenItems.Item> hidden = HiddenItems.list(this);
         if (hidden.isEmpty()) row(getString(R.string.settings_hidden_none), null, null, null);
         for (HiddenItems.Item item : hidden) {
             String label = item.key.startsWith(HiddenItems.APP)
-                    ? appLabel(item.key.substring(HiddenItems.APP.length())) : item.label;
+                    ? appLabel(item.key.substring(HiddenItems.APP.length()))
+                    : item.key.startsWith(HiddenItems.WATCH_APP)
+                    ? getString(R.string.hidden_watch_app, appLabel(item.key.substring(HiddenItems.WATCH_APP.length())))
+                    : item.label;
             row(label, getString(R.string.settings_unhide), null,
                     () -> changed(HiddenItems.unhide(this, item.key)));
         }
+    }
+
+    private void watchAgePage() {
+        header(R.string.settings_watch_max_age, R.string.settings_watch_max_age_hint);
+        int current = WatchHistory.maxAgeDays(this);
+        for (int i = 0; i < WATCH_AGES.length; i++) {
+            int days = WATCH_AGES[i];
+            row(getString(WATCH_AGE_NAMES[i]), null, days == current ? CHECK : null,
+                    () -> changed(UserSettings.put(this, WatchHistory.MAX_AGE_KEY, days)));
+        }
+    }
+
+    private String watchAgeLabel(int days) {
+        for (int i = 0; i < WATCH_AGES.length; i++) if (WATCH_AGES[i] == days) return getString(WATCH_AGE_NAMES[i]);
+        return days <= 0 ? getString(R.string.settings_age_none) : String.valueOf(days);
     }
 
     // ---- appearance ----------------------------------------------------------------------------------------
