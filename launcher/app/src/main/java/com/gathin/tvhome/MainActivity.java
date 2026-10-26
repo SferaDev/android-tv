@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -312,14 +313,21 @@ public class MainActivity extends Activity implements CardRow.Listener {
             handler.post(MainActivity.this::updateWifiLabel);
         }
 
+        /** wifi_status_warnings follows validation; signal-strength updates also land here, so skip those. */
+        private boolean lastValidated;
+
         @Override
         public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities caps) {
+            boolean validated = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
             // open_on_start_network_wait: the boot's app opens on the first validated network.
-            if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) && startPending != null) {
-                handler.post(openWhenOnline);
-            }
+            if (validated && startPending != null) handler.post(openWhenOnline);
+            if (validated == lastValidated) return;
+            lastValidated = validated;
+            if (wifiNoInternetTint != null) handler.post(MainActivity.this::updateWifiLabel);
         }
     };
+    /** wifi_status_warnings: the network icon orange without internet, red offline; null while off. */
+    private ColorStateList wifiNoInternetTint, wifiOfflineTint, wifiOnlineTint;
     /** Shows the Inputs button once the TV registers an input: at boot HDMI inputs can appear after Home is shown. */
     private final TvInputManager.TvInputCallback inputCallback = new TvInputManager.TvInputCallback() {
         @Override
@@ -662,6 +670,11 @@ public class MainActivity extends Activity implements CardRow.Listener {
             return true;
         });
         btnWifi.setOnFocusChangeListener((v, focused) -> applyWifiLabel());
+        if (cfg.wifiStatusWarnings) {
+            wifiOnlineTint = btnWifi.getCompoundDrawableTintList();
+            wifiNoInternetTint = getColorStateList(R.color.pill_icon_no_internet);
+            wifiOfflineTint = getColorStateList(R.color.pill_icon_offline);
+        }
         btnSettings.setOnClickListener(v -> open(systemIntent(Settings.ACTION_SETTINGS)));
         btnSettings.setOnLongClickListener(v -> {
             showSettingsMenu();
@@ -2062,7 +2075,7 @@ public class MainActivity extends Activity implements CardRow.Listener {
     @SuppressWarnings("deprecation")
     private void updateWifiLabel() {
         String text = getString(R.string.wifi);
-        boolean vpn = false, online = false;
+        boolean vpn = false, online = false, validated = false;
         int icon = R.drawable.ic_wifi;
         // The festive light (diya flame or jack-o'-lantern candle): 0 is out (offline), 1 to 4 follow the Wi-Fi
         // signal, Ethernet burns steady at 4.
@@ -2081,6 +2094,8 @@ public class MainActivity extends Activity implements CardRow.Listener {
                 }
                 if (!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) continue;
                 online = true;
+                // Android reached the internet through it; a captive portal stays unvalidated until login.
+                if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) validated = true;
                 if (caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) ethernet = true;
                 if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) wifi = true;
             }
@@ -2142,6 +2157,9 @@ public class MainActivity extends Activity implements CardRow.Listener {
             if (icon != wifiIcon) {
                 wifiIcon = icon;
                 btnWifi.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, 0, 0, 0);
+            }
+            if (wifiNoInternetTint != null) {
+                btnWifi.setCompoundDrawableTintList(!online ? wifiOfflineTint : validated ? wifiOnlineTint : wifiNoInternetTint);
             }
         }
     }
