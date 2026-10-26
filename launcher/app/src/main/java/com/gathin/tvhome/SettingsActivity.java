@@ -586,6 +586,10 @@ public final class SettingsActivity extends Activity {
         boolean startOnLast = StartOnLastInput.enabled(this);
         row(getString(R.string.settings_start_on_input), getString(R.string.settings_start_on_input_hint),
                 onOff(startOnLast), () -> changed(UserSettings.put(this, StartOnLastInput.KEY, !startOnLast)));
+        row(getString(R.string.settings_power_on), getString(R.string.settings_power_on_hint),
+                getString(cfg.powerOnHomeAlways ? R.string.settings_power_on_always
+                        : cfg.powerOnHome ? R.string.settings_power_on_live_tv : R.string.off),
+                () -> go(this::powerOnPage));
         label(R.string.settings_hidden);
         List<HiddenItems.Item> hidden = HiddenItems.list(this);
         if (hidden.isEmpty()) row(getString(R.string.settings_hidden_none), null, null, null);
@@ -610,6 +614,26 @@ public final class SettingsActivity extends Activity {
             row(appLabel(pkg), null, on ? CHECK : null,
                     () -> changed(UserSettings.put(this, "top_bar_apps", HeaderApps.toggle(Config.load(this).topBarApps, pkg))));
         }
+    }
+
+    /** power_on_home and power_on_home_always as one choice; the key helper does the work. */
+    private void powerOnPage() {
+        header(R.string.settings_power_on, R.string.settings_power_on_hint);
+        Config cfg = Config.load(this);
+        boolean always = cfg.powerOnHomeAlways, liveTv = cfg.powerOnHome && !always;
+        row(getString(R.string.off), null, !always && !liveTv ? CHECK : null, () -> putPowerOn(false, false));
+        // Leaving Live TV needs to know which app that is.
+        if (!cfg.liveTvPackage.isEmpty()) {
+            row(getString(R.string.settings_power_on_live_tv), getString(R.string.settings_power_on_live_tv_hint),
+                    liveTv ? CHECK : null, () -> putPowerOn(true, false));
+        }
+        row(getString(R.string.settings_power_on_always), getString(R.string.settings_power_on_always_hint),
+                always ? CHECK : null, () -> putPowerOn(true, true));
+    }
+
+    private void putPowerOn(boolean home, boolean always) {
+        changed(UserSettings.edit(this, root -> root.getJSONObject(UserSettings.CONFIG)
+                .put("power_on_home", home).put("power_on_home_always", always)));
     }
 
     private void watchAgePage() {

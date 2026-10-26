@@ -277,4 +277,10 @@
     <string name="settings_header_apps_hint">Apps que aparecen como botones arriba en Inicio, hasta 4.</string>
     <string name="settings_network_warnings">Avisos de red</string>
     <string name="settings_network_warnings_hint">El botón de red se vuelve naranja tras una página de acceso y rojo sin conexión.</string>
+    <string name="settings_power_on">Al encender</string>
+    <string name="settings_power_on_hint">Vuelve a Inicio cuando se enciende la TV. Tras un reinicio, Empezar en la última entrada va primero si está activado.</string>
+    <string name="settings_power_on_live_tv">Inicio en vez de TV en directo</string>
+    <string name="settings_power_on_live_tv_hint">Solo cuando la TV abre la TV en directo por su cuenta.</string>
+    <string name="settings_power_on_always">Siempre Inicio</string>
+    <string name="settings_power_on_always_hint">Abra lo que abra la TV, salvo que pulses un botón antes.</string>
 </resources>
