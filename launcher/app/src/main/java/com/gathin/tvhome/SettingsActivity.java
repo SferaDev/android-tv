@@ -655,6 +655,9 @@ public final class SettingsActivity extends Activity {
         // Backdrops come from TVmaze and Steam; the credit TVmaze's licence asks for sits on the switch.
         row(getString(R.string.settings_online_artwork), getString(R.string.settings_online_artwork_hint),
                 onOff(cfg.onlineArtwork), () -> changed(UserSettings.put(this, "online_artwork", !cfg.onlineArtwork)));
+        row(getString(R.string.settings_network_warnings), getString(R.string.settings_network_warnings_hint),
+                onOff(cfg.wifiStatusWarnings),
+                () -> changed(UserSettings.put(this, "wifi_status_warnings", !cfg.wifiStatusWarnings)));
         row(getString(R.string.settings_appearance_theme), getString(R.string.settings_appearance_theme_hint), null,
                 () -> changed(UserSettings.remove(this, "background_color", "wallpaper")));
     }
