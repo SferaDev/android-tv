@@ -298,6 +298,12 @@
     <string name="notifications_clear">Clear all</string>
     <string name="notifications_none">No notifications</string>
     <string name="search">Search</string>
+    <string name="settings_power_on">At power-on</string>
+    <string name="settings_power_on_hint">Bring Home back when the TV turns on. After a restart, Start on last input goes first when it is on.</string>
+    <string name="settings_power_on_live_tv">Home instead of Live TV</string>
+    <string name="settings_power_on_live_tv_hint">Only when the TV opens Live TV by itself.</string>
+    <string name="settings_power_on_always">Always Home</string>
+    <string name="settings_power_on_always_hint">Whatever the TV brings back, unless you press a button first.</string>
     <string name="settings_header_apps">Header shortcuts</string>
     <string name="settings_header_apps_hint">Apps shown as buttons at the top of Home, up to 4.</string>
     <string name="settings_start_on_input">Start on last input</string>
