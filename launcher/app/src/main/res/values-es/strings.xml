@@ -223,6 +223,8 @@
     <string name="settings_games_no_moonlight">Instala Moonlight en la TV para jugar a estos juegos</string>
     <string name="settings_games_no_pc">Ningún PC elegido</string>
     <string name="settings_games_pc">PC de juegos</string>
+    <string name="settings_gamepad_passthrough">Los mandos ignoran los atajos</string>
+    <string name="settings_gamepad_passthrough_hint">Con un mando conectado, los atajos de los botones del mando a distancia se apartan y cada botón llega al juego. Moonlight lo necesita para un segundo mando.</string>
     <string name="settings_games_found">PCs en esta red</string>
     <string name="settings_games_searching">Buscando…</string>
     <string name="settings_games_address">Introducir una dirección</string>

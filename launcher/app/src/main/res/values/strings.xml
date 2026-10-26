@@ -190,6 +190,8 @@
     <string name="settings_games_no_moonlight">Install Moonlight on the TV to play these games</string>
     <string name="settings_games_no_pc">No PC chosen</string>
     <string name="settings_games_pc">Gaming PC</string>
+    <string name="settings_gamepad_passthrough">Controllers skip button shortcuts</string>
+    <string name="settings_gamepad_passthrough_hint">While a game controller is connected, the remote\'s button shortcuts step aside so every button reaches the game. Moonlight needs this for a second controller.</string>
     <string name="settings_games_found">PCs on this network</string>
     <string name="settings_games_searching">Searching…</string>
     <string name="settings_games_address">Enter an address</string>

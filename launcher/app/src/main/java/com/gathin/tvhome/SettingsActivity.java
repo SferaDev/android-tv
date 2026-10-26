@@ -464,6 +464,12 @@ public final class SettingsActivity extends Activity {
             });
             row(getString(R.string.settings_forget_pc), null, null, () -> changed(GameHosts.forget(this)));
         }
+        // Without key_filter the key helpers never hold controller buttons back, so there is nothing to switch.
+        if (cfg.keyFilter) {
+            row(getString(R.string.settings_gamepad_passthrough), getString(R.string.settings_gamepad_passthrough_hint),
+                    onOff(cfg.gamepadPassthrough),
+                    () -> changed(UserSettings.put(this, "gamepad_passthrough", !cfg.gamepadPassthrough)));
+        }
         label(R.string.settings_games_found);
         hosts.start();
         if (hosts.found().isEmpty()) {
