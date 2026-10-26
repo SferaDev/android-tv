@@ -182,6 +182,8 @@
     <string name="settings_games_no_moonlight">התקינו את Moonlight בטלוויזיה כדי לשחק במשחקים האלה</string>
     <string name="settings_games_no_pc">לא נבחר מחשב</string>
     <string name="settings_games_pc">מחשב משחקים</string>
+    <string name="settings_gamepad_passthrough">בקרי משחק עוקפים קיצורי כפתורים</string>
+    <string name="settings_gamepad_passthrough_hint">כשבקר משחק מחובר, קיצורי הכפתורים של השלט מפנים את הדרך וכל כפתור מגיע למשחק. Moonlight צריך את זה לבקר שני.</string>
     <string name="settings_games_found">מחשבים ברשת הזו</string>
     <string name="settings_games_searching">מחפש…</string>
     <string name="settings_games_address">הזנת כתובת</string>

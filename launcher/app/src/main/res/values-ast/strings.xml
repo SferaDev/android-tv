@@ -283,4 +283,6 @@
     <string name="settings_power_on_live_tv_hint">Solo cuando la TV abre la TV en directo por su cuenta.</string>
     <string name="settings_power_on_always">Siempre Inicio</string>
     <string name="settings_power_on_always_hint">Abra lo que abra la TV, salvo que pulses un botón antes.</string>
+    <string name="settings_gamepad_passthrough">Los mandos ignoran los atajos</string>
+    <string name="settings_gamepad_passthrough_hint">Con un mando conectado, los atajos de los botones del mando a distancia se apartan y cada botón llega al juego. Moonlight lo necesita para un segundo mando.</string>
 </resources>
