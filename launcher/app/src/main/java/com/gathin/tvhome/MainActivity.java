@@ -684,12 +684,53 @@ public class MainActivity extends Activity implements CardRow.Listener {
                     return false;
             }
         };
+        addHeaderApps();
         for (View v : headerViews()) v.setOnKeyListener(headerKeys);
         if (festive) applyFestiveSkin((TextView) btnInputs, (TextView) btnSettings);
     }
 
-    private View[] headerViews() {
-        return new View[]{tabHome, tabApps, tabGames, tabTv, btnInputs, btnWifi, findViewById(R.id.btnSearch), findViewById(R.id.btnBell), btnSettings};
+    private List<View> headerViews() {
+        List<View> views = new ArrayList<>(Arrays.asList(tabHome, tabApps, tabGames, tabTv));
+        views.addAll(headerApps);
+        views.addAll(Arrays.asList(btnInputs, btnWifi, findViewById(R.id.btnSearch), findViewById(R.id.btnBell), btnSettings));
+        return views;
+    }
+
+    /** top_bar_apps buttons, left to right. */
+    private final List<View> headerApps = new ArrayList<>();
+
+    /** Each pinned app as a round button with its own logo, left of Inputs; an app no longer installed is skipped. */
+    private void addHeaderApps() {
+        ViewGroup header = (ViewGroup) btnInputs.getParent();
+        PackageManager pm = getPackageManager();
+        int size = Math.round(20 * density);
+        for (String pkg : cfg.topBarApps) {
+            Intent launch = pm.getLeanbackLaunchIntentForPackage(pkg);
+            if (launch == null) launch = pm.getLaunchIntentForPackage(pkg);
+            if (launch == null) continue;
+            launch = LaunchActions.select(pkg, cfg.launchActions, launch, (target, action) -> {
+                Intent custom = new Intent(action).setPackage(target);
+                return pm.resolveActivity(custom, 0) != null ? custom : null;
+            });
+            Drawable logo;
+            CharSequence label;
+            try {
+                ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
+                logo = info.loadIcon(pm);
+                label = info.loadLabel(pm);
+            } catch (PackageManager.NameNotFoundException e) {
+                continue;
+            }
+            TextView button = (TextView) getLayoutInflater().inflate(R.layout.header_app_button, header, false);
+            logo.setBounds(0, 0, size, size);
+            button.setCompoundDrawablesRelative(logo, null, null, null);
+            button.setCompoundDrawableTintList(null);
+            button.setContentDescription(label);
+            Intent target = launch;
+            button.setOnClickListener(v -> open(new Intent(target)));
+            header.addView(button, header.indexOfChild(btnInputs));
+            headerApps.add(button);
+        }
     }
 
     /** Left and Right along the header by where the buttons are on screen, so the Hebrew mirror needs nothing else. */

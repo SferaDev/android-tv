@@ -666,8 +666,7 @@ final class Config {
             glowStyle = string(json, "glow_style", glowStyle);
             glassStyle = string(json, "glass_style", glassStyle);
         }
-        // A top-bar app is moved there, not copied: it leaves the grid.
-        for (String pkg : topBarApps) if (!hidden.contains(pkg)) hidden.add(pkg);
+        // The fork's header shortcuts are extra buttons: the app stays in the Apps tab and in Recent apps.
         Set<String> hiddenOnTv = HiddenItems.apps(HiddenItems.keys(HiddenItems.decode(user.optJSONArray(UserSettings.HIDDEN))));
         for (String pkg : hiddenOnTv) if (!hidden.contains(pkg)) hidden.add(pkg);
         // A theme push or reset invalidates choices made on the TV. On first use, remember the

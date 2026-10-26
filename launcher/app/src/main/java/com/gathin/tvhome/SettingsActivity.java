@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -577,6 +578,11 @@ public final class SettingsActivity extends Activity {
         }
         row(getString(R.string.settings_watch_max_age), getString(R.string.settings_watch_max_age_hint),
                 watchAgeLabel(WatchHistory.maxAgeDays(this)), () -> go(this::watchAgePage));
+        List<String> pinned = cfg.topBarApps;
+        List<String> pinnedNames = new ArrayList<>();
+        for (String pkg : pinned) pinnedNames.add(appLabel(pkg));
+        row(getString(R.string.settings_header_apps), pinned.isEmpty() ? getString(R.string.settings_header_apps_hint)
+                : TextUtils.join(", ", pinnedNames), null, () -> go(this::headerAppsPage));
         boolean startOnLast = StartOnLastInput.enabled(this);
         row(getString(R.string.settings_start_on_input), getString(R.string.settings_start_on_input_hint),
                 onOff(startOnLast), () -> changed(UserSettings.put(this, StartOnLastInput.KEY, !startOnLast)));
@@ -591,6 +597,18 @@ public final class SettingsActivity extends Activity {
                     : item.label;
             row(label, getString(R.string.settings_unhide), null,
                     () -> changed(HiddenItems.unhide(this, item.key)));
+        }
+    }
+
+    private void headerAppsPage() {
+        header(R.string.settings_header_apps, R.string.settings_header_apps_hint);
+        List<String> pinned = Config.load(this).topBarApps;
+        for (String pkg : apps(false)) {
+            boolean on = pinned.contains(pkg);
+            // A full header offers only the apps already in it.
+            if (!on && pinned.size() >= HeaderApps.MAX) continue;
+            row(appLabel(pkg), null, on ? CHECK : null,
+                    () -> changed(UserSettings.put(this, "top_bar_apps", HeaderApps.toggle(Config.load(this).topBarApps, pkg))));
         }
     }
 
