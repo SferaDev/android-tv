@@ -290,6 +290,12 @@
     <string name="notifications_clear">נקה הכול</string>
     <string name="notifications_none">אין התראות</string>
     <string name="search">חיפוש</string>
+    <string name="settings_power_on">בהדלקה</string>
+    <string name="settings_power_on_hint">חזרה למסך הבית כשהטלוויזיה נדלקת. אחרי הפעלה מחדש, התחלה בכניסה האחרונה קודמת כשהיא פועלת.</string>
+    <string name="settings_power_on_live_tv">מסך הבית במקום טלוויזיה בשידור חי</string>
+    <string name="settings_power_on_live_tv_hint">רק כשהטלוויזיה פותחת שידור חי מעצמה.</string>
+    <string name="settings_power_on_always">תמיד מסך הבית</string>
+    <string name="settings_power_on_always_hint">לא משנה מה הטלוויזיה מחזירה, אלא אם לוחצים על כפתור קודם.</string>
     <string name="settings_header_apps">קיצורי דרך בכותרת</string>
     <string name="settings_header_apps_hint">אפליקציות שמוצגות ככפתורים בראש מסך הבית, עד 4.</string>
     <string name="settings_start_on_input">התחלה בכניסה האחרונה</string>
