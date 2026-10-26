@@ -223,6 +223,8 @@
     <string name="settings_bg_espresso">אספרסו</string>
     <string name="settings_wallpaper">טפט</string>
     <string name="settings_wallpaper_none">עדיין אין טפט: ערכת נושא מוסיפה אחד</string>
+    <string name="settings_network_warnings">אזהרות רשת</string>
+    <string name="settings_network_warnings_hint">כפתור הרשת הופך לכתום מאחורי דף התחברות ולאדום כשאין חיבור.</string>
     <string name="settings_appearance_theme">לפי ערכת הנושא</string>
     <string name="settings_appearance_theme_hint">חזרה לרקע ולטפט של ערכת הנושא</string>
     <string name="settings_advanced">הרשאות</string>

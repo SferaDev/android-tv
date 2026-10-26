@@ -231,6 +231,8 @@
     <string name="settings_bg_espresso">Espresso</string>
     <string name="settings_wallpaper">Wallpaper</string>
     <string name="settings_wallpaper_none">No wallpaper yet: a theme adds one</string>
+    <string name="settings_network_warnings">Network warnings</string>
+    <string name="settings_network_warnings_hint">The network button turns orange behind a sign-in page and red while offline.</string>
     <string name="settings_appearance_theme">Follow theme</string>
     <string name="settings_appearance_theme_hint">Use the theme\'s background and wallpaper again</string>
     <string name="settings_advanced">Permissions</string>

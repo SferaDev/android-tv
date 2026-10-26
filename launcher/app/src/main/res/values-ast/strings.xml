@@ -275,4 +275,6 @@
     <string name="settings_start_on_input_hint">Al encender la TV, abre la entrada o el canal en el que estabas.</string>
     <string name="settings_header_apps">Accesos en la cabecera</string>
     <string name="settings_header_apps_hint">Apps que aparecen como botones arriba en Inicio, hasta 4.</string>
+    <string name="settings_network_warnings">Avisos de red</string>
+    <string name="settings_network_warnings_hint">El botón de red se vuelve naranja tras una página de acceso y rojo sin conexión.</string>
 </resources>

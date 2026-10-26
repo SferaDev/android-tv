@@ -264,6 +264,8 @@
     <string name="settings_bg_espresso">Café</string>
     <string name="settings_wallpaper">Fondo de pantalla</string>
     <string name="settings_wallpaper_none">Aún no hay fondo: lo añade un tema</string>
+    <string name="settings_network_warnings">Avisos de red</string>
+    <string name="settings_network_warnings_hint">El botón de red se vuelve naranja tras una página de acceso y rojo sin conexión.</string>
     <string name="settings_appearance_theme">Seguir el tema</string>
     <string name="settings_appearance_theme_hint">Volver al color y al fondo de pantalla del tema</string>
     <string name="settings_advanced">Permisos</string>
