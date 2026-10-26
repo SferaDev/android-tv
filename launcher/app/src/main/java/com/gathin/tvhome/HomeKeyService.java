@@ -232,7 +232,7 @@ public class HomeKeyService extends AccessibilityService {
             info.eventTypes |= AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
             setServiceInfo(info);
         }
-        if (!stockHome.isEmpty() || !powerOnLiveTv.isEmpty()) probeAtBoot();
+        if (!stockHome.isEmpty() || !powerOnLiveTv.isEmpty() && !StartOnLastInput.enabled(this)) probeAtBoot();
         armStandbyExit();
         holdAppKeys = RemoteKeys.parseHoldAppKeys(config.appKeys);
         holdAppScancodes = RemoteKeys.parseHoldAppScancodes(config.appKeys);
@@ -337,9 +337,10 @@ public class HomeKeyService extends AccessibilityService {
     /** How long power_on_home stays armed after the screen turns on without a reboot. */
     static final long SCREEN_ON_WINDOW_MS = 60 * 1000L;
 
-    /** power_on_home: armed for the boot window (if this bind is part of the boot) and after every screen-on. */
+    /** power_on_home: armed for the boot window (if this bind is part of the boot) and after every screen-on. The
+     *  boot belongs to Start on last input when that is on: both at once would send Home over the input it opens. */
     private void armPowerOnHome() {
-        if (SystemClock.elapsedRealtime() < BOOT_WINDOW_MS) {
+        if (SystemClock.elapsedRealtime() < BOOT_WINDOW_MS && !StartOnLastInput.enabled(this)) {
             powerOnUntil = BOOT_WINDOW_MS;
             if (powerOnAlways) handler.postDelayed(this::homeAtPowerOn, POWER_ON_ALWAYS_DELAY_MS);
         }

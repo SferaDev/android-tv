@@ -287,6 +287,12 @@
     <string name="notifications_clear">Borrar todo</string>
     <string name="notifications_none">No hay notificaciones</string>
     <string name="search">Buscar</string>
+    <string name="settings_power_on">Al encender</string>
+    <string name="settings_power_on_hint">Vuelve a Inicio cuando se enciende la TV. Tras un reinicio, Empezar en la última entrada va primero si está activado.</string>
+    <string name="settings_power_on_live_tv">Inicio en vez de TV en directo</string>
+    <string name="settings_power_on_live_tv_hint">Solo cuando la TV abre la TV en directo por su cuenta.</string>
+    <string name="settings_power_on_always">Siempre Inicio</string>
+    <string name="settings_power_on_always_hint">Abra lo que abra la TV, salvo que pulses un botón antes.</string>
     <string name="settings_header_apps">Accesos en la cabecera</string>
     <string name="settings_header_apps_hint">Apps que aparecen como botones arriba en Inicio, hasta 4.</string>
     <string name="settings_start_on_input">Empezar en la última entrada</string>
