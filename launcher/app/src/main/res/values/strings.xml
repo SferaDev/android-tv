@@ -296,6 +296,8 @@
     <string name="notifications_clear">Clear all</string>
     <string name="notifications_none">No notifications</string>
     <string name="search">Search</string>
+    <string name="settings_header_apps">Header shortcuts</string>
+    <string name="settings_header_apps_hint">Apps shown as buttons at the top of Home, up to 4.</string>
     <string name="settings_start_on_input">Start on last input</string>
     <string name="settings_start_on_input_hint">After the TV starts, open the input or channel you were last on.</string>
     <string name="settings_backup">Backup</string>

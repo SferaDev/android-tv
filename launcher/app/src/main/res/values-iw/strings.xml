@@ -288,6 +288,8 @@
     <string name="notifications_clear">נקה הכול</string>
     <string name="notifications_none">אין התראות</string>
     <string name="search">חיפוש</string>
+    <string name="settings_header_apps">קיצורי דרך בכותרת</string>
+    <string name="settings_header_apps_hint">אפליקציות שמוצגות ככפתורים בראש מסך הבית, עד 4.</string>
     <string name="settings_start_on_input">התחלה בכניסה האחרונה</string>
     <string name="settings_start_on_input_hint">אחרי הפעלת הטלוויזיה, פתיחת הכניסה או הערוץ האחרונים שבהם צפיתם.</string>
     <string name="settings_backup">גיבוי</string>
